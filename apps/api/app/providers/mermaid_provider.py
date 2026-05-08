@@ -3,7 +3,8 @@ import logging
 import uuid
 
 from app.core.openai_client import OpenAIClient
-from app.prompts.mermaid_prompt import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE
+from app.prompts.mermaid_prompt import SYSTEM_PROMPT as GENERATION_SYSTEM_PROMPT, USER_PROMPT_TEMPLATE as GENERATION_USER_PROMPT_TEMPLATE
+from app.prompts.refinement_prompt import SYSTEM_PROMPT as REFINEMENT_SYSTEM_PROMPT, USER_PROMPT_TEMPLATE as REFINEMENT_USER_PROMPT_TEMPLATE
 from app.providers.base import DiagramContext, DiagramProvider, DiagramResult
 
 logger = logging.getLogger(__name__)
@@ -31,7 +32,7 @@ class MermaidProvider(DiagramProvider):
             for r in (context.relationships or [])
         ) or "none"
 
-        user_prompt = USER_PROMPT_TEMPLATE.format(
+        user_prompt = GENERATION_USER_PROMPT_TEMPLATE.format(
             enhanced_prompt=enhanced_prompt,
             diagram_type=diagram_type,
             entities=entities_str,
@@ -44,7 +45,7 @@ class MermaidProvider(DiagramProvider):
                 response = await client.chat.completions.create(
                     model="gpt-4o",
                     messages=[
-                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "system", "content": GENERATION_SYSTEM_PROMPT},
                         {"role": "user", "content": user_prompt},
                     ],
                     response_format={"type": "json_object"},
@@ -131,15 +132,69 @@ class MermaidProvider(DiagramProvider):
         diagram_type: str,
         context: DiagramContext,
     ) -> DiagramResult:
+        """Refine Mermaid diagram using OpenAI GPT-4o."""
+        client = OpenAIClient.get_async()
+
+        user_prompt = REFINEMENT_USER_PROMPT_TEMPLATE.format(
+            existing_diagram=existing_diagram,
+            enhanced_followup=enhanced_followup,
+            diagram_type=diagram_type,
+        )
+
+        last_error = None
+        for attempt in range(self.max_retries + 1):
+            try:
+                response = await client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": REFINEMENT_SYSTEM_PROMPT},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    response_format={"type": "json_object"},
+                    temperature=0.7,
+                    max_tokens=2000,
+                )
+
+                content = response.choices[0].message.content
+                if not content:
+                    raise ValueError("OpenAI returned empty content")
+
+                data = json.loads(content)
+
+                # Validate Mermaid syntax
+                mermaid_code = data.get("mermaid_code", "")
+                if not self._validate_mermaid_syntax(mermaid_code):
+                    logger.warning("Refined Mermaid failed syntax validation, using fallback")
+
+                return DiagramResult(
+                    diagram_id=str(uuid.uuid4()),
+                    title=data.get("title", "Design System Architecture (Refined)"),
+                    diagram_type=diagram_type or "flowchart",
+                    provider=self.name,
+                    diagram_source=mermaid_code,
+                    diagram_format="mermaid",
+                    explanation=data.get("explanation", ""),
+                    changes_summary=data.get("changes_summary", []),
+                    metadata={"node_count": self._count_nodes(mermaid_code), "edge_count": self._count_edges(mermaid_code)},
+                )
+
+            except Exception as e:
+                last_error = e
+                logger.warning(f"Refinement attempt {attempt + 1} failed: {e}")
+                if attempt < self.max_retries:
+                    continue
+
+        # All retries failed, fall back to mock refinement
+        logger.error(f"OpenAI refinement failed after {self.max_retries + 1} attempts: {last_error}")
         return DiagramResult(
             diagram_id=str(uuid.uuid4()),
             title="Design System Architecture (Refined)",
-            diagram_type=diagram_type or "design-system-architecture",
+            diagram_type=diagram_type or "flowchart",
             provider=self.name,
             diagram_source=_MOCK_MERMAID_REFINED,
             diagram_format="mermaid",
-            explanation="Mock refined diagram. Real AI refinement coming in Phase 6.",
-            changes_summary=["Added mock refinement layer"],
+            explanation="Fallback refined diagram due to AI refinement failure.",
+            changes_summary=["Fallback to mock refinement"],
             metadata={"node_count": 10, "edge_count": 9},
         )
 
