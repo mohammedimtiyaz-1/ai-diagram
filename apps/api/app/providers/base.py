@@ -8,9 +8,13 @@ class DiagramContext:
         self,
         conversation_id: str | None = None,
         diagram_type: str = "auto",
+        entities: list[str] | None = None,
+        relationships: list | None = None,
     ):
         self.conversation_id = conversation_id
         self.diagram_type = diagram_type
+        self.entities = entities or []
+        self.relationships = relationships or []
 
 
 class DiagramResult:
