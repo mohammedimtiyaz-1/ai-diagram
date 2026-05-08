@@ -1,6 +1,6 @@
-import os
-
 from openai import AsyncOpenAI, OpenAI
+
+from app.core.config import settings
 
 
 class OpenAIClient:
@@ -13,7 +13,7 @@ class OpenAIClient:
     def get(cls) -> OpenAI:
         """Get the synchronous OpenAI client instance."""
         if cls._instance is None:
-            api_key = os.getenv("OPENAI_API_KEY")
+            api_key = settings.openai_api_key
             if not api_key:
                 raise ValueError("OPENAI_API_KEY environment variable is not set")
             cls._instance = OpenAI(api_key=api_key)
@@ -23,7 +23,7 @@ class OpenAIClient:
     def get_async(cls) -> AsyncOpenAI:
         """Get the asynchronous OpenAI client instance."""
         if cls._async_instance is None:
-            api_key = os.getenv("OPENAI_API_KEY")
+            api_key = settings.openai_api_key
             if not api_key:
                 raise ValueError("OPENAI_API_KEY environment variable is not set")
             cls._async_instance = AsyncOpenAI(api_key=api_key)
