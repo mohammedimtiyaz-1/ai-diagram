@@ -68,6 +68,16 @@ Organized by status. Tasks derived from updated requirements.
 - [x] Wire all components to mock backend APIs
 - [x] Frontend builds successfully
 
+### Phase 4 — AI Prompt Enhancement
+
+- [x] ENHANCE-001: Create OpenAI client singleton
+- [x] ENHANCE-002: Create prompt enhancement template with system prompt
+- [x] ENHANCE-003: Implement real PromptEnhancerService with GPT-4o
+- [x] ENHANCE-004: Add retry logic (1 retry on failure)
+- [x] ENHANCE-005: Add fallback enhancement for resilience
+- [x] TEST-003: Create enhancement service tests (5 tests passing)
+- [x] TEST-004: Create example validation test file
+
 ---
 
 ## Backlog

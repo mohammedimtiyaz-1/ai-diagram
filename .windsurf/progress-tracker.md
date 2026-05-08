@@ -4,10 +4,10 @@
 
 ## Current Phase
 
-**Phase 4 — AI Prompt Enhancement**
+**Phase 5 — Mermaid Diagram Generation**
 
 Phase started: 2026-05-08
-Focus: Replace mock prompt enhancement with real OpenAI GPT-4o calls. Raw prompts become structured, useful enhanced prompts.
+Focus: Replace mock Mermaid diagram generation with real AI-generated Mermaid using GPT-4o. Enhanced prompts become valid Mermaid syntax.
 
 ---
 
@@ -77,18 +77,27 @@ Focus: Replace mock prompt enhancement with real OpenAI GPT-4o calls. Raw prompt
 - [x] Landing page updated with example prompt chips
 - [x] Frontend builds successfully with Mermaid dynamic import
 
+### Phase 4 — AI Prompt Enhancement
+- [x] OpenAI dependency added to pyproject.toml
+- [x] OpenAI client singleton created (`core/openai_client.py`) with sync and async methods
+- [x] Prompt enhancement template with system prompt for design-system intent extraction
+- [x] Real `PromptEnhancerService.enhance()` implemented using GPT-4o with JSON response format
+- [x] Retry logic added (1 retry on failure)
+- [x] Fallback enhancement for resilience when AI fails
+- [x] 5 enhancement service tests passing (success, fallback, retry, invalid JSON, empty content)
+- [x] Example validation test file created (requires OPENAI_API_KEY to run)
+
 ---
 
 ## Next Tasks
 
-### Immediate (Phase 4 — AI Prompt Enhancement)
+### Immediate (Phase 5 — Mermaid Diagram Generation)
 
-1. **Create OpenAI client singleton** (`core/openai_client.py`)
-2. **Create prompt enhancement template** with system prompt for design-system intent extraction
-3. **Implement real `PromptEnhancerService.enhance()`** using GPT-4o with `response_format: { type: "json_object" }`
-4. **Add retry logic** — 1 retry on failure, clear error on second failure
-5. **Validate** enhanced prompts against 5 example inputs
-6. **Update frontend** to display real enhanced prompts with entities, relationships, assumptions
+1. **Create Mermaid generation template** with system prompt for Mermaid syntax
+2. **Implement real `MermaidProvider.generate_diagram()`** using GPT-4o
+3. **Add Mermaid syntax validation** (check syntax before rendering)
+4. **Test generation** with 5 example inputs
+5. **Update frontend** to render real AI-generated Mermaid
 
 ---
 

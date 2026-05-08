@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase 4 — AI Prompt Enhancement
+Phase 5 — Mermaid Diagram Generation
 
 ## Overall Status
 
@@ -16,7 +16,7 @@ In Progress
 | 1 | Project Setup | Complete | Both frontend and backend running |
 | 2 | Backend Core (Mock APIs) | Complete | All schemas, provider abstraction, mock endpoints, tests — 12/12 passing |
 | 3 | Frontend Workspace Shell | Complete | Zustand store, API client, components, Mermaid rendering, build passes |
-| 4 | AI Prompt Enhancement | Not Started | |
+| 4 | AI Prompt Enhancement | Complete | OpenAI GPT-4o integration, retry logic, 5 tests passing |
 | 5 | Mermaid Diagram Generation | Not Started | |
 | 6 | Conversational Refinement | Not Started | |
 | 7 | Voice Input | Not Started | |
@@ -25,12 +25,12 @@ In Progress
 
 ## Active Tasks
 
-- [ ] Create OpenAI client singleton (`core/openai_client.py`)
-- [ ] Create prompt enhancement template with system prompt and JSON schema
-- [ ] Implement real `PromptEnhancerService.enhance()` with OpenAI GPT-4o
-- [ ] Add retry logic (1 retry on failure)
-- [ ] Validate enhanced output against 5 example inputs
-- [ ] Update frontend to display real enhanced prompts
+- [ ] Implement real Mermaid generation using OpenAI GPT-4o
+- [ ] Create Mermaid generation template with system prompt
+- [ ] Update MermaidProvider.generate_diagram() to use AI
+- [ ] Add Mermaid validation (syntax checking)
+- [ ] Test generation with 5 example inputs
+- [ ] Update frontend to render real AI-generated Mermaid
 
 ## Completed Tasks
 
@@ -83,6 +83,14 @@ In Progress
 - [x] Error states (red banner + message in conversation)
 - [x] Landing page updated with example prompts
 - [x] Frontend builds successfully with Mermaid client-side rendering
+- [x] OpenAI dependency added to pyproject.toml
+- [x] OpenAI client singleton created (`core/openai_client.py`)
+- [x] Prompt enhancement template with system prompt and JSON schema
+- [x] Real `PromptEnhancerService.enhance()` implemented with GPT-4o
+- [x] Retry logic added (1 retry on failure)
+- [x] Fallback enhancement for resilience
+- [x] 5 enhancement service tests passing
+- [x] Example validation test file created
 
 ## Decisions Made
 
@@ -114,12 +122,12 @@ In Progress
 
 ## Next Recommended Action
 
-Start Phase 4 — AI Prompt Enhancement:
-1. Create OpenAI client singleton
-2. Create prompt enhancement template with system prompt for design-system intent extraction
-3. Implement real `PromptEnhancerService.enhance()` using GPT-4o with `response_format: json_object`
-4. Add retry and error handling
-5. Validate with 5 example inputs
+Start Phase 5 — Mermaid Diagram Generation:
+1. Create Mermaid generation template with system prompt for Mermaid syntax
+2. Implement real `MermaidProvider.generate_diagram()` using GPT-4o
+3. Add Mermaid syntax validation
+4. Test generation with 5 example inputs
+5. Update frontend to render real AI-generated Mermaid
 
 ## Time Tracking
 
