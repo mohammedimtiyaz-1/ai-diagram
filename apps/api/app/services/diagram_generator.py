@@ -2,7 +2,7 @@ import uuid
 
 from app.providers.base import DiagramContext
 from app.providers.registry import ProviderRegistry
-from app.schemas.diagram import DiagramMetadata, DiagramResult
+from app.schemas.diagram import DiagramMetadata, DiagramNode, DiagramResult, DiagramStyle
 from app.services.conversation_service import ConversationService
 from app.services.version_service import VersionService
 
@@ -64,7 +64,10 @@ class DiagramGeneratorService:
             diagram_format=diagram_result.diagram_format,
             explanation=diagram_result.explanation,
             changes_summary=[],
-            metadata={"node_count": 8, "edge_count": 7},
+            metadata={
+                "node_count": len(diagram_result.nodes),
+                "edge_count": len(diagram_result.edges),
+            },
         )
 
         return DiagramResult(
@@ -77,6 +80,16 @@ class DiagramGeneratorService:
             diagram_source=diagram_result.diagram_source,
             diagram_format=diagram_result.diagram_format,
             explanation=diagram_result.explanation,
+            nodes=diagram_result.nodes,
+            edges=diagram_result.edges,
+            style=DiagramStyle(),
+            change_intent="NEW_DIAGRAM",
+            is_full_regeneration=True,
+            base_diagram_id=diagram_id,
+            parent_diagram_id=None,
             changes_summary=[],
-            metadata=DiagramMetadata(**version.metadata),
+            metadata=DiagramMetadata(
+                node_count=len(diagram_result.nodes),
+                edge_count=len(diagram_result.edges),
+            ),
         )

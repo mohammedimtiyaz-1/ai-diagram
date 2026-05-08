@@ -3,10 +3,13 @@ from fastapi import APIRouter, HTTPException
 from app.schemas.common import ErrorResponse
 from app.schemas.diagram import (
     DiagramResult,
+    DiagramStyle,
     ExportRequest,
     ExportResult,
     GenerateRequest,
     RefineRequest,
+    StyleUpdateRequest,
+    StyleUpdateResponse,
 )
 from app.services.diagram_generator import DiagramGeneratorService
 from app.services.export_service import ExportService
@@ -16,6 +19,9 @@ router = APIRouter()
 generator = DiagramGeneratorService()
 refiner = RefinementService()
 export_service = ExportService()
+
+# In-memory style store: { diagram_id -> DiagramStyle }
+_style_store: dict[str, DiagramStyle] = {}
 
 
 @router.post("/api/diagrams/generate", response_model=DiagramResult)
@@ -28,6 +34,8 @@ async def generate_diagram(request: GenerateRequest):
             provider=request.provider,
             conversation_id=request.conversation_id,
         )
+        # Seed style store for the new diagram
+        _style_store[result.diagram_id] = DiagramStyle()
         return result
     except Exception as e:
         raise HTTPException(
@@ -44,13 +52,20 @@ async def generate_diagram(request: GenerateRequest):
 @router.post("/api/diagrams/refine", response_model=DiagramResult)
 async def refine_diagram(request: RefineRequest):
     try:
+        # Retrieve current style so it's preserved across refinements
+        existing_style = _style_store.get(request.diagram_id, DiagramStyle())
+
         result = await refiner.refine(
             conversation_id=request.conversation_id,
             diagram_id=request.diagram_id,
             followup_prompt=request.followup_prompt,
             current_diagram_source=request.current_diagram_source,
             provider=request.provider,
+            existing_nodes=request.nodes,
+            existing_style=existing_style,
         )
+        # Propagate style to the new diagram version
+        _style_store[result.diagram_id] = existing_style
         return result
     except Exception as e:
         raise HTTPException(
@@ -62,6 +77,30 @@ async def refine_diagram(request: RefineRequest):
                 retry_allowed=True,
             ).model_dump(),
         )
+
+
+@router.patch("/api/diagrams/{diagram_id}/style", response_model=StyleUpdateResponse)
+async def update_diagram_style(diagram_id: str, request: StyleUpdateRequest):
+    """Update visual style of a diagram — no AI call, no topology change."""
+    try:
+        _style_store[diagram_id] = request.style
+        return StyleUpdateResponse(diagram_id=diagram_id, style=request.style)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=ErrorResponse(
+                code="STYLE_UPDATE_FAILED",
+                message=str(e),
+                retry_allowed=False,
+            ).model_dump(),
+        )
+
+
+@router.get("/api/diagrams/{diagram_id}/style", response_model=StyleUpdateResponse)
+async def get_diagram_style(diagram_id: str):
+    """Retrieve current visual style for a diagram."""
+    style = _style_store.get(diagram_id, DiagramStyle())
+    return StyleUpdateResponse(diagram_id=diagram_id, style=style)
 
 
 @router.post("/api/diagrams/export", response_model=ExportResult)

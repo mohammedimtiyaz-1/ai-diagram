@@ -94,7 +94,9 @@ Demonstrates:
 | Enhanced prompt preview | Show what AI understood before generation | Trust and control |
 | Diagram generation (Mermaid) | Generate Mermaid diagram via pluggable provider | Visual output |
 | Diagram display | Render Mermaid in UI with title/explanation | See the result |
-| Conversational refinement | Follow-up messages modify existing diagram | Iterative improvement |
+| **Incremental Refinement** | Follow-up messages modify existing diagram without full redraw | Faster iteration; stability |
+| **Node Hover Tooltips** | Show metadata popovers on node hover | Contextual information |
+| **Diagram Style Toolbar** | Ribbon to customize font and color without AI call | Visual personalization |
 | Diagram version history | Track versions within conversation | Undo/compare |
 | Voice input | Browser speech-to-text for hands-free input | Accessibility |
 | Export (Mermaid, JSON, prompt) | Copy diagram in multiple formats | Reusability |
@@ -115,8 +117,8 @@ Demonstrates:
 | PNG/SVG export | Future enhancement; Mermaid sufficient for MVP |
 | Database persistence | In-memory sufficient; localStorage optional |
 | Mobile-native app | Desktop-first for diagram work |
-| Custom diagram themes/styling | Default theme is sufficient |
-| Multiple AI model selection | Single model (GPT-4o) for MVP |
+| Custom diagram themes (per-node) | Only global style toolbar for MVP |
+| Multiple AI model selection | Single model per task (gpt-4o-mini for speed) |
 
 ---
 
@@ -151,7 +153,7 @@ Demonstrates:
 - Copy enhanced prompt button available
 - Generation proceeds after enhancement
 
-### Generation Stories
+### Generation & Display Stories
 
 **US-GEN-01: Diagram Generation**
 > As a user, after my prompt is enhanced, I receive a design-system diagram.
@@ -160,27 +162,36 @@ Demonstrates:
 - Diagram generates within 10 seconds
 - Mermaid diagram rendered in preview panel
 - Title and explanation displayed
-- Retry once on failure before showing error
+- Every node includes tooltip metadata (title, description, role)
 
-**US-GEN-02: Diagram Type Detection**
-> As a user, the system detects the best diagram type for my input (or I can choose explicitly).
+**US-GEN-02: Node Hover Tooltips**
+> As a user, I can hover over any node in the diagram to see more details about it.
 
 **Acceptance Criteria**:
-- Auto-detect classifies into: architecture/hierarchy/token/workflow
-- Explicit selection overrides auto-detect
-- Correct type produces better diagrams
+- Clean tooltip appears on hover
+- Content is context-specific to the node and architecture
+- Tooltip is preserved across refinement unless node is removed
+
+**US-GEN-03: Diagram Style Toolbar**
+> As a user, I can customize the visual style of the diagram using a toolbar.
+
+**Acceptance Criteria**:
+- Toolbar available at the bottom of the diagram area
+- Controls for: font family, size, color, node background, diagram background
+- Changes apply immediately without AI call
+- Topology (nodes/edges) is NOT affected by style changes
 
 ### Refinement Stories
 
-**US-REF-01: Conversational Refinement**
-> As a user, I can send follow-up messages to modify the existing diagram without starting over.
+**US-REF-01: Incremental Refinement**
+> As a user, I can send follow-up messages to modify the existing diagram incrementally.
 
 **Acceptance Criteria**:
-- Follow-up input available after first diagram
-- System preserves previous context
-- Diagram updates (not regenerates from scratch)
-- New version created
-- Changes summary shown
+- System classifies intent (PATCH, ADD, REMOVE, STYLE, etc.)
+- Existing nodes and edges are preserved by default
+- Only requested changes are applied
+- Tooltip metadata is preserved for existing nodes
+- New version created with changes summary
 
 **US-REF-02: Version History**
 > As a user, I can see all diagram versions and switch between them.
@@ -188,7 +199,7 @@ Demonstrates:
 **Acceptance Criteria**:
 - Version list visible (v1, v2, v3...)
 - Current version highlighted
-- Click shows that version's diagram
+- Click shows that version's diagram and style
 - Change summary shown per version
 
 ### Export Stories
@@ -205,7 +216,7 @@ Demonstrates:
 > As a user, I can export the full diagram data as JSON.
 
 **Acceptance Criteria**:
-- Includes diagram source, metadata, enhanced prompt, explanation
+- Includes diagram source, metadata, nodes (with tooltips), edges, and style
 - Pretty-printed
 - Copyable
 
@@ -242,90 +253,49 @@ Demonstrates:
 |----|-------------|----------|
 | FR-01 | System must accept text input (10-2000 chars) related to design systems | P0 |
 | FR-02 | System must enhance raw prompt into structured diagram-generation prompt | P0 |
-| FR-03 | System must show enhanced prompt before/during diagram generation | P0 |
-| FR-04 | System must generate a diagram via pluggable provider (Mermaid MVP) | P0 |
-| FR-05 | System must render generated diagram in the UI | P0 |
-| FR-06 | System must detect diagram type (architecture/hierarchy/token/workflow) | P0 |
-| FR-07 | System must support conversational refinement (follow-up modifies diagram) | P0 |
-| FR-08 | System must maintain conversation context across messages | P0 |
-| FR-09 | System must track diagram versions within a conversation | P1 |
-| FR-10 | System must accept voice input and show editable transcript | P1 |
-| FR-11 | System must export diagram as Mermaid and JSON | P0 |
-| FR-12 | System must export enhanced prompt and explanation | P1 |
-| FR-13 | System must retry once on generation failure before returning error | P1 |
-| FR-14 | System must validate generated diagram output before rendering | P1 |
-| FR-15 | Landing page must explain product with design-system examples | P0 |
-| FR-16 | At least 3 design-system-specific example prompts must be available | P1 |
-| FR-17 | Provider abstraction must allow future providers without frontend changes | P1 |
+| FR-03 | System must generate diagram + node metadata (tooltips) | P0 |
+| FR-04 | System must render diagram and show tooltips on hover | P0 |
+| FR-05 | System must support incremental refinement (PATCH_CHANGE, ADD_ELEMENT, etc.) | P0 |
+| FR-06 | System must classify follow-up intent to determine refine strategy | P0 |
+| FR-07 | System must provide a style toolbar for non-AI visual customization | P0 |
+| FR-08 | Style changes must not trigger AI or mutate diagram topology | P0 |
+| FR-09 | System must maintain context and version history across conversation | P0 |
+| FR-10 | System must export diagram, style, and metadata in JSON/Mermaid | P0 |
 
 ---
 
-## 7. Non-Functional Requirements
-
-| ID | Requirement | Category |
-|----|-------------|----------|
-| NFR-01 | End-to-end generation (input → diagram) must complete within 15 seconds | Performance |
-| NFR-02 | UI must be responsive and usable on desktop (≥1024px) | Usability |
-| NFR-03 | App must handle malformed AI output without crashing | Reliability |
-| NFR-04 | All API inputs must be validated server-side | Security |
-| NFR-05 | Exported Mermaid must be valid and renderable by standard tools | Quality |
-| NFR-06 | Product must feel polished enough for portfolio demo | Presentation |
-| NFR-07 | Error messages must be actionable, never expose internals | Security |
-| NFR-08 | Voice input must work in Chrome and Edge (Web Speech API) | Compatibility |
-| NFR-09 | Single-command local dev setup | Developer Experience |
-| NFR-10 | Provider switching must not require frontend code changes | Extensibility |
-
----
-
-## 8. Success Criteria
+## 7. Success Criteria
 
 | Criterion | Target |
 |-----------|--------|
-| End-to-end time (input → rendered diagram) | < 15 seconds |
-| Prompt enhancement adds value (manual review) | ≥ 80% of cases |
-| Diagram relevance to input | ≥ 80% accuracy |
-| Refinement preserves unchanged elements | ≥ 90% |
+| End-to-end time (input → rendered diagram) | < 12 seconds |
+| Refinement stability (preserves unchanged elements) | ≥ 95% |
+| Tooltip coverage (nodes with meaningful metadata) | 100% |
+| Style reactivity (UI update on toolbar change) | < 100ms |
 | Export validity (Mermaid renders correctly) | 100% |
-| Error recovery (no crashes on bad input) | 100% |
-| Local setup time | < 5 minutes |
 
 ---
 
-## 9. Demo Scenarios
+## 8. Demo Scenarios
 
-### Scenario 1: Design System Architecture
-**Input**: "Create a design system architecture for a React and Next.js app with tokens, components, themes, and documentation."
-**Expected**: Multi-layer architecture diagram showing token layer → component layer → theme layer → documentation → app consumption
-
-### Scenario 2: Component Hierarchy
-**Input**: "Show how buttons, forms, modals, and layout components should be structured in a scalable design system."
-**Expected**: Hierarchical diagram: primitives → composites → patterns → pages
-
-### Scenario 3: Token Architecture
-**Input**: "Generate a diagram for design tokens, semantic tokens, component variants, and Tailwind integration."
-**Expected**: Pipeline diagram: Figma → primitive tokens → semantic tokens → component tokens → Tailwind classes
-
-### Scenario 4: Design-to-Code Workflow
-**Input**: "Create a design system workflow showing Figma tokens, code tokens, React components, Storybook, and app usage."
-**Expected**: Left-to-right workflow: Figma → Token Export → Style Dictionary → React Components → Storybook → App
-
-### Scenario 5: Conversational Refinement
+### Scenario 1: Base Diagram + Tooltips
 **Steps**:
-1. Generate Scenario 1 diagram
-2. Follow-up: "Add accessibility testing and documentation layers"
-3. Verify: Original preserved, new layers added, version 2 created
-4. Follow-up: "Make it suitable for enterprise apps with governance"
-5. Verify: Version 3 with governance added
+1. Input: "Create a design system architecture for a React app with tokens and components."
+2. Verify: Diagram renders. Hover over "Tokens" to see tooltip "Design Tokens define reusable values...".
 
-### Scenario 6: Voice Input
+### Scenario 2: Incremental Refinement
 **Steps**:
-1. Click mic, speak Scenario 2 input
-2. Verify transcript appears and is editable
-3. Confirm → diagram generates same as text input
+1. From Scenario 1, type: "Add a Storybook layer for documentation."
+2. Verify: Existing nodes/edges preserved. New node "Storybook" added. New version v2 created.
+
+### Scenario 3: Style Toolbar
+**Steps**:
+1. From Scenario 2, use toolbar to change "Font Family" to "Roboto" and "Node Background" to "Soft Blue".
+2. Verify: UI updates immediately. No network request to AI. Topology remains identical.
 
 ---
 
-## 10. Open Questions
+## 9. Open Questions
 
 | Question | Options | Status |
 |----------|---------|--------|
@@ -336,7 +306,7 @@ Demonstrates:
 
 ---
 
-## 11. Future Features (Post-MVP Roadmap)
+## 10. Future Features (Post-MVP Roadmap)
 
 1. **Eraser AI provider** — send enhanced prompts to Eraser for richer diagrams
 2. **PNG/SVG export** — render diagram as image
@@ -348,9 +318,10 @@ Demonstrates:
 
 ---
 
-## 12. Change Log
+## 11. Change Log
 
 | Date | Version | Changes |
 |------|---------|---------|
 | 2026-05-08 | 0.1.0 | Initial PRD draft (generic flow architect) |
 | 2026-05-08 | 0.2.0 | Redefined: design-system focus, prompt enhancement, conversational refinement, provider abstraction |
+| 2026-05-08 | 0.3.0 | Added Incremental Refinement, Node Tooltips, and Style Toolbar requirements |

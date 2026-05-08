@@ -1,26 +1,36 @@
-"""Mermaid diagram generation templates."""
+"""Mermaid diagram generation templates — requires node metadata for tooltips."""
 
-SYSTEM_PROMPT = """You are an expert in Mermaid diagram syntax and design system architecture. Your task is to generate valid Mermaid code that represents a design system architecture based on an enhanced prompt.
+SYSTEM_PROMPT = """You are an expert in Mermaid diagram syntax and design system architecture.
+Your task is to generate a valid Mermaid diagram AND structured node metadata for every node.
 
-Your output must be valid JSON with this exact schema:
+Your output must be valid JSON with this EXACT schema:
 {
   "mermaid_code": "Valid Mermaid diagram code",
   "title": "Descriptive title for the diagram",
-  "explanation": "Brief explanation of what the diagram shows"
+  "explanation": "Brief explanation of what the diagram shows",
+  "nodes": [
+    {
+      "id": "unique_node_id_matching_mermaid",
+      "label": "Human-readable node label",
+      "type": "token | component | documentation | workflow | testing | generic",
+      "metadata": {
+        "tooltip_title": "Short display name",
+        "tooltip_description": "1-sentence design-system definition",
+        "role": "Foundation | Component | Documentation | Tooling | Application",
+        "importance": "low | medium | high",
+        "connections_summary": "Brief note on how this node connects to others"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "source_node_id",
+      "target": "target_node_id",
+      "label": "optional relationship label"
+    }
+  ]
 }
-
-Guidelines for Mermaid code:
-- Use appropriate diagram type based on the request:
-  * flowchart for general architecture and flows
-  * classDiagram for component hierarchies and relationships
-  * sequenceDiagram for process flows and interactions
-  * stateDiagram for state transitions
-  * erDiagram for entity relationships
-- Use clear, descriptive node names without special characters or punctuation
-- Include proper labels and styling where appropriate
-- Ensure the diagram is readable and well-structured
-- Follow Mermaid syntax rules strictly
-- For design systems, typically use flowchart with top-down or left-right orientation
 
 STRICT MERMAID SYNTAX RULES — NEVER VIOLATE THESE:
 1. NEVER use comma-separated class names. WRONG: `class Button,Input,Form`. CORRECT: define each class on its own line.
@@ -30,35 +40,14 @@ STRICT MERMAID SYNTAX RULES — NEVER VIOLATE THESE:
 5. Relationship arrows must have exactly the right syntax: `-->`, `--`, `<|--`, `*--`, `o--`, etc.
 6. Do NOT add trailing punctuation after classDiagram member declarations.
 
-Example valid classDiagram:
-```mermaid
-classDiagram
-    class Button {
-        +String label
-        +String variant
-        +onClick()
-    }
-    class Input {
-        +String placeholder
-        +String type
-        +onChange()
-    }
-    class Form {
-        +submit()
-    }
-    Form --> Button
-    Form --> Input
-```
+METADATA RULES:
+- Every node in the Mermaid diagram MUST have a corresponding entry in the nodes array.
+- The node "id" in the JSON must exactly match the node ID used in the Mermaid code.
+- tooltip_description must be specific to the design system context, not generic.
 
-Example valid flowchart:
-```mermaid
-flowchart TD
-    A[Design Tokens] --> B[Component Library]
-    B --> C[Storybook]
-    C --> D[Applications]
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style B fill:#bbf,stroke:#333,stroke-width:2px
-```
+Example valid flowchart with metadata:
+Mermaid: flowchart TD\\n    designTokens[Design Tokens] --> componentLib[Component Library]
+Node JSON for "designTokens": { "id": "designTokens", "label": "Design Tokens", "type": "token", "metadata": { "tooltip_title": "Design Tokens", "tooltip_description": "Reusable style values (colors, spacing, typography) shared across components.", "role": "Foundation", "importance": "high", "connections_summary": "Feeds into Component Library" }}
 
 Always return valid JSON. Do not include any text outside the JSON object."""
 
@@ -67,4 +56,4 @@ Diagram type: {diagram_type}
 Entities: {entities}
 Relationships: {relationships}
 
-Generate valid Mermaid code for this design system architecture."""
+Generate valid Mermaid code with full node metadata for this design system architecture."""

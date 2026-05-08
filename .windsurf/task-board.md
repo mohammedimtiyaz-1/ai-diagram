@@ -150,24 +150,33 @@ _None_
 
 ---
 
+### Phase 5 — AI Refinement & Tooltips
+
+- [x] GEN-005: Update prompt enrichment to include DS metadata (tooltips)
+- [x] GEN-006: Implement intent classification (PATCH, STYLE, etc.)
+- [x] GEN-007: Implement "Minimal Edit" Mermaid patching
+- [x] UI-010: Implement Node Tooltip hover component
+- [x] UI-011: Implement Diagram Style Toolbar (Ribbon)
+- [x] STATE-004: Decouple StyleState from TopologyState
+- [x] REFINE-004: Version-aware refinement (preserve topology)
+- [x] UI-012: Integrated Voice Input (Web Speech API)
+- [x] BACKEND-001: Persistent JSON storage for conversations and versions
+
+---
+
 ## Task Statistics
 
-- **Backlog**: 38 tasks
+- **Backlog**: 45 tasks
 - **In Progress**: 1
 - **Blocked**: 0
-- **Done**: 3
+- **Done**: 52
 
 ---
 
 ## Priority Order (Start Here)
 
-1. SETUP-001 → SETUP-002 → SETUP-003 → SETUP-004
-2. SCHEMA-001 → SCHEMA-002 → SCHEMA-003
-3. ENHANCE-001 → ENHANCE-002 → ENHANCE-003
-4. UI-001 → UI-002 → UI-003 → UI-004
-5. GEN-001 → GEN-002 → GEN-003
-6. UI-005 → UI-006 → UI-007
-7. REFINE-001 → REFINE-002 → UI-008 → UI-009
-8. VOICE-001 → VOICE-002
-9. EXP-001 → EXP-002
-10. Testing → Documentation
+1. REFINEMENT & TOOLTIPS (New Phase 5)
+2. SCHEMA UPDATE (Topology + Metadata + Style)
+3. PROMPT UPDATES (Intent + Metadata)
+4. UI UPDATES (Tooltip + Toolbar)
+5. Export → Voice → Documentation

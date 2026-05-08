@@ -25,142 +25,84 @@ User Input (text/voice)
 - **Landing Page** — product explanation, examples, CTA
 - **Workspace Page** — main working area (chat + diagram)
 
+| Feature | Description |
+|---------|-------------|
+| **Intent Classification** | Determines if request is NEW, PATCH, STYLE, or REGENERATE |
+| **Metadata Enrichment** | Generates DS-specific tooltip info for every node |
+| **Incremental Patching** | Preserves existing topology across refinements |
+| **Visual Style State** | Decouples styling from AI logic |
+
+---
+
+## Frontend Architecture
+
 ### Components
-- **Chat Input Panel** — text input, submit, example prompts
-- **Voice Input Module** — mic recording, transcript preview/edit
-- **Enhanced Prompt Preview** — show raw vs enhanced prompt, copy actions
-- **Diagram Preview Panel** — Mermaid/React Flow renderer, title, explanation
-- **Conversational Refinement Panel** — follow-up messages, conversation history
-- **Diagram Version History** — version list, restore, compare
-- **Export Actions** — Mermaid, JSON, prompt, explanation copy
-- **Settings/Provider Selector** — choose diagram provider (future)
+- **Chat Input Panel** — text/voice input, intent handling
+- **Diagram Preview Panel** — rendering, hover tooltip integration
+- **Node Tooltip** — hover popover with context-specific metadata
+- **Diagram Style Toolbar** — bottom ribbon for visual customizations
+- **Version History** — track iterative changes and summaries
 
 ### State Management
-- Conversation state (messages, diagram versions)
-- Current diagram state (source, format, metadata)
-- UI state (loading, errors, active panel)
-
-### Tech Stack
-- Next.js App Router
-- TypeScript
-- Tailwind CSS
-- shadcn/ui
-- Mermaid.js (MVP renderer)
-- React Flow (alternative/future renderer)
-- Zustand or TanStack Query
+- `TopologyState`: JSON representation of current nodes/edges
+- `MetadataState`: Map of node IDs to tooltip data
+- `StyleState`: Global visual settings (font, colors)
+- `ConversationState`: Messages and versions
 
 ---
 
 ## Backend Architecture
 
-### API Layer
-- Health check endpoint
-- Prompt enhancement endpoint
-- Diagram generation endpoint
-- Diagram refinement endpoint
-- Voice transcription endpoint
-- Export endpoint
-
 ### Services
-- **Prompt Enhancement Service** — rewrites raw input into diagram-optimized prompt
-- **Diagram Generation Service** — orchestrates provider calls
-- **Diagram Provider Abstraction** — pluggable interface for providers
-- **Conversation Context Service** — manages message history and diagram context
-- **Diagram Version Service** — tracks diagram versions within conversation
-- **Export Service** — converts diagram to requested format
-
-### Provider Interface
-
-```python
-class DiagramProvider(ABC):
-    async def generate_diagram(self, enhanced_prompt: str, context: DiagramContext) -> DiagramResult
-    async def refine_diagram(self, existing_diagram: str, enhanced_followup: str, context: DiagramContext) -> DiagramResult
-    async def export_diagram(self, diagram: str, format: ExportFormat) -> ExportResult
-```
-
-### Providers
-- **MermaidProvider** (MVP) — generates Mermaid syntax
-- **StructuredGraphProvider** — generates JSON graph for React Flow
-- **EraserProvider** (future) — adapter for Eraser AI API
-
-### Tech Stack
-- Python 3.11+
-- FastAPI
-- Pydantic v2
-- OpenAI API (GPT-4o structured output)
-- Optional: SQLite for diagram persistence
-- Optional: Redis for session context (post-MVP)
-
----
-
-## AI Architecture
-
-### Agents/Services
-- **Raw Prompt Analyzer** — extracts design-system intent and entities
-- **Design-System Prompt Enhancer** — rewrites for clarity and diagram generation
-- **Diagram Type Classifier** — selects best diagram type for the input
-- **Provider Prompt Builder** — adapts enhanced prompt for specific provider format
-- **Refinement Prompt Builder** — merges follow-up with existing context
-- **Context Summarizer** — compresses long conversations to fit token limits
-
-### Prompt Enhancement Output
-Enhanced prompt includes:
-- Diagram goal
-- Relevant design-system entities
-- Relationships between entities
-- Diagram type recommendation
-- Expected structure/layout hints
-- Visual clarity instructions
-- Inferred assumptions (flagged)
+- **Intent Classifier** — (AI) classifies user request for strategy selection
+- **Prompt Enhancer** — (AI) expands prompt + generates node metadata
+- **Diagram Generator** — (AI) generates/patches Mermaid source
+- **Style Controller** — (No-AI) updates style state without topology mutation
+- **Versioning Service** — creates immutable versions of topology + metadata + style
 
 ---
 
 ## Data Flow (Detailed)
 
-### Initial Generation
+### Incremental Refinement
 ```
-1. User types/speaks input
-2. Frontend validates input (min length, not empty)
-3. POST /api/prompts/enhance → AI enhances prompt
-4. Frontend shows enhanced prompt preview
-5. POST /api/diagrams/generate → provider generates diagram
-6. Frontend renders diagram (Mermaid/React Flow)
-7. Conversation state initialized
+1. User: "Add Storybook layer"
+2. Intent Classifier: ADD_ELEMENT
+3. Refinement Service:
+   - Load vN Topology + Metadata
+   - AI: Generate Mermaid patch + new node metadata
+   - Update Topology + Metadata
+4. Frontend: Rerender diagram + update tooltips
 ```
 
-### Conversational Refinement
+### Visual Style Update
 ```
-1. User sends follow-up message
-2. POST /api/diagrams/refine (with conversation_id, current diagram)
-3. AI enhances follow-up in context of existing diagram
-4. Provider generates updated diagram
-5. Frontend renders new version
-6. Version history updated
+1. User clicks "Blue Nodes" in toolbar (or types in chat)
+2. Case Toolbar: Frontend updates StyleState immediately
+3. Case Chat: Intent Classifier: STYLE_CHANGE
+4. Style Controller: Updates StyleState (skip AI generation)
+5. Frontend: Rerender with new styles
 ```
 
 ---
 
 ## Data Models
 
-### Conversation
-- conversation_id
-- messages[] (role, content, timestamp)
-- current_diagram_id
-- diagram_versions[]
-- created_at
+### DiagramNode
+- id, label, type
+- metadata: { tooltip_title, description, role, connections_summary }
+- style: { bg_color, font_color }
+
+### DiagramStyle
+- font_family, font_size, font_color
+- node_background_color, diagram_background_color
 
 ### DiagramVersion
-- diagram_id
-- version_number
-- raw_prompt
-- enhanced_prompt
-- diagram_source (Mermaid string / graph JSON)
-- diagram_format
-- diagram_type
-- explanation
-- provider
-- metadata
-- created_at
+- diagram_id, base_diagram_id, parent_diagram_id
+- version, change_intent
+- nodes[], edges[], style{}
+- diagram_source (Mermaid)
+- changes_summary[]
 
 ### Message
 - role (user | assistant | system)

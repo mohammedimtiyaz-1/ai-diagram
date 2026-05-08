@@ -15,17 +15,57 @@ All AI calls use OpenAI GPT-4o with `response_format: { type: "json_object" }` f
 
 **Purpose**: Clean and validate user input before AI processing.
 
-**Steps**:
-1. Trim whitespace
-2. Validate length (10-2000 chars)
-3. Detect source (text or voice transcript)
-4. Check for obvious non-design-system content (optional, can be lenient)
+### Stage 1: Input Analysis & Intent Classification
 
-**Output**: Normalized string ready for enhancement.
+Before processing, the system classifies the user's intent to determine the refinement strategy.
+
+| Intent | Criteria | Strategy |
+|--------|----------|----------|
+| **NEW_DIAGRAM** | No active conversation or "start over" keywords | Full generation |
+| **PATCH_CHANGE** | Specific edit to existing node/edge | Incremental Mermaid update |
+| **ADD_ELEMENT** | Request to add new component/layer | Append to Mermaid source |
+| **REMOVE_ELEMENT** | Request to delete component/layer | Remove from Mermaid source |
+| **STYLE_CHANGE** | Color, font, or theme request | **Visual Style state update** |
+| **EXPLAIN_ONLY** | Question about the diagram | RAG (Retrieve Explanation) |
+| **REGENERATE** | "Ignore previous and start over" | Full replacement |
 
 ---
 
-## Stage 2: Design-System Intent Extraction
+### Stage 2: Prompt Enhancement & Metadata Enrichment
+
+The AI rewrites the raw input into a structured instruction set.
+
+**Metadata Enrichment (New)**:
+For every node identified, the AI must generate:
+1. `tooltip_title`: Clear name (e.g., "Semantic Tokens")
+2. `tooltip_description`: Brief definition (e.g., "Standardized values like `color.brand.primary`...")
+3. `role`: Structural purpose (e.g., "Style Foundation")
+4. `importance`: low | medium | high
+5. `connections_summary`: How it relates to neighbors
+
+---
+
+### Stage 3: Incremental Refinement Pipeline
+
+For refinements (Intent: PATCH/ADD/REMOVE), the engine uses a **Stabilized Context Window**:
+
+1. **Load State**: Retrieve `vN` Mermaid source, nodes, and edges.
+2. **Minimal Edit Instruction**: AI is prompted to ONLY return the lines in Mermaid that need modification.
+3. **Topology Preservation**: System enforces nodes not mentioned in the refinement remain unchanged.
+4. **Style Preservation**: Visual style settings from `vN` are applied to `vN+1`.
+
+---
+
+### Stage 4: Style Change Guardrail
+
+To ensure performance and stability, visual style changes are handled without full AI regeneration where possible.
+
+**Flow**:
+1. User: "Make the nodes blue"
+2. System identifies `STYLE_CHANGE`
+3. System updates the `DiagramStyle` object
+4. Frontend re-renders using CSS/Mermaid style overrides
+5. No Mermaid source mutation unless AI determines a specific semantic node-level style is required.
 
 **Purpose**: Identify design-system-relevant entities and relationships in the raw input.
 

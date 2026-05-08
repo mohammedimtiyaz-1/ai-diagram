@@ -1,11 +1,18 @@
 import json
 import logging
+import re
 import uuid
 
 from app.core.openai_client import OpenAIClient
 from app.prompts.mermaid_prompt import SYSTEM_PROMPT as GENERATION_SYSTEM_PROMPT, USER_PROMPT_TEMPLATE as GENERATION_USER_PROMPT_TEMPLATE
-from app.prompts.refinement_prompt import SYSTEM_PROMPT as REFINEMENT_SYSTEM_PROMPT, USER_PROMPT_TEMPLATE as REFINEMENT_USER_PROMPT_TEMPLATE
+from app.prompts.refinement_prompt import (
+    INTENT_SYSTEM_PROMPT,
+    INTENT_USER_TEMPLATE,
+    SYSTEM_PROMPT as REFINEMENT_SYSTEM_PROMPT,
+    USER_PROMPT_TEMPLATE as REFINEMENT_USER_PROMPT_TEMPLATE,
+)
 from app.providers.base import DiagramContext, DiagramProvider, DiagramResult
+from app.schemas.diagram import DiagramEdge, DiagramNode, DiagramStyle, NodeMetadata, NodeStyle
 
 logger = logging.getLogger(__name__)
 
@@ -16,21 +23,24 @@ class MermaidProvider(DiagramProvider):
     def __init__(self, max_retries: int = 1):
         self.max_retries = max_retries
 
+    # ──────────────────────────────────────────────────────────────────────────
+    # Public: generate_diagram
+    # ──────────────────────────────────────────────────────────────────────────
+
     async def generate_diagram(
         self,
         enhanced_prompt: str,
         diagram_type: str,
         context: DiagramContext,
     ) -> DiagramResult:
-        """Generate Mermaid diagram using OpenAI GPT-4o."""
+        """Generate a Mermaid diagram with full node metadata."""
         client = OpenAIClient.get_async()
 
-        # Format entities and relationships for the prompt
         entities_str = ", ".join(context.entities) if context.entities else "none"
-        relationships_str = ", ".join(
-            f"{r.from_entity} → {r.to_entity} ({r.type})"
-            for r in (context.relationships or [])
-        ) or "none"
+        relationships_str = (
+            ", ".join(f"{r.from_entity} → {r.to_entity} ({r.type})" for r in (context.relationships or []))
+            or "none"
+        )
 
         user_prompt = GENERATION_USER_PROMPT_TEMPLATE.format(
             enhanced_prompt=enhanced_prompt,
@@ -43,14 +53,14 @@ class MermaidProvider(DiagramProvider):
         for attempt in range(self.max_retries + 1):
             try:
                 response = await client.chat.completions.create(
-                    model="gpt-4o",
+                    model="gpt-4o-mini",
                     messages=[
                         {"role": "system", "content": GENERATION_SYSTEM_PROMPT},
                         {"role": "user", "content": user_prompt},
                     ],
                     response_format={"type": "json_object"},
                     temperature=0.7,
-                    max_tokens=2000,
+                    max_tokens=3000,
                 )
 
                 content = response.choices[0].message.content
@@ -58,72 +68,66 @@ class MermaidProvider(DiagramProvider):
                     raise ValueError("OpenAI returned empty content")
 
                 data = json.loads(content)
+                mermaid_code = self._sanitize_mermaid(data.get("mermaid_code", ""))
 
-                # Validate Mermaid syntax
-                mermaid_code = data.get("mermaid_code", "")
-                if not self._validate_mermaid_syntax(mermaid_code):
-                    logger.warning("Generated Mermaid failed syntax validation, using fallback")
+                nodes = self._parse_nodes(data.get("nodes", []))
+                edges = self._parse_edges(data.get("edges", []))
 
                 return DiagramResult(
                     diagram_id=str(uuid.uuid4()),
+                    conversation_id="",  # filled by service layer
                     title=data.get("title", "Design System Architecture"),
                     diagram_type=diagram_type or "flowchart",
                     provider=self.name,
                     diagram_source=mermaid_code,
                     diagram_format="mermaid",
                     explanation=data.get("explanation", ""),
-                    metadata={"node_count": self._count_nodes(mermaid_code), "edge_count": self._count_edges(mermaid_code)},
+                    nodes=nodes,
+                    edges=edges,
+                    style=DiagramStyle(),
+                    change_intent="NEW_DIAGRAM",
+                    is_full_regeneration=True,
+                    metadata={"node_count": len(nodes), "edge_count": len(edges)},
                 )
 
             except Exception as e:
                 last_error = e
                 logger.warning(f"Attempt {attempt + 1} failed: {e}")
-                if attempt < self.max_retries:
-                    continue
 
-        # All retries failed, fall back to mock
-        logger.error(f"OpenAI generation failed after {self.max_retries + 1} attempts: {last_error}")
+        logger.error(f"Generation failed after {self.max_retries + 1} attempts: {last_error}")
         return self._fallback_diagram(diagram_type)
 
-    def _validate_mermaid_syntax(self, mermaid_code: str) -> bool:
-        """Basic Mermaid syntax validation."""
-        if not mermaid_code:
-            return False
+    # ──────────────────────────────────────────────────────────────────────────
+    # Public: classify_intent
+    # ──────────────────────────────────────────────────────────────────────────
 
-        # Check for basic Mermaid diagram keywords
-        valid_keywords = ["flowchart", "sequenceDiagram", "classDiagram", "stateDiagram", "erDiagram", "gantt"]
-        has_keyword = any(keyword in mermaid_code for keyword in valid_keywords)
-
-        # Check for basic structure (has some content with arrows or connections)
-        has_connections = "-->" in mermaid_code or "->" in mermaid_code or ":::" in mermaid_code
-
-        return has_keyword and has_connections
-
-    def _count_nodes(self, mermaid_code: str) -> int:
-        """Estimate node count from Mermaid code."""
-        # Count occurrences of [...] which typically represent nodes
-        import re
-        nodes = re.findall(r'\[([^\]]+)\]', mermaid_code)
-        return len(nodes)
-
-    def _count_edges(self, mermaid_code: str) -> int:
-        """Estimate edge count from Mermaid code."""
-        # Count occurrences of arrows
-        arrows = mermaid_code.count("-->") + mermaid_code.count("--") + mermaid_code.count("->")
-        return arrows
-
-    def _fallback_diagram(self, diagram_type: str) -> DiagramResult:
-        """Fallback to mock diagram if AI fails."""
-        return DiagramResult(
-            diagram_id=str(uuid.uuid4()),
-            title="Design System Architecture",
-            diagram_type=diagram_type or "flowchart",
-            provider=self.name,
-            diagram_source=_MOCK_MERMAID,
-            diagram_format="mermaid",
-            explanation="Fallback diagram due to AI generation failure.",
-            metadata={"node_count": 8, "edge_count": 7},
+    async def classify_intent(self, diagram_title: str, followup_prompt: str) -> str:
+        """Return intent string: ADD_ELEMENT | REMOVE_ELEMENT | PATCH_CHANGE | STYLE_CHANGE | EXPLAIN_ONLY | REGENERATE."""
+        client = OpenAIClient.get_async()
+        user_prompt = INTENT_USER_TEMPLATE.format(
+            diagram_title=diagram_title,
+            followup_prompt=followup_prompt,
         )
+        try:
+            response = await client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": INTENT_SYSTEM_PROMPT},
+                    {"role": "user", "content": user_prompt},
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.3,
+                max_tokens=200,
+            )
+            data = json.loads(response.choices[0].message.content or "{}")
+            return data.get("intent", "PATCH_CHANGE")
+        except Exception as e:
+            logger.warning(f"Intent classification failed: {e}, defaulting to PATCH_CHANGE")
+            return "PATCH_CHANGE"
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Public: refine_diagram  (incremental)
+    # ──────────────────────────────────────────────────────────────────────────
 
     async def refine_diagram(
         self,
@@ -131,28 +135,38 @@ class MermaidProvider(DiagramProvider):
         enhanced_followup: str,
         diagram_type: str,
         context: DiagramContext,
+        existing_nodes: list[DiagramNode] | None = None,
+        intent: str = "PATCH_CHANGE",
+        parent_diagram_id: str | None = None,
+        base_diagram_id: str | None = None,
     ) -> DiagramResult:
-        """Refine Mermaid diagram using OpenAI GPT-4o."""
+        """Incrementally refine an existing diagram, preserving its topology."""
         client = OpenAIClient.get_async()
+
+        # Serialize existing nodes for the prompt context
+        existing_nodes_json = json.dumps(
+            [n.model_dump() for n in (existing_nodes or [])], indent=2
+        )
 
         user_prompt = REFINEMENT_USER_PROMPT_TEMPLATE.format(
             existing_diagram=existing_diagram,
+            existing_nodes_json=existing_nodes_json,
             enhanced_followup=enhanced_followup,
-            diagram_type=diagram_type,
+            intent=intent,
         )
 
         last_error = None
         for attempt in range(self.max_retries + 1):
             try:
                 response = await client.chat.completions.create(
-                    model="gpt-4o",
+                    model="gpt-4o-mini",
                     messages=[
                         {"role": "system", "content": REFINEMENT_SYSTEM_PROMPT},
                         {"role": "user", "content": user_prompt},
                     ],
                     response_format={"type": "json_object"},
-                    temperature=0.7,
-                    max_tokens=2000,
+                    temperature=0.6,
+                    max_tokens=3000,
                 )
 
                 content = response.choices[0].message.content
@@ -160,14 +174,20 @@ class MermaidProvider(DiagramProvider):
                     raise ValueError("OpenAI returned empty content")
 
                 data = json.loads(content)
+                mermaid_code = self._sanitize_mermaid(data.get("mermaid_code", ""))
 
-                # Validate Mermaid syntax
-                mermaid_code = data.get("mermaid_code", "")
-                if not self._validate_mermaid_syntax(mermaid_code):
-                    logger.warning("Refined Mermaid failed syntax validation, using fallback")
+                # Merge: preserve existing nodes, add/update new ones
+                new_parsed = self._parse_nodes(data.get("new_or_updated_nodes", []))
+                new_edges = self._parse_edges(data.get("new_edges", []))
+                merged_nodes = self._merge_nodes(existing_nodes or [], new_parsed)
+                merged_edges = self._merge_edges(
+                    [e for e in (context.edges if hasattr(context, "edges") else [])],
+                    new_edges,
+                )
 
                 return DiagramResult(
                     diagram_id=str(uuid.uuid4()),
+                    conversation_id="",  # filled by service layer
                     title=data.get("title", "Design System Architecture (Refined)"),
                     diagram_type=diagram_type or "flowchart",
                     provider=self.name,
@@ -175,28 +195,26 @@ class MermaidProvider(DiagramProvider):
                     diagram_format="mermaid",
                     explanation=data.get("explanation", ""),
                     changes_summary=data.get("changes_summary", []),
-                    metadata={"node_count": self._count_nodes(mermaid_code), "edge_count": self._count_edges(mermaid_code)},
+                    nodes=merged_nodes,
+                    edges=merged_edges,
+                    style=DiagramStyle(),  # style is preserved by service layer
+                    change_intent=intent,
+                    is_full_regeneration=data.get("is_full_regeneration", False),
+                    base_diagram_id=base_diagram_id,
+                    parent_diagram_id=parent_diagram_id,
+                    metadata={"node_count": len(merged_nodes), "edge_count": len(merged_edges)},
                 )
 
             except Exception as e:
                 last_error = e
                 logger.warning(f"Refinement attempt {attempt + 1} failed: {e}")
-                if attempt < self.max_retries:
-                    continue
 
-        # All retries failed, fall back to mock refinement
-        logger.error(f"OpenAI refinement failed after {self.max_retries + 1} attempts: {last_error}")
-        return DiagramResult(
-            diagram_id=str(uuid.uuid4()),
-            title="Design System Architecture (Refined)",
-            diagram_type=diagram_type or "flowchart",
-            provider=self.name,
-            diagram_source=_MOCK_MERMAID_REFINED,
-            diagram_format="mermaid",
-            explanation="Fallback refined diagram due to AI refinement failure.",
-            changes_summary=["Fallback to mock refinement"],
-            metadata={"node_count": 10, "edge_count": 9},
-        )
+        logger.error(f"Refinement failed after {self.max_retries + 1} attempts: {last_error}")
+        return self._fallback_refinement(existing_diagram, diagram_type, parent_diagram_id, base_diagram_id)
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Public: export_diagram
+    # ──────────────────────────────────────────────────────────────────────────
 
     async def export_diagram(
         self,
@@ -207,15 +225,152 @@ class MermaidProvider(DiagramProvider):
         if export_format == "mermaid":
             return diagram_source
         elif export_format == "json":
-            import json
+            return json.dumps({"source": diagram_source, "format": diagram_format}, indent=2)
+        return diagram_source
 
-            return json.dumps(
-                {"source": diagram_source, "format": diagram_format},
-                indent=2,
+    # ──────────────────────────────────────────────────────────────────────────
+    # Private helpers
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _parse_nodes(self, raw: list[dict]) -> list[DiagramNode]:
+        nodes = []
+        for item in raw:
+            meta = item.get("metadata", {})
+            nodes.append(
+                DiagramNode(
+                    id=item.get("id", str(uuid.uuid4())),
+                    label=item.get("label", ""),
+                    type=item.get("type", "generic"),
+                    metadata=NodeMetadata(
+                        tooltip_title=meta.get("tooltip_title", ""),
+                        tooltip_description=meta.get("tooltip_description", ""),
+                        role=meta.get("role", ""),
+                        importance=meta.get("importance", "medium"),
+                        connections_summary=meta.get("connections_summary", ""),
+                    ),
+                    style=NodeStyle(),
+                )
             )
-        else:
-            return diagram_source
+        return nodes
 
+    def _parse_edges(self, raw: list[dict]) -> list[DiagramEdge]:
+        return [
+            DiagramEdge(
+                id=e.get("id", str(uuid.uuid4())),
+                source=e.get("source", ""),
+                target=e.get("target", ""),
+                label=e.get("label"),
+                description=e.get("description"),
+            )
+            for e in raw
+        ]
+
+    def _merge_nodes(
+        self, existing: list[DiagramNode], updated: list[DiagramNode]
+    ) -> list[DiagramNode]:
+        """Replace existing nodes that have matching IDs; append brand-new ones."""
+        existing_map = {n.id: n for n in existing}
+        for node in updated:
+            existing_map[node.id] = node  # overwrite or add
+        return list(existing_map.values())
+
+    def _merge_edges(
+        self, existing: list[DiagramEdge], new: list[DiagramEdge]
+    ) -> list[DiagramEdge]:
+        existing_pairs = {(e.source, e.target) for e in existing}
+        result = list(existing)
+        for edge in new:
+            if (edge.source, edge.target) not in existing_pairs:
+                result.append(edge)
+        return result
+
+    def _sanitize_mermaid(self, mermaid_code: str) -> str:
+        """Fix common Mermaid syntax issues produced by the AI.
+
+        Expands comma-separated class declarations:
+          class Button,Input,Form  →  class Button\\n    class Input\\n    class Form
+        """
+        if not mermaid_code:
+            return mermaid_code
+
+        lines = mermaid_code.splitlines()
+        result: list[str] = []
+        for line in lines:
+            m = re.match(r'^(\s*)class\s+([A-Za-z_][\w,\s]+)$', line)
+            if m:
+                indent = m.group(1)
+                names = [n.strip() for n in m.group(2).split(',') if n.strip()]
+                if len(names) > 1:
+                    for name in names:
+                        result.append(f"{indent}class {name}")
+                    continue
+            result.append(line)
+        return "\n".join(result)
+
+    def _validate_mermaid_syntax(self, mermaid_code: str) -> bool:
+        if not mermaid_code:
+            return False
+        valid_keywords = ["flowchart", "sequenceDiagram", "classDiagram", "stateDiagram", "erDiagram", "gantt"]
+        has_keyword = any(k in mermaid_code for k in valid_keywords)
+        has_connections = "-->" in mermaid_code or "->" in mermaid_code or ":::" in mermaid_code
+        return has_keyword and has_connections
+
+    def _fallback_diagram(self, diagram_type: str) -> DiagramResult:
+        nodes = self._parse_nodes(_FALLBACK_NODES)
+        return DiagramResult(
+            diagram_id=str(uuid.uuid4()),
+            conversation_id="",
+            title="Design System Architecture",
+            diagram_type=diagram_type or "flowchart",
+            provider=self.name,
+            diagram_source=_MOCK_MERMAID,
+            diagram_format="mermaid",
+            explanation="Fallback diagram — AI generation failed. Please try again.",
+            nodes=nodes,
+            edges=[],
+            style=DiagramStyle(),
+            change_intent="NEW_DIAGRAM",
+            is_full_regeneration=True,
+            metadata={"node_count": len(nodes), "edge_count": 6},
+        )
+
+    def _fallback_refinement(
+        self, existing_diagram: str, diagram_type: str, parent_id: str | None, base_id: str | None
+    ) -> DiagramResult:
+        return DiagramResult(
+            diagram_id=str(uuid.uuid4()),
+            conversation_id="",
+            title="Design System Architecture (Refined)",
+            diagram_type=diagram_type or "flowchart",
+            provider=self.name,
+            diagram_source=existing_diagram,  # return unchanged diagram
+            diagram_format="mermaid",
+            explanation="Fallback — refinement failed. The original diagram is preserved.",
+            changes_summary=["Refinement failed — original diagram preserved"],
+            nodes=[],
+            edges=[],
+            style=DiagramStyle(),
+            change_intent="PATCH_CHANGE",
+            is_full_regeneration=False,
+            base_diagram_id=base_id,
+            parent_diagram_id=parent_id,
+            metadata={"node_count": 0, "edge_count": 0},
+        )
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Fallback data
+# ──────────────────────────────────────────────────────────────────────────────
+
+_FALLBACK_NODES = [
+    {"id": "PT", "label": "Primitive Tokens", "type": "token", "metadata": {"tooltip_title": "Primitive Tokens", "tooltip_description": "Raw design values (colors, spacing) with no semantic meaning.", "role": "Foundation", "importance": "high", "connections_summary": "Feeds into Semantic Tokens."}},
+    {"id": "ST", "label": "Semantic Tokens", "type": "token", "metadata": {"tooltip_title": "Semantic Tokens", "tooltip_description": "Purpose-driven tokens like color.brand.primary.", "role": "Foundation", "importance": "high", "connections_summary": "Derived from Primitive Tokens; used by Component Tokens."}},
+    {"id": "CT", "label": "Component Tokens", "type": "token", "metadata": {"tooltip_title": "Component Tokens", "tooltip_description": "Component-specific style references.", "role": "Foundation", "importance": "medium", "connections_summary": "Feeds into Atoms."}},
+    {"id": "ATOMS", "label": "Atoms", "type": "component", "metadata": {"tooltip_title": "Atomic Components", "tooltip_description": "The smallest reusable UI building blocks (Button, Input, Icon).", "role": "Component", "importance": "high", "connections_summary": "Composed into Molecules."}},
+    {"id": "MOL", "label": "Molecules", "type": "component", "metadata": {"tooltip_title": "Molecule Components", "tooltip_description": "Combinations of atoms forming functional UI patterns.", "role": "Component", "importance": "medium", "connections_summary": "Composed into Organisms."}},
+    {"id": "ORG", "label": "Organisms", "type": "component", "metadata": {"tooltip_title": "Organism Components", "tooltip_description": "Complex UI sections assembled from molecules.", "role": "Component", "importance": "medium", "connections_summary": "Used in application pages."}},
+    {"id": "NX", "label": "Next.js App", "type": "generic", "metadata": {"tooltip_title": "Application Layer", "tooltip_description": "The consuming application that uses the design system.", "role": "Application", "importance": "medium", "connections_summary": "Receives Organisms."}},
+]
 
 _MOCK_MERMAID = """flowchart TD
     subgraph Tokens["Design Tokens"]
@@ -238,31 +393,4 @@ _MOCK_MERMAID = """flowchart TD
     ATOMS --> MOL
     MOL --> ORG
     ORG --> NX
-"""
-
-_MOCK_MERMAID_REFINED = """flowchart TD
-    subgraph Tokens["Design Tokens"]
-        PT[Primitive Tokens]
-        ST[Semantic Tokens]
-        CT[Component Tokens]
-    end
-    subgraph Components["Component Library"]
-        ATOMS[Atoms]
-        MOL[Molecules]
-        ORG[Organisms]
-    end
-    subgraph Docs["Documentation"]
-        SB[Storybook]
-    end
-    subgraph App["Application"]
-        NX[Next.js App]
-    end
-
-    PT --> ST
-    ST --> CT
-    CT --> ATOMS
-    ATOMS --> MOL
-    MOL --> ORG
-    ORG --> NX
-    ORG --> SB
 """

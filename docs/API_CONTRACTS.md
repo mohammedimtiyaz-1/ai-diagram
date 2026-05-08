@@ -95,14 +95,48 @@ Base URL: `http://localhost:8000`
 ```json
 {
   "diagram_id": "string (uuid)",
-  "conversation_id": "string (uuid, created if null in request)",
+  "conversation_id": "string (uuid)",
+  "base_diagram_id": "string (uuid)",
   "version": 1,
   "title": "string",
   "diagram_type": "string",
   "provider": "string",
-  "diagram_source": "string (Mermaid syntax or graph JSON)",
-  "diagram_format": "mermaid | eraser | graph-json",
-  "explanation": "string (1-3 sentences explaining the diagram)",
+  "diagram_source": "string (Mermaid syntax)",
+  "diagram_format": "mermaid",
+  "nodes": [
+    {
+      "id": "A",
+      "label": "Design Tokens",
+      "type": "token",
+      "metadata": {
+        "tooltip_title": "Design Tokens",
+        "tooltip_description": "Reusable values like colors and spacing.",
+        "role": "Foundation",
+        "importance": "high",
+        "connections_summary": "Feeds into components"
+      },
+      "style": {
+        "background_color": null,
+        "font_color": null
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "A",
+      "target": "B",
+      "label": "uses"
+    }
+  ],
+  "style": {
+    "font_family": "Inter",
+    "font_size": "medium",
+    "font_color": "default",
+    "node_background_color": "default",
+    "diagram_background_color": "default"
+  },
+  "explanation": "string",
   "metadata": {
     "node_count": 8,
     "edge_count": 7,
@@ -145,23 +179,18 @@ Base URL: `http://localhost:8000`
 {
   "diagram_id": "string (new uuid)",
   "conversation_id": "string",
+  "base_diagram_id": "string",
+  "parent_diagram_id": "string",
   "version": 2,
-  "title": "string",
-  "diagram_type": "string",
-  "provider": "string",
-  "enhanced_followup_prompt": "string",
-  "diagram_source": "string (updated Mermaid/graph)",
-  "diagram_format": "string",
+  "change_intent": "PATCH_CHANGE | ADD_ELEMENT | REMOVE_ELEMENT | STYLE_CHANGE | REGENERATE",
+  "is_full_regeneration": false,
+  "diagram_source": "string",
+  "nodes": [],
+  "edges": [],
+  "style": {},
   "explanation": "string",
-  "changes_summary": [
-    "Added accessibility testing layer",
-    "Connected testing to component library"
-  ],
-  "metadata": {
-    "node_count": 10,
-    "edge_count": 9,
-    "generated_at": "2026-05-08T14:05:00Z"
-  }
+  "changes_summary": ["Added Storybook layer"],
+  "metadata": {}
 }
 ```
 
@@ -173,6 +202,57 @@ Base URL: `http://localhost:8000`
     "message": "Conversation not found. Please start a new diagram.",
     "retry_allowed": false
   }
+}
+```
+
+---
+
+## PATCH /api/diagrams/{diagram_id}/style
+
+**Purpose**: Update visual styling of a diagram without calling AI or changing topology.
+
+**Request Body**:
+```json
+{
+  "style": {
+    "font_family": "Inter | Arial | Roboto | System",
+    "font_size": "small | medium | large",
+    "font_color": "default | dark | muted",
+    "node_background_color": "default | white | soft-blue | soft-gray | soft-purple",
+    "diagram_background_color": "default | white | light-gray"
+  }
+}
+```
+
+**Response** `200 OK`:
+```json
+{
+  "diagram_id": "string",
+  "style": {
+    "font_family": "Inter",
+    "font_size": "medium",
+    "font_color": "default",
+    "node_background_color": "soft-blue",
+    "diagram_background_color": "white"
+  },
+  "updated_at": "2026-05-08T14:10:00Z"
+}
+```
+
+---
+
+## GET /api/diagrams/{diagram_id}/nodes/{node_id}/tooltip
+
+**Purpose**: (Optional) Fetch detailed tooltip metadata for a specific node.
+
+**Response** `200 OK`:
+```json
+{
+  "node_id": "string",
+  "tooltip_title": "string",
+  "tooltip_description": "string",
+  "role": "string",
+  "connections_summary": "string"
 }
 ```
 

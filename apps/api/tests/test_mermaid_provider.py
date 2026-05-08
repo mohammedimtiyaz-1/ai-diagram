@@ -131,17 +131,29 @@ async def test_validate_mermaid_syntax():
 
 @pytest.mark.asyncio
 async def test_count_nodes_and_edges():
-    """Test node and edge counting."""
+    """Test node and edge counting from parsed nodes/edges."""
     provider = MermaidProvider()
 
-    mermaid_code = """flowchart TD
-        A[Token 1] --> B[Token 2]
-        B --> C[Component]
-        C --> D[App]
-    """
+    # Test node parsing
+    raw_nodes = [
+        {"id": "T1", "label": "Token 1", "type": "token", "metadata": {"tooltip_title": "T1", "tooltip_description": "", "role": "", "importance": "medium", "connections_summary": ""}},
+        {"id": "T2", "label": "Token 2", "type": "token", "metadata": {"tooltip_title": "T2", "tooltip_description": "", "role": "", "importance": "medium", "connections_summary": ""}},
+        {"id": "C1", "label": "Component", "type": "component", "metadata": {"tooltip_title": "C1", "tooltip_description": "", "role": "", "importance": "medium", "connections_summary": ""}},
+        {"id": "APP", "label": "App", "type": "generic", "metadata": {"tooltip_title": "APP", "tooltip_description": "", "role": "", "importance": "medium", "connections_summary": ""}},
+    ]
 
-    assert provider._count_nodes(mermaid_code) == 4
-    assert provider._count_edges(mermaid_code) >= 3
+    nodes = provider._parse_nodes(raw_nodes)
+    assert len(nodes) == 4
+
+    # Test edge parsing
+    raw_edges = [
+        {"id": "e1", "source": "T1", "target": "T2"},
+        {"id": "e2", "source": "T2", "target": "C1"},
+        {"id": "e3", "source": "C1", "target": "APP"},
+    ]
+
+    edges = provider._parse_edges(raw_edges)
+    assert len(edges) == 3
 
 
 @pytest.mark.asyncio

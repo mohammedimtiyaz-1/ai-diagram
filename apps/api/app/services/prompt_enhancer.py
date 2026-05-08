@@ -38,7 +38,7 @@ class PromptEnhancerService:
         for attempt in range(self.max_retries + 1):
             try:
                 response = await client.chat.completions.create(
-                    model="gpt-4o",
+                    model="gpt-4o-mini",
                     messages=[
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": user_prompt},

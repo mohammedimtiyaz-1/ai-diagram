@@ -131,6 +131,45 @@
 **Risks**: Mermaid.js SSR compatibility with Next.js
 **Mitigation**: Dynamic import with `ssr: false`; render client-side only
 
+--- [ ] Phase 4: AI Prompt Enhancement (Tooltip Metadata)
+- [ ] Phase 5: Mermaid Diagram Generation (with nodes/edges/metadata)
+- [ ] Phase 6: Conversational Refinement (Incremental Patching)
+- [ ] Phase 7: Node Tooltip UI (Hover interaction)
+- [ ] Phase 8: Diagram Style Toolbar (Visual customizations)
+- [ ] Phase 9: Voice Input Integration
+- [ ] Phase 10: Export, Persistence & Polish
+- [ ] Phase 11: Final Testing & Documentation
+
+---
+
+## 4. Detailed Phase Breakdown
+
+### Phase 4: AI Prompt Enhancement (Tooltip Metadata)
+- Update enhancement prompt to require node metadata (role, description, importance)
+- Test enhancement with diverse design system scenarios
+
+### Phase 5: Mermaid Diagram Generation
+- Server-side generation of Mermaid + structured node/edge list
+- Validation of Mermaid syntax and metadata presence
+- Response includes full topology + metadata
+
+### Phase 6: Conversational Refinement (Incremental)
+- Implement intent classification (NEW, PATCH, STYLE, etc.)
+- Create "Minimal Edit" prompt for refinement
+- Enforce topology preservation for unchanged nodes
+- Versioning support for incremental updates
+
+### Phase 7: Node Tooltip UI
+- Frontend hover interaction for Mermaid nodes
+- Tooltip component showing title, role, connection summary, and description
+- Clean, non-intrusive popover design
+
+### Phase 8: Diagram Style Toolbar
+- Implement bottom ribbon/toolbar
+- Controls for font family, size, color, and background colors
+- Immediate preview update without AI calls
+- Persistent style state for the current diagram version
+
 ---
 
 ## Phase 4: Refinement & Interaction (Milestone 8-9)

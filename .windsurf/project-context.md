@@ -12,10 +12,11 @@ A portfolio-grade AI SaaS application that helps frontend engineers, UI architec
 
 ```
 User input (text/voice)
-  → AI prompt enhancement
-  → Diagram generation (via pluggable provider)
-  → Display in UI
-  → Conversational refinement (iterate)
+  → AI prompt enhancement & metadata enrichment (tooltips)
+  → Diagram generation (topology + metadata)
+  → Display in UI with hover tooltips
+  → Visual customization via style toolbar (no AI)
+  → Conversational refinement (incremental patching)
   → Export
 ```
 
@@ -25,19 +26,16 @@ User input (text/voice)
 
 ### Text Input → Enhanced → Diagram
 **User types**: "Create a design system architecture for a React and Next.js app with tokens, components, themes, and documentation."
-**System enhances**: Adds entities (primitive tokens, semantic tokens, component library, theme layer, Storybook, app consumption), relationships, and structure hints.
-**System generates**: Mermaid architecture diagram with layered subgraphs.
+**System enhances**: Adds entities, metadata (tooltips), relationships, and structure hints.
+**System generates**: Mermaid architecture diagram. Hovering over "Component Library" shows "The central repository for reusable UI components...".
 
-### Voice Input
-**User speaks**: "Show how buttons, forms, and modals relate in a scalable design system."
-**System shows**: Transcript → User edits if needed → Confirms → Prompt enhanced → Component hierarchy diagram generated.
+### Conversational Refinement (Incremental)
+**User follows up**: "Add a Storybook layer for documentation."
+**System**: Classifies as `ADD_ELEMENT` → preserve existing nodes → append Storybook to Mermaid → update v2.
 
-### Conversational Refinement
-**User follows up**: "Add accessibility testing and documentation layers."
-**System**: Enhances follow-up in context → Updates diagram → Shows new version alongside previous.
-
-### Export
-**User clicks**: "Copy Mermaid" → Valid Mermaid syntax copied to clipboard.
+### Visual Customization (No AI)
+**User clicks toolbar**: Changes "Node Background" to "Soft Gray".
+**System**: Updates style state → preview re-renders immediately.
 
 ---
 
@@ -46,9 +44,9 @@ User input (text/voice)
 | Feature | Why It Matters |
 |---------|---------------|
 | **Prompt enhancement** | Raw ideas are improved before generation — better diagrams |
-| **Design-system focus** | Not generic — optimized prompts and diagrams for DS domain |
-| **Conversational refinement** | Iterate on diagrams via chat, not start over |
-| **Provider abstraction** | Mermaid now, Eraser or others later |
+| **Incremental Refinement** | Stable iteration: preserve existing nodes/edges unless changed |
+| **Node Tooltips** | Contextual DS knowledge embedded in diagrams |
+| **Style Toolbar** | Rapid visual customization without AI latency |
 | **Transparent AI** | Shows enhanced prompt — user sees what AI understood |
 
 ---

@@ -235,21 +235,62 @@ class Conversation(BaseModel):
     updated_at: datetime
 ```
 
+### DiagramNode
+```python
+class DiagramNode(BaseModel):
+    id: str
+    label: str
+    type: str  # token | component | documentation | workflow | testing | generic
+    metadata: dict = {
+        "tooltip_title": str,
+        "tooltip_description": str,
+        "role": str,
+        "importance": "low | medium | high",
+        "connections_summary": str
+    }
+    style: dict = {
+        "background_color": str | None,
+        "font_color": str | None
+    }
+```
+
+### DiagramEdge
+```python
+class DiagramEdge(BaseModel):
+    id: str
+    source: str
+    target: str
+    label: str | None
+    description: str | None
+```
+
+### DiagramStyle
+```python
+class DiagramStyle(BaseModel):
+    font_family: str  # Inter | Arial | Roboto | System
+    font_size: str    # small | medium | large
+    font_color: str   # default | dark | muted
+    node_background_color: str
+    diagram_background_color: str
+```
+
 ### DiagramVersion
 ```python
 class DiagramVersion(BaseModel):
     id: str
+    base_diagram_id: str         # First diagram in conversation
+    parent_diagram_id: str | None # Previous version
     conversation_id: str
     version: int
-    raw_prompt: str
-    enhanced_prompt: str
+    change_intent: str           # PATCH | ADD | REMOVE | STYLE | REGENERATE
     diagram_source: str          # Mermaid syntax
-    diagram_format: str          # "mermaid" | "graph-json"
-    diagram_type: str            # architecture | hierarchy | token | workflow
+    diagram_format: str          # "mermaid"
+    nodes: list[DiagramNode]
+    edges: list[DiagramEdge]
+    style: DiagramStyle
     title: str
     explanation: str
-    provider: str
-    changes_summary: list[str]   # empty for v1
+    changes_summary: list[str]
     metadata: dict
     created_at: datetime
 ```
@@ -260,7 +301,7 @@ class Message(BaseModel):
     id: str
     role: str                    # user | assistant | system
     content: str
-    message_type: str            # input | enhancement | diagram | refinement | error
+    message_type: str            # input | diagram | refinement | error
     timestamp: datetime
 ```
 

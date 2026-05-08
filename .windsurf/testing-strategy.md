@@ -115,22 +115,40 @@
 - Mermaid syntax is valid
 - Diagram matches enhanced prompt intent
 
-### Refinement Consistency
-- Refined diagram preserves unchanged elements
-- Only requested additions/changes appear
-- Diagram doesn't grow unbounded
-- Context maintained across 3+ refinements
-- Explanation accurately describes changes
-
-### Invalid Output Recovery
-- Malformed JSON triggers repair prompt
-- Invalid Mermaid triggers repair prompt
-- Repair prompt produces valid output
-- If repair fails, error is graceful
+### Refinement & Styling
+- Intent classification (PATCH vs STYLE vs REGENERATE)
+- Minimal Mermaid patching (topology preservation)
+- Node metadata enrichment accuracy
+- Style Toolbar reactivity (<100ms update)
+- Style preservation across topology refinements
 
 ---
 
-## Manual QA Checklist
+## AI Quality Tests
+
+### Metadata & Tooltip Quality
+- Tooltip content is context-specific to the node's role in the DS
+- 100% coverage: every generated node has a non-empty tooltip
+- Importance levels (low/medium/high) are logical
+
+### Refinement Stability
+- Unchanged elements remain identical across versions
+- Metadata is preserved for existing nodes during refinement
+- Patching doesn't break Mermaid syntax
+
+---
+
+## Frontend UI Tests
+
+### Node Tooltips
+- Tooltip appears on hover, disappears on mouseleave
+- Tooltip displays Title, Role, Summary, and Description
+- Tooltip handles long text gracefully
+
+### Style Toolbar (Ribbon)
+- Controls for Font, Size, Color, and Backgrounds
+- Immediate update of the rendered diagram style
+- Style settings persist after a refinement update
 
 ### Demo Scenario 1: Design System Architecture
 - Input: "Create a design system architecture for a React and Next.js app with tokens, components, themes, and documentation."

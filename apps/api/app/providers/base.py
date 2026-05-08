@@ -1,4 +1,10 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.schemas.diagram import DiagramNode, DiagramEdge, DiagramStyle
 
 
 class DiagramContext:
@@ -23,6 +29,7 @@ class DiagramResult:
     def __init__(
         self,
         diagram_id: str,
+        conversation_id: str,
         title: str,
         diagram_type: str,
         provider: str,
@@ -31,8 +38,16 @@ class DiagramResult:
         explanation: str,
         changes_summary: list[str] | None = None,
         metadata: dict | None = None,
+        nodes: list["DiagramNode"] | None = None,
+        edges: list["DiagramEdge"] | None = None,
+        style: "DiagramStyle" | None = None,
+        change_intent: str = "NEW_DIAGRAM",
+        is_full_regeneration: bool = True,
+        base_diagram_id: str | None = None,
+        parent_diagram_id: str | None = None,
     ):
         self.diagram_id = diagram_id
+        self.conversation_id = conversation_id
         self.title = title
         self.diagram_type = diagram_type
         self.provider = provider
@@ -41,6 +56,13 @@ class DiagramResult:
         self.explanation = explanation
         self.changes_summary = changes_summary or []
         self.metadata = metadata or {}
+        self.nodes = nodes or []
+        self.edges = edges or []
+        self.style = style
+        self.change_intent = change_intent
+        self.is_full_regeneration = is_full_regeneration
+        self.base_diagram_id = base_diagram_id
+        self.parent_diagram_id = parent_diagram_id
 
 
 class DiagramProvider(ABC):

@@ -6,7 +6,6 @@ import PromptInput from "@/components/workspace/PromptInput";
 import ConversationHistory from "@/components/workspace/ConversationHistory";
 import DiagramPreview from "@/components/workspace/DiagramPreview";
 import FollowUpInput from "@/components/workspace/FollowUpInput";
-import VersionHistory from "@/components/workspace/VersionHistory";
 import { useWorkspaceStore } from "@/stores/workspace";
 import { api } from "@/lib/api";
 
@@ -79,6 +78,7 @@ export default function WorkspacePage() {
           currentDiagram.diagram_id,
           followup,
           currentDiagram.diagram_source,
+          currentDiagram.nodes,
           "mermaid",
         );
 
@@ -140,10 +140,7 @@ export default function WorkspacePage() {
           {/* Input area */}
           <div className="border-t border-gray-200 bg-white p-4">
             {currentDiagram ? (
-              <div className="flex flex-col gap-3">
-                <FollowUpInput onSubmit={handleRefine} disabled={isBusy} />
-                <VersionHistory />
-              </div>
+              <FollowUpInput onSubmit={handleRefine} disabled={isBusy} />
             ) : (
               <PromptInput onSubmit={handleGenerate} disabled={isBusy} />
             )}
@@ -151,7 +148,7 @@ export default function WorkspacePage() {
         </section>
 
         {/* Right: Diagram Panel */}
-        <section className="flex flex-1 flex-col bg-white p-6">
+        <section className="flex flex-1 flex-col bg-white p-4">
           <DiagramPreview />
         </section>
       </div>
