@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import VoiceInput from "./VoiceInput";
 
 const DIAGRAM_TYPES = [
   { value: "auto", label: "Auto-detect" },
@@ -37,6 +38,13 @@ export default function PromptInput({ onSubmit, disabled }: PromptInputProps) {
     setPrompt(example);
   };
 
+  const handleTranscript = (transcript: string) => {
+    setPrompt((prev) => {
+      const newText = prev ? `${prev} ${transcript}` : transcript;
+      return newText;
+    });
+  };
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
@@ -58,14 +66,19 @@ export default function PromptInput({ onSubmit, disabled }: PromptInputProps) {
         </select>
       </div>
 
-      <textarea
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Describe your design system idea..."
-        rows={4}
-        disabled={disabled}
-        className="w-full resize-none rounded-lg border border-gray-300 p-3 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black disabled:opacity-50"
-      />
+      <div className="relative">
+        <textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="Describe your design system idea..."
+          rows={4}
+          disabled={disabled}
+          className="w-full resize-none rounded-lg border border-gray-300 p-3 pr-12 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black disabled:opacity-50"
+        />
+        <div className="absolute right-2 top-2">
+          <VoiceInput onTranscript={handleTranscript} disabled={disabled} />
+        </div>
+      </div>
 
       <div className="flex items-center justify-between">
         <div className="flex flex-wrap gap-2">
