@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useWorkspaceStore } from "@/stores/workspace";
+import ExportPanel from "./ExportPanel";
 
 export default function DiagramPreview() {
   const currentDiagram = useWorkspaceStore((s) => s.currentDiagram);
@@ -96,6 +97,12 @@ export default function DiagramPreview() {
           {currentDiagram.explanation}
         </div>
       )}
+
+      <ExportPanel
+        diagramSource={currentDiagram.diagram_source}
+        diagramFormat={currentDiagram.diagram_format}
+        explanation={currentDiagram.explanation || ""}
+      />
     </div>
   );
 }
