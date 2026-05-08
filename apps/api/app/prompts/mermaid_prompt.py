@@ -16,19 +16,41 @@ Guidelines for Mermaid code:
   * sequenceDiagram for process flows and interactions
   * stateDiagram for state transitions
   * erDiagram for entity relationships
-- Use clear, descriptive node names
+- Use clear, descriptive node names without special characters or punctuation
 - Include proper labels and styling where appropriate
 - Ensure the diagram is readable and well-structured
 - Follow Mermaid syntax rules strictly
 - For design systems, typically use flowchart with top-down or left-right orientation
 
-Common design system patterns:
-- Design tokens → semantic tokens → component tokens → components
-- Design tools (Figma) → design tokens → component library → documentation
-- Component library → Storybook → applications
-- Atomic design: atoms → molecules → organisms → templates → pages
+STRICT MERMAID SYNTAX RULES — NEVER VIOLATE THESE:
+1. NEVER use comma-separated class names. WRONG: `class Button,Input,Form`. CORRECT: define each class on its own line.
+2. In classDiagram, each class must be declared individually: `class Button`, `class Input`, `class Form` — one per line.
+3. Node IDs in flowcharts must NOT contain spaces or punctuation. Use camelCase or underscores (e.g., `designTokens`, `component_library`).
+4. Do NOT use parentheses, commas, or colons inside node labels unless inside quotes.
+5. Relationship arrows must have exactly the right syntax: `-->`, `--`, `<|--`, `*--`, `o--`, etc.
+6. Do NOT add trailing punctuation after classDiagram member declarations.
 
-Example Mermaid flowchart:
+Example valid classDiagram:
+```mermaid
+classDiagram
+    class Button {
+        +String label
+        +String variant
+        +onClick()
+    }
+    class Input {
+        +String placeholder
+        +String type
+        +onChange()
+    }
+    class Form {
+        +submit()
+    }
+    Form --> Button
+    Form --> Input
+```
+
+Example valid flowchart:
 ```mermaid
 flowchart TD
     A[Design Tokens] --> B[Component Library]
