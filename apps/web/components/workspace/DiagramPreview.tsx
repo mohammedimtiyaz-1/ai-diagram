@@ -7,7 +7,7 @@ import NodeTooltip from "./NodeTooltip";
 import EdgeTooltip from "./EdgeTooltip";
 import EdgeRelationshipPanel from "./EdgeRelationshipPanel";
 import { NodeMetadata, EdgeMetadata, DiagramEdge } from "@/lib/api";
-import { Download, FileJson, Code } from "lucide-react";
+import { Download, FileJson, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 
 const FONT_MAP: Record<string, string> = {
   Inter: "'Inter', sans-serif",
@@ -65,6 +65,16 @@ export default function DiagramPreview() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+
+  // Zoom state
+  const [zoom, setZoom] = useState(1);
+  const MIN_ZOOM = 0.25;
+  const MAX_ZOOM = 3;
+  const ZOOM_STEP = 0.25;
+
+  const handleZoomIn = () => setZoom((z) => Math.min(z + ZOOM_STEP, MAX_ZOOM));
+  const handleZoomOut = () => setZoom((z) => Math.max(z - ZOOM_STEP, MIN_ZOOM));
+  const handleResetZoom = () => setZoom(1);
 
   // Tooltip state
   const [tooltip, setTooltip] = useState<{
@@ -357,10 +367,42 @@ export default function DiagramPreview() {
         </div>
       </details>
 
-      <div className="flex-1 min-h-0 relative rounded-xl border border-gray-100 bg-white shadow-inner ring-1 ring-gray-50 overflow-hidden">
-        <div 
-          ref={containerRef} 
-          className="w-full h-full min-h-[250px] sm:min-h-[350px] lg:min-h-[400px] flex items-center justify-center p-2 sm:p-4 overflow-auto"
+      <div className="flex-1 min-h-0 relative rounded-xl border border-gray-100 bg-white shadow-inner ring-1 ring-gray-50 overflow-auto">
+        {/* Zoom controls */}
+        <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1 rounded-lg bg-white/90 border border-gray-200 shadow-sm p-1 backdrop-blur-sm">
+          <button
+            onClick={handleZoomOut}
+            disabled={zoom <= MIN_ZOOM}
+            className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100 disabled:opacity-30 transition"
+            aria-label="Zoom out"
+          >
+            <ZoomOut className="w-4 h-4" />
+          </button>
+          <span className="text-[10px] font-bold w-10 text-center tabular-nums select-none">
+            {Math.round(zoom * 100)}%
+          </span>
+          <button
+            onClick={handleZoomIn}
+            disabled={zoom >= MAX_ZOOM}
+            className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100 disabled:opacity-30 transition"
+            aria-label="Zoom in"
+          >
+            <ZoomIn className="w-4 h-4" />
+          </button>
+          <button
+            onClick={handleResetZoom}
+            disabled={zoom === 1}
+            className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100 disabled:opacity-30 transition"
+            aria-label="Reset zoom"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div
+          ref={containerRef}
+          className="w-full min-h-[250px] sm:min-h-[350px] lg:min-h-[400px] flex items-start justify-start sm:items-center sm:justify-center p-2 sm:p-4"
+          style={{ zoom }}
         />
 
         {renderError && (
