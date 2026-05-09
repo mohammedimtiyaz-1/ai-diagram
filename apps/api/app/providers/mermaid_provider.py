@@ -403,21 +403,25 @@ Return valid JSON as specified in the system prompt.
             else:
                 result_map[pair] = edge
                 
-        return list(result_map.values())
 
     def _sanitize_mermaid(self, mermaid_code: str) -> str:
         """Fix common Mermaid syntax issues produced by the AI.
 
-        Expands comma-separated class declarations:
-          class Button,Input,Form  →  class Button\\n    class Input\\n    class Form
+        1. Expands comma-separated class declarations.
+        2. Quotes node labels that contain special characters (parentheses,
+           brackets, braces, quotes) to prevent Mermaid parse errors.
         """
         if not mermaid_code:
             return mermaid_code
 
         lines = mermaid_code.splitlines()
         result: list[str] = []
+
         for line in lines:
-            m = re.match(r'^(\s*)class\s+([A-Za-z_][\w,\s]+)$', line)
+            stripped = line.strip()
+
+            # Fix comma-separated class declarations
+            m = re.match(r'^(\s*)class\s+([A-Za-z_][\w,\s]+)$', stripped)
             if m:
                 indent = m.group(1)
                 names = [n.strip() for n in m.group(2).split(',') if n.strip()]
@@ -425,7 +429,66 @@ Return valid JSON as specified in the system prompt.
                     for name in names:
                         result.append(f"{indent}class {name}")
                     continue
+                result.append(line)
+                continue
+
+            # Skip edge definitions, directives, comments
+            if (
+                re.search(r'(--[>.\-~]|==[>]|~~~)', stripped)
+                or stripped.startswith(("class ", "click ", "style ", "subgraph "))
+                or stripped == "end"
+                or stripped.startswith("%%")
+            ):
+                result.append(line)
+                continue
+
+            # Fix node labels with special characters by quoting them
+            # Characters that break Mermaid: ()[]{}"'<>|
+            special_chars_pattern = r'[()\[\]{}"\'<>|]'
+
+            def _quote_label(match: re.Match) -> str:
+                node_id = match.group(1)
+                open_delim = match.group(2)
+                label = match.group(3)
+                close_delim = match.group(4)
+
+                # Already quoted — just escape inner double-quotes
+                if label.startswith('"') and label.endswith('"'):
+                    inner = label[1:-1].replace('"', '\\"')
+                    return f'{node_id}{open_delim}"{inner}"{close_delim}'
+
+                # Only wrap if label actually contains problematic characters
+                if re.search(special_chars_pattern, label):
+                    safe_label = label.replace('"', '\\"')
+                    return f'{node_id}{open_delim}"{safe_label}"{close_delim}'
+
+                return match.group(0)
+
+            # Order matters — multi-char delimiters first
+            line = re.sub(
+                r'(\b[\w_][\w\d_]*)(\[\[)([^\]]*?)(\]\])', _quote_label, line
+            )  # [[...]]
+            line = re.sub(
+                r'(\b[\w_][\w\d_]*)(\[\()([^\)]*?)(\)\])', _quote_label, line
+            )  # [(...)]
+            line = re.sub(
+                r'(\b[\w_][\w\d_]*)(\(\()([^\)]*?)(\)\))', _quote_label, line
+            )  # ((...))
+            line = re.sub(
+                r'(\b[\w_][\w\d_]*)(\{\{)([^\}]*?)(\}\})', _quote_label, line
+            )  # {{...}}
+            line = re.sub(
+                r'(\b[\w_][\w\d_]*)(\[)([^\]]*?)(\])(?!\[)', _quote_label, line
+            )  # [...]
+            line = re.sub(
+                r'(\b[\w_][\w\d_]*)(\()([^\)]*?)(\))(?!\))', _quote_label, line
+            )  # (...)
+            line = re.sub(
+                r'(\b[\w_][\w\d_]*)(\{)([^\}]*?)(\})(?!\{)', _quote_label, line
+            )  # {...}
+
             result.append(line)
+
         return "\n".join(result)
 
     def _validate_mermaid_syntax(self, mermaid_code: str) -> bool:

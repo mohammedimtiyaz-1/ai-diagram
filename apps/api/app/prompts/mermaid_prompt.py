@@ -43,7 +43,7 @@ STRICT MERMAID SYNTAX RULES — NEVER VIOLATE THESE:
 1. NEVER use comma-separated class names. WRONG: `class Button,Input,Form`. CORRECT: define each class on its own line.
 2. In classDiagram, each class must be declared individually: `class Button`, `class Input`, `class Form` — one per line.
 3. Node IDs in flowcharts must NOT contain spaces or punctuation. Use camelCase or underscores (e.g., `designTokens`, `component_library`).
-4. Do NOT use parentheses, commas, or colons inside node labels unless inside quotes.
+4. If a node label contains ANY special characters — parentheses `()`, brackets `[]`, braces `{}`, commas, colons, quotes, or pipes `|` — you MUST wrap the ENTIRE label in DOUBLE QUOTES. Example: `FE["Frontend (Next.js)"]` or `DS["Design System [Tokens]"]`.
 5. Relationship arrows must have exactly the right syntax: `-->`, `--`, `<|--`, `*--`, `o--`, etc.
 6. Do NOT add trailing punctuation after classDiagram member declarations.
 
