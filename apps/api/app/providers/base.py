@@ -98,6 +98,11 @@ class DiagramProvider(ABC):
         enhanced_followup: str,
         diagram_type: str,
         context: DiagramContext,
+        existing_nodes: list[DiagramNode] | None = None,
+        existing_edges: list[DiagramEdge] | None = None,
+        intent: str = "PATCH_CHANGE",
+        parent_diagram_id: str | None = None,
+        base_diagram_id: str | None = None,
     ) -> DiagramResult:
         """Refine an existing diagram based on follow-up instructions."""
         ...

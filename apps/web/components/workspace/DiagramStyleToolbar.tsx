@@ -36,97 +36,66 @@ export default function DiagramStyleToolbar() {
   };
 
   return (
-    <div className="mb-3 flex flex-wrap items-center gap-4 rounded-lg border border-gray-100 bg-white/90 p-2.5 shadow-sm backdrop-blur-md">
-      {/* Font Family */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Typography</label>
-        <div className="flex gap-1">
+    <div className="mb-4 flex flex-wrap items-center gap-3 sm:gap-6 rounded-xl border border-gray-100 bg-white/90 p-2.5 sm:p-3 shadow-lg backdrop-blur-md max-w-full">
+      {/* Typography */}
+      <div className="flex flex-col gap-1">
+        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 px-1">Typography</label>
+        <select
+          value={style.font_family}
+          onChange={(e) => updateStyle({ font_family: e.target.value })}
+          className="appearance-none bg-gray-50 border border-gray-100 rounded-lg px-3 py-1.5 text-[11px] font-bold text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-black/5"
+        >
           {["Inter", "Arial", "Roboto", "System"].map((f) => (
-            <button
-              key={f}
-              onClick={() => updateStyle({ font_family: f })}
-              className={`rounded-md px-2 py-1 text-xs font-medium transition-all ${
-                style.font_family === f 
-                  ? "bg-gray-900 text-white shadow-sm" 
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              {f}
-            </button>
+            <option key={f} value={f}>{f}</option>
           ))}
-        </div>
+        </select>
       </div>
 
-      <div className="h-8 w-px bg-gray-100" />
-
-      {/* Font Size */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Scale</label>
-        <div className="flex gap-1">
+      {/* Scale */}
+      <div className="flex flex-col gap-1">
+        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 px-1">Scale</label>
+        <select
+          value={style.font_size}
+          onChange={(e) => updateStyle({ font_size: e.target.value })}
+          className="appearance-none bg-gray-50 border border-gray-100 rounded-lg px-3 py-1.5 text-[11px] font-bold text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-black/5"
+        >
           {["small", "medium", "large"].map((s) => (
-            <button
-              key={s}
-              onClick={() => updateStyle({ font_size: s })}
-              className={`rounded-md px-2 py-1 text-xs font-medium capitalize transition-all ${
-                style.font_size === s 
-                  ? "bg-gray-900 text-white shadow-sm" 
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              {s}
-            </button>
+            <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
           ))}
-        </div>
+        </select>
       </div>
 
-      <div className="h-8 w-px bg-gray-100" />
-
-      {/* Node Color Swatches */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Node Base</label>
-        <div className="flex items-center gap-2">
+      {/* Node Color */}
+      <div className="flex flex-col gap-1">
+        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 px-1">Node Base</label>
+        <select
+          value={style.node_background_color}
+          onChange={(e) => updateStyle({ node_background_color: e.target.value })}
+          className="appearance-none bg-gray-50 border border-gray-100 rounded-lg px-3 py-1.5 text-[11px] font-bold text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-black/5"
+        >
           {COLOR_SWATCHES.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => updateStyle({ node_background_color: item.id })}
-              className={`group relative h-6 w-6 rounded-full transition-all hover:scale-110 active:scale-95 ${
-                style.node_background_color === item.id ? "ring-2 ring-blue-500 ring-offset-2" : "ring-1 ring-gray-200 ring-offset-1"
-              }`}
-              style={{ backgroundColor: item.hex }}
-            >
-              <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 scale-0 rounded bg-gray-900 px-1 py-0.5 text-[8px] text-white transition-all group-hover:scale-100">
-                {item.id}
-              </span>
-            </button>
+            <option key={item.id} value={item.id}>{item.id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</option>
           ))}
-        </div>
+        </select>
       </div>
-
-      <div className="h-8 w-px bg-gray-100" />
 
       {/* Visual Themes */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Aesthetic Theme</label>
-        <div className="flex gap-1">
+      <div className="flex flex-col gap-1">
+        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 px-1">Aesthetic Theme</label>
+        <select
+          value={style.node_theme}
+          onChange={(e) => updateStyle({ node_theme: e.target.value })}
+          className="appearance-none bg-blue-50 border border-blue-100 rounded-lg px-3 py-1.5 text-[11px] font-black text-blue-700 cursor-pointer hover:bg-blue-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/10"
+        >
           {["default", "technical", "soft", "colorful", "dark", "enterprise"].map((t) => (
-            <button
-              key={t}
-              onClick={() => updateStyle({ node_theme: t })}
-              className={`rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-tighter transition-all ${
-                style.node_theme === t 
-                  ? "bg-blue-600 text-white shadow-sm" 
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              {t}
-            </button>
+            <option key={t} value={t}>{t.toUpperCase()}</option>
           ))}
-        </div>
+        </select>
       </div>
 
-      <div className="ml-auto hidden items-center gap-2 lg:flex">
+      <div className="ml-auto hidden items-center gap-2 lg:flex pr-2">
         <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500" />
-        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-tighter">
+        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
           Instant Live Styling
         </span>
       </div>

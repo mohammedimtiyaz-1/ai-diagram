@@ -226,3 +226,53 @@ async def test_refine_diagram_with_fallback():
                     # Should fall back to mock diagram
                     assert result.diagram_source.startswith("flowchart")
                     assert "fallback" in result.explanation.lower()
+
+
+@pytest.mark.asyncio
+async def test_generate_codebase_diagram_success():
+    """Test successful codebase diagram generation."""
+    provider = MermaidProvider(max_retries=0)
+
+    mock_response = AsyncMock()
+    mock_response.choices = [AsyncMock()]
+    mock_response.choices[0].message.content = json.dumps({
+        "mermaid_code": "flowchart TD\n    A[api/main.py] --> B[app/services/]",
+        "title": "Codebase Architecture",
+        "explanation": "Shows repository structure",
+        "nodes": [
+            {
+                "id": "A",
+                "label": "api/main.py",
+                "type": "module",
+                "metadata": {
+                    "tooltip_title": "Main Entry",
+                    "tooltip_description": "Entry point of the API",
+                    "role": "API",
+                    "importance": "high",
+                    "connections_summary": "Starts the server",
+                    "related_files": ["api/main.py"]
+                }
+            }
+        ],
+        "edges": []
+    })
+
+    context = DiagramContext(conversation_id="test-conv-code")
+
+    with patch.object(OpenAIClient, "get_async", return_value=AsyncMock()):
+        with patch.object(OpenAIClient.get_async(), "chat", return_value=AsyncMock()):
+            with patch.object(OpenAIClient.get_async().chat, "completions", return_value=AsyncMock()):
+                with patch.object(
+                    OpenAIClient.get_async().chat.completions,
+                    "create",
+                    return_value=mock_response,
+                ):
+                    result = await provider.generate_codebase_diagram(
+                        "Analysis summary",
+                        "Generate diagram",
+                        "flowchart",
+                        context
+                    )
+
+                    assert result.diagram_source.startswith("flowchart")
+                    assert result.nodes[0].metadata.related_files == ["api/main.py"]

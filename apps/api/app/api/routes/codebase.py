@@ -8,7 +8,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/codebase", tags=["codebase"])
+router = APIRouter(prefix="/api/codebase", tags=["codebase"])
 
 @router.post("/analyze", response_model=CodebaseAnalysisResponse)
 async def analyze_codebase(request: CodebaseAnalysisRequest):

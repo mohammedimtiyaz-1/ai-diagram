@@ -1,10 +1,12 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import conversations, diagrams, health, prompts, codebase
 from app.core.config import settings
+from app.core.errors import AppError
 
 
 @asynccontextmanager
@@ -18,6 +20,21 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+@app.exception_handler(AppError)
+async def app_error_handler(request: Request, exc: AppError):
+    status_code = 400
+    if exc.code == "AI_TIMEOUT":
+        status_code = 504 # Gateway Timeout or 408 Request Timeout
+    
+    return JSONResponse(
+        status_code=status_code,
+        content={
+            "code": exc.code,
+            "message": exc.message,
+            "suggestion": exc.suggestion
+        }
+    )
 
 app.add_middleware(
     CORSMiddleware,

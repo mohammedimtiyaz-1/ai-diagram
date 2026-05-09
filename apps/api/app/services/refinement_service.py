@@ -1,8 +1,14 @@
+import asyncio
+import logging
+from app.core.config import settings
+from app.core.errors import AiTimeoutError
 from app.providers.base import DiagramContext
 from app.providers.registry import ProviderRegistry
 from app.schemas.diagram import DiagramMetadata, DiagramNode, DiagramResult, DiagramStyle
 from app.services.conversation_service import ConversationService
 from app.services.version_service import VersionService
+
+logger = logging.getLogger(__name__)
 
 
 class RefinementService:
@@ -22,6 +28,7 @@ class RefinementService:
         current_diagram_source: str,
         provider: str,
         existing_nodes: list[DiagramNode] | None = None,
+        existing_edges: list[any] | None = None,
         existing_style: DiagramStyle | None = None,
     ) -> DiagramResult:
         provider_instance = ProviderRegistry.get(provider)
@@ -31,43 +38,55 @@ class RefinementService:
         current_version = self.version_service.get_latest_version(conversation_id)
         diagram_title = current_version.title if current_version else "Design System Diagram"
 
-        intent = await provider_instance.classify_intent(
-            diagram_title=diagram_title,
-            followup_prompt=followup_prompt,
-        )
-
-        # ── Step 2: Handle STYLE_CHANGE without AI topology mutation ────────
-        if intent == "STYLE_CHANGE":
-            return self._style_only_response(
-                conversation_id=conversation_id,
-                diagram_id=diagram_id,
-                followup_prompt=followup_prompt,
-                current_diagram_source=current_diagram_source,
-                existing_nodes=existing_nodes or [],
-                existing_style=existing_style or DiagramStyle(),
+        try:
+            intent = await asyncio.wait_for(
+                provider_instance.classify_intent(
+                    diagram_title=diagram_title,
+                    followup_prompt=followup_prompt,
+                ),
+                timeout=settings.ai_timeout_seconds
             )
 
-        # ── Step 3: Determine versioning chain ──────────────────────────────
-        previous_version = self.version_service.get_latest_version(conversation_id)
-        new_version_number = (previous_version.version + 1) if previous_version else 2
+            # ── Step 2: Handle STYLE_CHANGE without AI topology mutation ────────
+            if intent == "STYLE_CHANGE":
+                return self._style_only_response(
+                    conversation_id=conversation_id,
+                    diagram_id=diagram_id,
+                    followup_prompt=followup_prompt,
+                    current_diagram_source=current_diagram_source,
+                    existing_nodes=existing_nodes or [],
+                    existing_edges=existing_edges or [],
+                    existing_style=existing_style or DiagramStyle(),
+                )
 
-        # Retrieve base_diagram_id — stays the same for the entire conversation
-        base_diagram_id = (
-            getattr(previous_version, "base_diagram_id", diagram_id) if previous_version else diagram_id
-        )
+            # ── Step 3: Determine versioning chain ──────────────────────────────
+            previous_version = self.version_service.get_latest_version(conversation_id)
+            new_version_number = (previous_version.version + 1) if previous_version else 2
 
-        # ── Step 4: Incremental AI refinement ───────────────────────────────
-        context = DiagramContext(conversation_id=conversation_id)
-        diagram_result = await provider_instance.refine_diagram(
-            existing_diagram=current_diagram_source,
-            enhanced_followup=followup_prompt,
-            diagram_type=current_version.diagram_type if current_version else "design-system-architecture",
-            context=context,
-            existing_nodes=existing_nodes or [],
-            intent=intent,
-            parent_diagram_id=diagram_id,
-            base_diagram_id=base_diagram_id,
-        )
+            # Retrieve base_diagram_id — stays the same for the entire conversation
+            base_diagram_id = (
+                getattr(previous_version, "base_diagram_id", diagram_id) if previous_version else diagram_id
+            )
+
+            # ── Step 4: Incremental AI refinement ───────────────────────────────
+            context = DiagramContext(conversation_id=conversation_id)
+            diagram_result = await asyncio.wait_for(
+                provider_instance.refine_diagram(
+                    existing_diagram=current_diagram_source,
+                    enhanced_followup=followup_prompt,
+                    diagram_type=current_version.diagram_type if current_version else "design-system-architecture",
+                    context=context,
+                    existing_nodes=existing_nodes or [],
+                    # existing_edges is passed via context if needed, but provider.refine_diagram signature may need update
+                    intent=intent,
+                    parent_diagram_id=diagram_id,
+                    base_diagram_id=base_diagram_id,
+                ),
+                timeout=settings.ai_timeout_seconds
+            )
+        except asyncio.TimeoutError:
+            logger.error(f"Refinement timed out after {settings.ai_timeout_seconds}s")
+            raise AiTimeoutError(f"Refinement timed out after {settings.ai_timeout_seconds}s. This is taking longer than expected. Please try again with a shorter prompt.")
 
         # ── Step 5: Preserve existing style unless AI changed it ────────────
         final_style = existing_style or DiagramStyle()
@@ -136,6 +155,7 @@ class RefinementService:
         followup_prompt: str,
         current_diagram_source: str,
         existing_nodes: list[DiagramNode],
+        existing_edges: list[any],
         existing_style: DiagramStyle,
     ) -> DiagramResult:
         """Return the exact same diagram topology with a note that only style changed."""
@@ -165,7 +185,7 @@ class RefinementService:
             diagram_format="mermaid",
             explanation="Style preference noted — use the Style Toolbar to apply visual changes instantly without re-generating the diagram.",
             nodes=existing_nodes,
-            edges=[],
+            edges=existing_edges,
             style=existing_style,
             change_intent="STYLE_CHANGE",
             is_full_regeneration=False,

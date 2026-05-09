@@ -32,3 +32,12 @@ class GenerationError(AppError):
             message=message,
             suggestion="Try simplifying your description or selecting a specific diagram type.",
         )
+
+
+class AiTimeoutError(AppError):
+    def __init__(self, message: str):
+        super().__init__(
+            code="AI_TIMEOUT",
+            message=message,
+            suggestion="This is taking longer than expected. Please try again with a shorter prompt.",
+        )

@@ -1,11 +1,15 @@
+import asyncio
 import json
+import logging
 from typing import List, Dict, Any, Optional
 from uuid import uuid4
-from app.services.github_service import GitHubService
-from app.core.openai_client import openai_client
+
+from app.core.config import settings
+from app.core.openai_client import OpenAIClient
+from app.core.errors import AiTimeoutError
 from app.prompts.codebase_prompt import CODEBASE_ANALYSIS_SYSTEM_PROMPT, CODEBASE_ANALYSIS_USER_TEMPLATE
 from app.schemas.codebase import CodebaseAnalysisResponse
-import logging
+from app.services.github_service import GitHubService
 
 logger = logging.getLogger(__name__)
 
@@ -53,10 +57,34 @@ class CodebaseService:
 
         # 5. Call AI for Analysis
         logger.info("Calling AI for codebase analysis...")
-        ai_response = await openai_client.generate_json(
-            system_prompt=CODEBASE_ANALYSIS_SYSTEM_PROMPT,
-            user_prompt=user_prompt
-        )
+        client = OpenAIClient.get_async()
+        
+        try:
+            response = await asyncio.wait_for(
+                client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "system", "content": CODEBASE_ANALYSIS_SYSTEM_PROMPT},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    response_format={"type": "json_object"},
+                    temperature=0.3,
+                    max_tokens=1500,
+                ),
+                timeout=settings.ai_timeout_seconds
+            )
+            
+            ai_content = response.choices[0].message.content
+            if not ai_content:
+                raise ValueError("AI returned empty analysis")
+            
+            ai_response = json.loads(ai_content)
+        except asyncio.TimeoutError:
+            logger.error(f"Codebase analysis timed out after {settings.ai_timeout_seconds}s")
+            raise AiTimeoutError(f"Codebase analysis timed out after {settings.ai_timeout_seconds}s. This repository might be too large or complex to analyze quickly.")
+        except Exception as e:
+            logger.error(f"Codebase analysis AI call failed: {e}")
+            ai_response = {}
 
         # 6. Parse and Return
         analysis_id = str(uuid4())

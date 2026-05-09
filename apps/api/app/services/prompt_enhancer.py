@@ -1,7 +1,10 @@
+import asyncio
 import json
 import logging
 
+from app.core.config import settings
 from app.core.openai_client import OpenAIClient
+from app.core.errors import AiTimeoutError
 from app.prompts.enhancement_prompt import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE
 from app.schemas.prompt import EnhancementResult, Relationship
 
@@ -37,15 +40,18 @@ class PromptEnhancerService:
         last_error = None
         for attempt in range(self.max_retries + 1):
             try:
-                response = await client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                    response_format={"type": "json_object"},
-                    temperature=0.7,
-                    max_tokens=1000,
+                response = await asyncio.wait_for(
+                    client.chat.completions.create(
+                        model="gpt-4o-mini",
+                        messages=[
+                            {"role": "system", "content": SYSTEM_PROMPT},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                        response_format={"type": "json_object"},
+                        temperature=0.7,
+                        max_tokens=1000,
+                    ),
+                    timeout=settings.ai_timeout_seconds,
                 )
 
                 content = response.choices[0].message.content
@@ -73,13 +79,16 @@ class PromptEnhancerService:
                     recommended_provider="mermaid",
                 )
 
+            except asyncio.TimeoutError:
+                logger.error(f"Enhancement timed out after {settings.ai_timeout_seconds}s")
+                raise AiTimeoutError(f"Enhancement timed out after {settings.ai_timeout_seconds}s. This is taking longer than expected. Please try again with a shorter prompt.")
             except Exception as e:
                 last_error = e
                 logger.warning(f"Attempt {attempt + 1} failed: {e}")
                 if attempt < self.max_retries:
                     continue
 
-        # All retries failed, fall back to mock for resilience
+        # All retries failed (excluding timeout which raises immediately), fall back to mock for resilience
         logger.error(f"OpenAI enhancement failed after {self.max_retries + 1} attempts: {last_error}")
         return self._fallback_enhancement(raw_prompt, diagram_type)
 

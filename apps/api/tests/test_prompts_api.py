@@ -49,3 +49,26 @@ def test_enhance_prompt_validation_error():
         },
     )
     assert response.status_code == 422
+
+
+def test_enhance_prompt_timeout():
+    from unittest.mock import patch
+    from app.core.errors import AiTimeoutError
+    from app.services.prompt_enhancer import PromptEnhancerService
+
+    with patch.object(
+        PromptEnhancerService,
+        "enhance",
+        side_effect=AiTimeoutError("Test timeout"),
+    ):
+        response = client.post(
+            "/api/prompts/enhance",
+            json={
+                "raw_prompt": "This will time out",
+                "diagram_type": "auto",
+            },
+        )
+        assert response.status_code == 504
+        data = response.json()
+        assert data["code"] == "AI_TIMEOUT"
+        assert "taking longer than expected" in data["suggestion"]

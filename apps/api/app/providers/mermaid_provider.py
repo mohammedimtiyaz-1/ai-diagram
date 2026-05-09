@@ -1,9 +1,12 @@
+import asyncio
 import json
 import logging
 import re
 import uuid
 
+from app.core.config import settings
 from app.core.openai_client import OpenAIClient
+from app.core.errors import AiTimeoutError
 from app.prompts.mermaid_prompt import SYSTEM_PROMPT as GENERATION_SYSTEM_PROMPT, USER_PROMPT_TEMPLATE as GENERATION_USER_PROMPT_TEMPLATE
 from app.prompts.refinement_prompt import (
     INTENT_SYSTEM_PROMPT,
@@ -11,8 +14,9 @@ from app.prompts.refinement_prompt import (
     SYSTEM_PROMPT as REFINEMENT_SYSTEM_PROMPT,
     USER_PROMPT_TEMPLATE as REFINEMENT_USER_PROMPT_TEMPLATE,
 )
+from app.prompts.codebase_prompt import CODEBASE_GENERATION_SYSTEM_PROMPT
 from app.providers.base import DiagramContext, DiagramProvider, DiagramResult
-from app.schemas.diagram import DiagramEdge, DiagramNode, DiagramStyle, NodeMetadata, NodeStyle
+from app.schemas.diagram import DiagramEdge, DiagramNode, DiagramStyle, NodeMetadata, NodeStyle, EdgeMetadata, EdgeStyle
 
 logger = logging.getLogger(__name__)
 
@@ -52,15 +56,18 @@ class MermaidProvider(DiagramProvider):
         last_error = None
         for attempt in range(self.max_retries + 1):
             try:
-                response = await client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[
-                        {"role": "system", "content": GENERATION_SYSTEM_PROMPT},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                    response_format={"type": "json_object"},
-                    temperature=0.7,
-                    max_tokens=3000,
+                response = await asyncio.wait_for(
+                    client.chat.completions.create(
+                        model="gpt-4o-mini",
+                        messages=[
+                            {"role": "system", "content": GENERATION_SYSTEM_PROMPT},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                        response_format={"type": "json_object"},
+                        temperature=0.7,
+                        max_tokens=3000,
+                    ),
+                    timeout=settings.ai_timeout_seconds
                 )
 
                 content = response.choices[0].message.content
@@ -90,6 +97,9 @@ class MermaidProvider(DiagramProvider):
                     metadata={"node_count": len(nodes), "edge_count": len(edges)},
                 )
 
+            except asyncio.TimeoutError:
+                logger.error(f"Generation timed out after {settings.ai_timeout_seconds}s")
+                raise AiTimeoutError(f"Generation timed out after {settings.ai_timeout_seconds}s. This usually happens with very complex prompts.")
             except Exception as e:
                 last_error = e
                 logger.warning(f"Attempt {attempt + 1} failed: {e}")
@@ -129,15 +139,18 @@ Return valid JSON as specified in the system prompt.
         last_error = None
         for attempt in range(self.max_retries + 1):
             try:
-                response = await client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=[
-                        {"role": "system", "content": GENERATION_SYSTEM_PROMPT},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                    response_format={"type": "json_object"},
-                    temperature=0.4,
-                    max_tokens=3500,
+                response = await asyncio.wait_for(
+                    client.chat.completions.create(
+                        model="gpt-4o",
+                        messages=[
+                            {"role": "system", "content": CODEBASE_GENERATION_SYSTEM_PROMPT},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                        response_format={"type": "json_object"},
+                        temperature=0.4,
+                        max_tokens=3500,
+                    ),
+                    timeout=settings.ai_timeout_seconds
                 )
 
                 content = response.choices[0].message.content
@@ -167,6 +180,9 @@ Return valid JSON as specified in the system prompt.
                     metadata={"node_count": len(nodes), "edge_count": len(edges)},
                 )
 
+            except asyncio.TimeoutError:
+                logger.error(f"Codebase generation timed out after {settings.ai_timeout_seconds}s")
+                raise AiTimeoutError(f"Codebase generation timed out after {settings.ai_timeout_seconds}s. Large repository analyses might take longer.")
             except Exception as e:
                 last_error = e
                 logger.warning(f"Codebase generation attempt {attempt + 1} failed: {e}")
@@ -213,6 +229,7 @@ Return valid JSON as specified in the system prompt.
         diagram_type: str,
         context: DiagramContext,
         existing_nodes: list[DiagramNode] | None = None,
+        existing_edges: list[DiagramEdge] | None = None,
         intent: str = "PATCH_CHANGE",
         parent_diagram_id: str | None = None,
         base_diagram_id: str | None = None,
@@ -235,15 +252,18 @@ Return valid JSON as specified in the system prompt.
         last_error = None
         for attempt in range(self.max_retries + 1):
             try:
-                response = await client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[
-                        {"role": "system", "content": REFINEMENT_SYSTEM_PROMPT},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                    response_format={"type": "json_object"},
-                    temperature=0.6,
-                    max_tokens=3000,
+                response = await asyncio.wait_for(
+                    client.chat.completions.create(
+                        model="gpt-4o-mini",
+                        messages=[
+                            {"role": "system", "content": REFINEMENT_SYSTEM_PROMPT},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                        response_format={"type": "json_object"},
+                        temperature=0.6,
+                        max_tokens=3000,
+                    ),
+                    timeout=settings.ai_timeout_seconds
                 )
 
                 content = response.choices[0].message.content
@@ -258,7 +278,7 @@ Return valid JSON as specified in the system prompt.
                 new_edges = self._parse_edges(data.get("new_edges", []))
                 merged_nodes = self._merge_nodes(existing_nodes or [], new_parsed)
                 merged_edges = self._merge_edges(
-                    [e for e in (context.edges if hasattr(context, "edges") else [])],
+                    existing_edges or [],
                     new_edges,
                 )
 
@@ -282,6 +302,9 @@ Return valid JSON as specified in the system prompt.
                     metadata={"node_count": len(merged_nodes), "edge_count": len(merged_edges)},
                 )
 
+            except asyncio.TimeoutError:
+                logger.error(f"Refinement timed out after {settings.ai_timeout_seconds}s")
+                raise AiTimeoutError(f"Refinement timed out after {settings.ai_timeout_seconds}s. Complex refinements can sometimes exceed this limit.")
             except Exception as e:
                 last_error = e
                 logger.warning(f"Refinement attempt {attempt + 1} failed: {e}")
@@ -332,16 +355,28 @@ Return valid JSON as specified in the system prompt.
         return nodes
 
     def _parse_edges(self, raw: list[dict]) -> list[DiagramEdge]:
-        return [
-            DiagramEdge(
-                id=e.get("id", str(uuid.uuid4())),
-                source=e.get("source", ""),
-                target=e.get("target", ""),
-                label=e.get("label"),
-                description=e.get("description"),
+        edges = []
+        for e in raw:
+            meta = e.get("metadata", {})
+            edges.append(
+                DiagramEdge(
+                    id=e.get("id", str(uuid.uuid4())),
+                    source=e.get("source", ""),
+                    target=e.get("target", ""),
+                    label=e.get("label"),
+                    description=e.get("description"),
+                    metadata=EdgeMetadata(
+                        tooltip_title=meta.get("tooltip_title", ""),
+                        tooltip_description=meta.get("tooltip_description", ""),
+                        relationship_type=meta.get("relationship_type", "generic"),
+                        source_to_target_summary=meta.get("source_to_target_summary", ""),
+                        importance=meta.get("importance", "medium"),
+                        related_files=meta.get("related_files", None),
+                    ),
+                    style=EdgeStyle(),
+                )
             )
-            for e in raw
-        ]
+        return edges
 
     def _merge_nodes(
         self, existing: list[DiagramNode], updated: list[DiagramNode]
@@ -355,12 +390,20 @@ Return valid JSON as specified in the system prompt.
     def _merge_edges(
         self, existing: list[DiagramEdge], new: list[DiagramEdge]
     ) -> list[DiagramEdge]:
-        existing_pairs = {(e.source, e.target) for e in existing}
-        result = list(existing)
+        """Preserve existing edge metadata if source/target match; otherwise take new."""
+        existing_map = {(e.source, e.target): e for e in existing}
+        result_map = {(e.source, e.target): e for e in existing}
+        
         for edge in new:
-            if (edge.source, edge.target) not in existing_pairs:
-                result.append(edge)
-        return result
+            pair = (edge.source, edge.target)
+            if pair in existing_map:
+                # If existing edge had metadata and new one doesn't (or we want to preserve), 
+                # we merge them. For now, take the new one but we could be smarter.
+                result_map[pair] = edge
+            else:
+                result_map[pair] = edge
+                
+        return list(result_map.values())
 
     def _sanitize_mermaid(self, mermaid_code: str) -> str:
         """Fix common Mermaid syntax issues produced by the AI.

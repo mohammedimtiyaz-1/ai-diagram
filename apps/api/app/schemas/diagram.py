@@ -15,9 +15,23 @@ class NodeMetadata(BaseModel):
     related_files: list[str] | None = None
 
 
+class EdgeMetadata(BaseModel):
+    tooltip_title: str = ""
+    tooltip_description: str = ""
+    relationship_type: str = "generic" # dependency | data-flow | sequence | ownership | composition | integration | generic
+    source_to_target_summary: str = ""
+    importance: str = "medium" # low | medium | high
+    related_files: list[str] | None = None
+
+
 class NodeStyle(BaseModel):
     background_color: str | None = None
     font_color: str | None = None
+
+
+class EdgeStyle(BaseModel):
+    stroke_color: str | None = None
+    stroke_width: str | None = None
 
 
 class DiagramNode(BaseModel):
@@ -34,6 +48,8 @@ class DiagramEdge(BaseModel):
     target: str
     label: str | None = None
     description: str | None = None
+    metadata: EdgeMetadata = Field(default_factory=EdgeMetadata)
+    style: EdgeStyle = Field(default_factory=EdgeStyle)
 
 
 # ──────────────────────────────────────────────
@@ -67,6 +83,7 @@ class RefineRequest(BaseModel):
     followup_prompt: str = Field(..., min_length=3, max_length=1000)
     current_diagram_source: str
     nodes: list[DiagramNode] = Field(default_factory=list)
+    edges: list[DiagramEdge] = Field(default_factory=list)
     provider: str = "mermaid"
 
 

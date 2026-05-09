@@ -42,7 +42,7 @@ export default function CodebaseInput({ onSubmit, disabled }: CodebaseInputProps
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="codebase-diagram-type" className="text-sm font-medium text-gray-700">
             Diagram Type
@@ -86,7 +86,7 @@ export default function CodebaseInput({ onSubmit, disabled }: CodebaseInputProps
         <label htmlFor="repo-url" className="text-sm font-medium text-gray-700">
           GitHub Repository URL
         </label>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
             id="repo-url"
             type="url"
@@ -94,14 +94,14 @@ export default function CodebaseInput({ onSubmit, disabled }: CodebaseInputProps
             onChange={(e) => setRepoUrl(e.target.value)}
             placeholder="https://github.com/owner/repo"
             disabled={disabled}
-            className="flex-1 rounded-lg border border-gray-300 p-2.5 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black disabled:opacity-50"
+            className="flex-1 rounded-lg border border-gray-300 p-2.5 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black disabled:opacity-50 min-w-0"
           />
           <button
             type="submit"
             disabled={disabled || !repoUrl.trim()}
-            className="rounded-lg bg-black px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-lg bg-black px-4 sm:px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40 shrink-0"
           >
-            {disabled ? "Analyzing..." : "Analyze & Generate"}
+            {disabled ? "..." : "Analyze"}
           </button>
         </div>
         <p className="text-[10px] text-gray-500 italic">

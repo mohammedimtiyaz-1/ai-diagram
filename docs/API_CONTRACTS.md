@@ -21,6 +21,7 @@ Base URL: `http://localhost:8000`
 ## POST /api/prompts/enhance
 
 **Purpose**: Enhance a raw user prompt into a structured diagram-generation prompt.
+**Timeout**: 10 seconds.
 
 **Request Body**:
 ```json
@@ -56,6 +57,8 @@ Base URL: `http://localhost:8000`
 ## POST /api/codebase/analyze (NEW)
 
 **Purpose**: Analyze a public GitHub repository and suggest an architecture diagram.
+- **Refinement Flow**: Context-aware diagram updates.
+- **Strict Timeouts**: Both Enhance and Refine APIs have a strict 10-second timeout to ensure snappy user experience.
 
 **Request Body**:
 ```json
@@ -129,7 +132,22 @@ Base URL: `http://localhost:8000`
       "style": {}
     }
   ],
-  "edges": [],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "node1",
+      "target": "node2",
+      "label": "interaction",
+      "metadata": {
+        "tooltip_title": "Relationship Title",
+        "tooltip_description": "Contextual interaction explanation",
+        "relationship_type": "dependency | data-flow | sequence | ownership | generic",
+        "source_to_target_summary": "Summary of the link",
+        "importance": "high | medium | low"
+      },
+      "style": {}
+    }
+  ],
   "style": {
     "node_theme": "technical"
   },
@@ -168,6 +186,7 @@ Base URL: `http://localhost:8000`
 ## POST /api/diagrams/refine
 
 **Purpose**: Modify an existing diagram based on follow-up instructions.
+**Timeout**: 10 seconds.
 
 **Request Body**:
 ```json

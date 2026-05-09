@@ -62,6 +62,7 @@ async def refine_diagram(request: RefineRequest):
             current_diagram_source=request.current_diagram_source,
             provider=request.provider,
             existing_nodes=request.nodes,
+            existing_edges=request.edges,
             existing_style=existing_style,
         )
         # Propagate style to the new diagram version

@@ -140,3 +140,22 @@ async def test_enhance_with_empty_content():
 
                     # Should fall back to simple enhancement
                     assert result.enhanced_prompt.startswith("Create a")
+
+
+@pytest.mark.asyncio
+async def test_enhance_timeout():
+    """Test AI timeout handling."""
+    import asyncio
+    from app.core.errors import AiTimeoutError
+
+    service = PromptEnhancerService(max_retries=0)
+
+    with patch.object(OpenAIClient, "get_async", return_value=AsyncMock()):
+        with patch.object(OpenAIClient.get_async(), "chat", return_value=AsyncMock()):
+            with patch.object(OpenAIClient.get_async().chat, "completions", return_value=AsyncMock()):
+                with patch("asyncio.wait_for", side_effect=asyncio.TimeoutError()):
+                    with pytest.raises(AiTimeoutError) as excinfo:
+                        await service.enhance("test timeout", "auto")
+                    
+                    assert "timed out" in str(excinfo.value)
+                    assert "shorter prompt" in str(excinfo.value)

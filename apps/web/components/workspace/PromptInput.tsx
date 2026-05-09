@@ -47,7 +47,7 @@ export default function PromptInput({ onSubmit, disabled }: PromptInputProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-0">
         <label htmlFor="diagram-type" className="text-sm font-medium text-gray-700">
           Diagram Type
         </label>
@@ -56,7 +56,7 @@ export default function PromptInput({ onSubmit, disabled }: PromptInputProps) {
           value={diagramType}
           onChange={(e) => setDiagramType(e.target.value)}
           disabled={disabled}
-          className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black disabled:opacity-50"
+          className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black disabled:opacity-50 w-full sm:w-auto"
         >
           {DIAGRAM_TYPES.map((t) => (
             <option key={t.value} value={t.value}>
@@ -71,35 +71,35 @@ export default function PromptInput({ onSubmit, disabled }: PromptInputProps) {
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Describe your design system idea..."
-          rows={4}
+          rows={3}
           disabled={disabled}
-          className="w-full resize-none rounded-lg border border-gray-300 p-3 pr-12 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black disabled:opacity-50"
+          className="w-full resize-none rounded-lg border border-gray-300 p-3 pr-12 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black disabled:opacity-50 min-h-[80px] sm:min-h-[100px]"
         />
         <div className="absolute right-2 top-2">
           <VoiceInput onTranscript={handleTranscript} disabled={disabled} />
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2">
           {EXAMPLE_PROMPTS.map((example, i) => (
             <button
               key={i}
               type="button"
               onClick={() => useExample(example)}
               disabled={disabled}
-              className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-600 transition hover:border-gray-400 hover:bg-gray-100 disabled:opacity-50"
+              className="rounded-full border border-gray-200 bg-gray-50 px-2.5 sm:px-3 py-1 text-[10px] sm:text-xs text-gray-600 transition hover:border-gray-400 hover:bg-gray-100 disabled:opacity-50"
             >
-              Example {i + 1}
+              Ex {i + 1}
             </button>
           ))}
         </div>
         <button
           type="submit"
           disabled={disabled || !prompt.trim()}
-          className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40 shrink-0"
         >
-          {disabled ? "Processing..." : "Generate Diagram"}
+          {disabled ? "..." : "Generate"}
         </button>
       </div>
     </form>

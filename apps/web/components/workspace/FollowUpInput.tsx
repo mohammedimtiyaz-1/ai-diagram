@@ -26,8 +26,8 @@ export default function FollowUpInput({ onSubmit, disabled }: FollowUpInputProps
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
-      <div className="relative flex-1">
+    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
+      <div className="relative flex-1 min-w-0">
         <input
           type="text"
           value={prompt}
@@ -43,7 +43,7 @@ export default function FollowUpInput({ onSubmit, disabled }: FollowUpInputProps
       <button
         type="submit"
         disabled={disabled || !prompt.trim()}
-        className="rounded-lg bg-gray-800 px-4 py-2 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40"
+        className="rounded-lg bg-gray-800 px-4 py-2 text-sm font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-40 shrink-0"
       >
         {disabled ? "..." : "Refine"}
       </button>

@@ -1,12 +1,14 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
+import { Menu, X } from "lucide-react";
 import PromptInput from "@/components/workspace/PromptInput";
 import CodebaseInput from "@/components/workspace/CodebaseInput";
 import ConversationHistory from "@/components/workspace/ConversationHistory";
 import DiagramPreview from "@/components/workspace/DiagramPreview";
 import FollowUpInput from "@/components/workspace/FollowUpInput";
+import LoadingOverlay from "@/components/workspace/LoadingOverlay";
 import { useWorkspaceStore } from "@/stores/workspace";
 import { api } from "@/lib/api";
 
@@ -18,7 +20,19 @@ export default function WorkspacePage() {
   const currentDiagram = store.currentDiagram;
   const inputMode = store.inputMode;
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const isBusy = loading !== "idle";
+
+  const handleCancel = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    store.setLoading("idle");
+  }, [store]);
 
   const handleGenerate = useCallback(
     async (prompt: string, diagramType: string) => {
@@ -26,9 +40,19 @@ export default function WorkspacePage() {
       store.setError(null);
       store.addMessage({ role: "user", content: prompt, type: "input" });
 
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+      }, 10000);
+
       try {
         // Step 1: Enhance prompt
-        const enhancement = await api.enhancePrompt(prompt, diagramType);
+        const enhancement = await api.enhancePrompt(prompt, diagramType, "text", controller.signal);
+        clearTimeout(timeoutId);
+        abortControllerRef.current = null;
+
         store.setLastEnhancement(enhancement);
         store.setLoading("generating");
 
@@ -57,10 +81,19 @@ export default function WorkspacePage() {
           content: `Generated "${diagram.title}" — ${diagram.explanation}`,
           type: "diagram",
         });
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : "Something went wrong";
-        store.setError(msg);
-        store.addMessage({ role: "assistant", content: msg, type: "error" });
+      } catch (err: any) {
+        clearTimeout(timeoutId);
+        abortControllerRef.current = null;
+
+        if (err.name === "AbortError" || (err instanceof Error && err.message.includes("timed out"))) {
+          const timeoutMsg = "This is taking longer than expected. Please try again with a shorter prompt.";
+          store.setError(timeoutMsg);
+          store.addMessage({ role: "assistant", content: timeoutMsg, type: "error" });
+        } else {
+          const msg = err instanceof Error ? err.message : "Something went wrong";
+          store.setError(msg);
+          store.addMessage({ role: "assistant", content: msg, type: "error" });
+        }
         store.setLoading("idle");
       }
     },
@@ -118,6 +151,13 @@ export default function WorkspacePage() {
       store.setError(null);
       store.addMessage({ role: "user", content: followup, type: "refinement" });
 
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+      }, 10000);
+
       try {
         const diagram = await api.refineDiagram(
           conversationId,
@@ -125,8 +165,13 @@ export default function WorkspacePage() {
           followup,
           currentDiagram.diagram_source,
           currentDiagram.nodes,
+          currentDiagram.edges,
           "mermaid",
+          controller.signal,
         );
+
+        clearTimeout(timeoutId);
+        abortControllerRef.current = null;
 
         store.addDiagramVersion(diagram);
         store.addMessage({
@@ -135,10 +180,19 @@ export default function WorkspacePage() {
           type: "diagram",
         });
         store.setLoading("idle");
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : "Refinement failed";
-        store.setError(msg);
-        store.addMessage({ role: "assistant", content: msg, type: "error" });
+      } catch (err: any) {
+        clearTimeout(timeoutId);
+        abortControllerRef.current = null;
+
+        if (err.name === "AbortError" || (err instanceof Error && err.message.includes("timed out"))) {
+          const timeoutMsg = "This is taking longer than expected. Please try again with a shorter prompt.";
+          store.setError(timeoutMsg);
+          store.addMessage({ role: "assistant", content: timeoutMsg, type: "error" });
+        } else {
+          const msg = err instanceof Error ? err.message : "Refinement failed";
+          store.setError(msg);
+          store.addMessage({ role: "assistant", content: msg, type: "error" });
+        }
         store.setLoading("idle");
       }
     },
@@ -146,53 +200,100 @@ export default function WorkspacePage() {
   );
 
   return (
-    <main className="flex h-screen flex-col bg-white">
+    <main className="flex h-[100dvh] flex-col bg-white">
+      <LoadingOverlay
+        visible={isBusy && (loading === "enhancing" || loading === "refining" || loading === "generating")}
+        message={
+          loading === "enhancing"
+            ? "Improving your prompt..."
+            : loading === "refining"
+            ? "Updating your diagram safely..."
+            : "Generating your diagram..."
+        }
+        onCancel={handleCancel}
+      />
       {/* Header */}
-      <header className="flex items-center justify-between border-b border-gray-200 px-6 py-3">
-        <div className="flex items-center gap-3">
+      <header className="flex items-center justify-between border-b border-gray-200 px-3 py-2.5 lg:px-6 lg:py-3 shrink-0">
+        <div className="flex items-center gap-2 lg:gap-3">
+          {/* Mobile hamburger to open sidebar */}
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="lg:hidden rounded-lg p-1.5 text-gray-600 hover:bg-gray-100 transition"
+            aria-label="Open chat sidebar"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
           <Link
             href="/"
-            className="text-sm font-semibold text-gray-900 hover:underline"
+            className="text-xs font-semibold text-gray-900 hover:underline sm:text-sm truncate"
           >
             AI Design System Diagram Assistant
           </Link>
         </div>
         {isBusy && (
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-black" />
-            {loading === "enhancing" && "Enhancing prompt..."}
-            {loading === "generating" && "Generating diagram..."}
-            {loading === "refining" && "Refining diagram..."}
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
+            <div className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin rounded-full border-2 border-gray-300 border-t-black" />
+            <span className="hidden sm:inline">
+              {loading === "enhancing" && "Enhancing prompt..."}
+              {loading === "generating" && "Generating diagram..."}
+              {loading === "refining" && "Refining diagram..."}
+            </span>
           </div>
         )}
       </header>
 
       {/* Main workspace */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Mobile sidebar overlay backdrop */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         {/* Left: Chat Panel */}
-        <section className="flex w-2/5 min-w-[360px] flex-col border-r border-gray-200 bg-gray-50/50">
+        <section
+          className={`flex flex-col border-r border-gray-200 bg-gray-50/50
+            lg:w-2/5 lg:min-w-0 lg:max-w-md lg:static lg:translate-x-0
+            fixed inset-y-0 left-0 z-50 w-80 transition-transform duration-300 ease-in-out
+            ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+          `}
+        >
+          {/* Mobile sidebar header with close button */}
+          <div className="lg:hidden flex items-center justify-between border-b border-gray-200 px-3 py-2 bg-white">
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Chat</span>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 transition"
+              aria-label="Close sidebar"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
           {/* Conversation history */}
-          <div className="flex-1 overflow-y-auto px-4 py-4">
+          <div className="flex-1 overflow-y-auto px-3 py-3 lg:px-4 lg:py-4">
             <ConversationHistory />
           </div>
 
           {/* Error banner */}
           {error && (
-            <div className="mx-4 mb-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+            <div className="mx-3 lg:mx-4 mb-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
               <strong>Error:</strong> {error}
             </div>
           )}
 
           {/* Input area */}
-          <div className="border-t border-gray-200 bg-white p-4">
+          <div className="border-t border-gray-200 bg-white p-3 lg:p-4">
             {currentDiagram ? (
               <FollowUpInput onSubmit={handleRefine} disabled={isBusy} />
             ) : (
               <>
-                <div className="mb-4 flex rounded-lg bg-gray-100 p-1">
+                <div className="mb-3 lg:mb-4 flex rounded-lg bg-gray-100 p-1">
                   <button
                     onClick={() => store.setInputMode("prompt")}
-                    className={`flex-1 rounded-md py-1.5 text-xs font-medium transition ${
+                    className={`flex-1 rounded-md py-1.5 text-[10px] sm:text-xs font-medium transition ${
                       inputMode === "prompt"
                         ? "bg-white text-black shadow-sm"
                         : "text-gray-500 hover:text-gray-700"
@@ -202,7 +303,7 @@ export default function WorkspacePage() {
                   </button>
                   <button
                     onClick={() => store.setInputMode("codebase")}
-                    className={`flex-1 rounded-md py-1.5 text-xs font-medium transition ${
+                    className={`flex-1 rounded-md py-1.5 text-[10px] sm:text-xs font-medium transition ${
                       inputMode === "codebase"
                         ? "bg-white text-black shadow-sm"
                         : "text-gray-500 hover:text-gray-700"
@@ -223,7 +324,7 @@ export default function WorkspacePage() {
         </section>
 
         {/* Right: Diagram Panel */}
-        <section className="flex flex-1 flex-col bg-white p-4">
+        <section className="flex flex-1 flex-col bg-white p-2 sm:p-3 lg:p-4 min-w-0">
           <DiagramPreview />
         </section>
       </div>

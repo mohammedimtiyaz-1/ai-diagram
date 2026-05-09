@@ -70,6 +70,30 @@ class DiagramGeneratorService:
             },
         )
 
+        return DiagramResult(
+            diagram_id=diagram_id,
+            conversation_id=conversation_id,
+            version=version.version,
+            title=diagram_result.title,
+            diagram_type=diagram_type,
+            provider=provider,
+            diagram_source=diagram_result.diagram_source,
+            diagram_format=diagram_result.diagram_format,
+            explanation=diagram_result.explanation,
+            nodes=diagram_result.nodes,
+            edges=diagram_result.edges,
+            style=DiagramStyle(),
+            change_intent="NEW_DIAGRAM",
+            is_full_regeneration=True,
+            base_diagram_id=diagram_id,
+            parent_diagram_id=None,
+            changes_summary=[],
+            metadata=DiagramMetadata(
+                node_count=len(diagram_result.nodes),
+                edge_count=len(diagram_result.edges),
+            ),
+        )
+
     async def generate_from_codebase(
         self,
         analysis_summary: str,
