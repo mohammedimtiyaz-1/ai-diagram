@@ -34,6 +34,25 @@ class GenerationError(AppError):
         )
 
 
+class TimeoutError(AppError):
+    def __init__(self, message: str = "Request timed out"):
+        super().__init__(
+            code="REQUEST_TIMEOUT",
+            message=message,
+            suggestion="This is taking longer than expected. Please try again with a shorter input.",
+        )
+
+
+class RateLimitError(AppError):
+    def __init__(self, retry_after: int = 60):
+        super().__init__(
+            code="RATE_LIMIT_EXCEEDED",
+            message="You're sending requests too quickly. Please wait a moment and try again.",
+            suggestion=f"Please wait {retry_after} seconds before retrying.",
+        )
+        self.retry_after = retry_after
+
+
 class AiTimeoutError(AppError):
     def __init__(self, message: str):
         super().__init__(

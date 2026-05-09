@@ -1,29 +1,60 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from app.core.config import settings
+from app.core.rate_limit import rate_limit
+from app.core.timeouts import with_timeout
+from app.core.errors import TimeoutError as AppTimeoutError
 from app.schemas.codebase import CodebaseAnalysisRequest, CodebaseAnalysisResponse, CodebaseGenerateRequest
+from app.schemas.common import ErrorResponse
 from app.services.codebase_service import codebase_service
 from app.services.diagram_generator import DiagramGeneratorService
 from app.schemas.diagram import DiagramResult
-from app.core.errors import AppError
 import logging
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/codebase", tags=["codebase"])
 
-@router.post("/analyze", response_model=CodebaseAnalysisResponse)
+
+@router.post(
+    "/analyze",
+    response_model=CodebaseAnalysisResponse,
+    dependencies=[Depends(rate_limit(settings.analyze_rate_limit))],
+)
 async def analyze_codebase(request: CodebaseAnalysisRequest):
     """Analyze a public GitHub repository."""
     try:
-        result = await codebase_service.analyze_repository(
-            repo_url=request.repo_url,
-            diagram_type=request.diagram_type
+        result = await with_timeout(
+            codebase_service.analyze_repository(
+                repo_url=request.repo_url,
+                diagram_type=request.diagram_type,
+            ),
+            seconds=settings.analyze_timeout_seconds,
+            operation_name="Codebase analysis",
         )
         return result
+    except AppTimeoutError as e:
+        raise HTTPException(
+            status_code=504,
+            detail=ErrorResponse(
+                code=e.code,
+                message=e.message,
+                suggestion=e.suggestion,
+                retry_allowed=True,
+            ).model_dump(),
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"Analysis failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to analyze repository")
+        raise HTTPException(
+            status_code=500,
+            detail=ErrorResponse(
+                code="ANALYSIS_FAILED",
+                message="Failed to analyze repository",
+                suggestion="Please check the repository URL and try again.",
+                retry_allowed=True,
+            ).model_dump(),
+        )
 
 @router.post("/generate-diagram", response_model=DiagramResult)
 async def generate_codebase_diagram(request: CodebaseGenerateRequest):

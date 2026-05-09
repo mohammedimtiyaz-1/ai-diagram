@@ -10,7 +10,7 @@ import DiagramPreview from "@/components/workspace/DiagramPreview";
 import FollowUpInput from "@/components/workspace/FollowUpInput";
 import LoadingOverlay from "@/components/workspace/LoadingOverlay";
 import { useWorkspaceStore } from "@/stores/workspace";
-import { api } from "@/lib/api";
+import { api, TimeoutError, RateLimitError, CancelledError } from "@/lib/api";
 
 export default function WorkspacePage() {
   const store = useWorkspaceStore();
@@ -44,8 +44,30 @@ export default function WorkspacePage() {
     store.setLoading("idle");
   }, [store]);
 
+  function handleApiError(err: unknown, fallback: string) {
+    if (err instanceof TimeoutError) {
+      store.setError(err.message);
+      store.addMessage({ role: "assistant", content: err.message, type: "error" });
+    } else if (err instanceof RateLimitError) {
+      store.setError(err.message);
+      store.addMessage({ role: "assistant", content: err.message, type: "error" });
+    } else if (err instanceof CancelledError) {
+      store.setError(err.message);
+      store.addMessage({ role: "assistant", content: err.message, type: "error" });
+    } else if (err instanceof Error) {
+      store.setError(err.message);
+      store.addMessage({ role: "assistant", content: err.message, type: "error" });
+    } else {
+      store.setError(fallback);
+      store.addMessage({ role: "assistant", content: fallback, type: "error" });
+    }
+    store.setLoading("idle");
+  }
+
   const handleGenerate = useCallback(
     async (prompt: string, diagramType: string) => {
+      if (isBusy) return; // deduplicate
+
       store.setLoading("enhancing");
       store.setError(null);
       store.addMessage({ role: "user", content: prompt, type: "input" });
@@ -53,20 +75,14 @@ export default function WorkspacePage() {
       const controller = new AbortController();
       abortControllerRef.current = controller;
 
-      const timeoutId = setTimeout(() => {
-        controller.abort();
-      }, 10000);
-
       try {
         // Step 1: Enhance prompt
         const enhancement = await api.enhancePrompt(prompt, diagramType, "text", controller.signal);
-        clearTimeout(timeoutId);
         abortControllerRef.current = null;
 
         store.setLastEnhancement(enhancement);
         store.setLoading("generating");
 
-        // Show enhancement in conversation
         store.addMessage({
           role: "assistant",
           content: enhancement.enhanced_prompt,
@@ -91,40 +107,34 @@ export default function WorkspacePage() {
           content: `Generated "${diagram.title}" — ${diagram.explanation}`,
           type: "diagram",
         });
-      } catch (err: any) {
-        clearTimeout(timeoutId);
+      } catch (err) {
         abortControllerRef.current = null;
-
-        if (err.name === "AbortError" || (err instanceof Error && err.message.includes("timed out"))) {
-          const timeoutMsg = "This is taking longer than expected. Please try again with a shorter prompt.";
-          store.setError(timeoutMsg);
-          store.addMessage({ role: "assistant", content: timeoutMsg, type: "error" });
-        } else {
-          const msg = err instanceof Error ? err.message : "Something went wrong";
-          store.setError(msg);
-          store.addMessage({ role: "assistant", content: msg, type: "error" });
-        }
-        store.setLoading("idle");
+        handleApiError(err, "Something went wrong");
       }
     },
-    [store],
+    [store, isBusy],
   );
 
   const handleCodebaseSubmit = useCallback(
     async (repoUrl: string, diagramType: string, nodeTheme: string) => {
+      if (isBusy) return; // deduplicate
+
       store.setLoading("analyzing");
       store.setError(null);
       store.addMessage({ role: "user", content: `Analyze repository: ${repoUrl}`, type: "input" });
 
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       try {
         // Step 1: Analyze codebase
-        const analysis = await api.analyzeCodebase(repoUrl, diagramType);
+        const analysis = await api.analyzeCodebase(repoUrl, diagramType, controller.signal);
         store.addMessage({
           role: "assistant",
           content: analysis.architecture_summary,
           type: "analysis",
         });
-        
+
         store.setLoading("generating");
 
         // Step 2: Generate diagram
@@ -145,28 +155,24 @@ export default function WorkspacePage() {
           type: "diagram",
         });
       } catch (err) {
-        const msg = err instanceof Error ? err.message : "Codebase analysis failed";
-        store.setError(msg);
-        store.addMessage({ role: "assistant", content: msg, type: "error" });
-        store.setLoading("idle");
+        abortControllerRef.current = null;
+        handleApiError(err, "Codebase analysis failed");
       }
     },
-    [store],
+    [store, isBusy],
   );
 
   const handleRefine = useCallback(
     async (followup: string) => {
       if (!conversationId || !currentDiagram) return;
+      if (isBusy) return; // deduplicate
+
       store.setLoading("refining");
       store.setError(null);
       store.addMessage({ role: "user", content: followup, type: "refinement" });
 
       const controller = new AbortController();
       abortControllerRef.current = controller;
-
-      const timeoutId = setTimeout(() => {
-        controller.abort();
-      }, 10000);
 
       try {
         const diagram = await api.refineDiagram(
@@ -180,7 +186,6 @@ export default function WorkspacePage() {
           controller.signal,
         );
 
-        clearTimeout(timeoutId);
         abortControllerRef.current = null;
 
         store.addDiagramVersion(diagram);
@@ -190,36 +195,42 @@ export default function WorkspacePage() {
           type: "diagram",
         });
         store.setLoading("idle");
-      } catch (err: any) {
-        clearTimeout(timeoutId);
+      } catch (err) {
         abortControllerRef.current = null;
-
-        if (err.name === "AbortError" || (err instanceof Error && err.message.includes("timed out"))) {
-          const timeoutMsg = "This is taking longer than expected. Please try again with a shorter prompt.";
-          store.setError(timeoutMsg);
-          store.addMessage({ role: "assistant", content: timeoutMsg, type: "error" });
-        } else {
-          const msg = err instanceof Error ? err.message : "Refinement failed";
-          store.setError(msg);
-          store.addMessage({ role: "assistant", content: msg, type: "error" });
-        }
-        store.setLoading("idle");
+        handleApiError(err, "Refinement failed");
       }
     },
-    [store, conversationId, currentDiagram],
+    [store, conversationId, currentDiagram, isBusy],
   );
+
+  const loaderText =
+    loading === "enhancing"
+      ? "Improving your prompt..."
+      : loading === "refining"
+      ? "Updating your diagram safely..."
+      : loading === "analyzing"
+      ? "Analyzing your codebase..."
+      : loading === "generating"
+      ? "Generating your diagram..."
+      : "";
+
+  const loaderSubtext =
+    loading === "enhancing"
+      ? "We're making your request clearer for diagram generation."
+      : loading === "refining"
+      ? "We're preserving the current structure and applying only your requested change."
+      : loading === "analyzing"
+      ? "We're reading the repository structure and identifying the most important files."
+      : loading === "generating"
+      ? "This usually takes a few seconds..."
+      : "";
 
   return (
     <main className="flex h-[100dvh] flex-col bg-white">
       <LoadingOverlay
-        visible={isBusy && (loading === "enhancing" || loading === "refining" || loading === "generating")}
-        message={
-          loading === "enhancing"
-            ? "Improving your prompt..."
-            : loading === "refining"
-            ? "Updating your diagram safely..."
-            : "Generating your diagram..."
-        }
+        visible={isBusy && (loading === "enhancing" || loading === "refining" || loading === "generating" || loading === "analyzing")}
+        message={loaderText}
+        subtext={loaderSubtext}
         onCancel={handleCancel}
       />
       {/* Header */}

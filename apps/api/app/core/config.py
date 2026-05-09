@@ -11,7 +11,17 @@ class Settings(BaseSettings):
     app_env: str = "development"
     cors_origins: str = "http://localhost:3000"
     openai_api_key: str = ""
-    ai_timeout_seconds: int = 10
+    ai_timeout_seconds: int = 30
+
+    # Expensive API timeouts
+    enhance_timeout_seconds: int = 30
+    refine_timeout_seconds: int = 45
+    analyze_timeout_seconds: int = 60
+
+    # Rate limits (requests per minute)
+    enhance_rate_limit: int = 10
+    refine_rate_limit: int = 8
+    analyze_rate_limit: int = 5
 
     @property
     def cors_origins_list(self) -> list[str]:

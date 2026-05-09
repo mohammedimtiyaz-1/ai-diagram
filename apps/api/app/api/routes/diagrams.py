@@ -1,5 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.core.config import settings
+from app.core.rate_limit import rate_limit
+from app.core.timeouts import with_timeout
+from app.core.errors import TimeoutError as AppTimeoutError
 from app.schemas.common import ErrorResponse
 from app.schemas.diagram import (
     DiagramResult,
@@ -49,25 +53,41 @@ async def generate_diagram(request: GenerateRequest):
         )
 
 
-@router.post("/api/diagrams/refine", response_model=DiagramResult)
+@router.post(
+    "/api/diagrams/refine",
+    response_model=DiagramResult,
+    dependencies=[Depends(rate_limit(settings.refine_rate_limit))],
+)
 async def refine_diagram(request: RefineRequest):
     try:
-        # Retrieve current style so it's preserved across refinements
         existing_style = _style_store.get(request.diagram_id, DiagramStyle())
 
-        result = await refiner.refine(
-            conversation_id=request.conversation_id,
-            diagram_id=request.diagram_id,
-            followup_prompt=request.followup_prompt,
-            current_diagram_source=request.current_diagram_source,
-            provider=request.provider,
-            existing_nodes=request.nodes,
-            existing_edges=request.edges,
-            existing_style=existing_style,
+        result = await with_timeout(
+            refiner.refine(
+                conversation_id=request.conversation_id,
+                diagram_id=request.diagram_id,
+                followup_prompt=request.followup_prompt,
+                current_diagram_source=request.current_diagram_source,
+                provider=request.provider,
+                existing_nodes=request.nodes,
+                existing_edges=request.edges,
+                existing_style=existing_style,
+            ),
+            seconds=settings.refine_timeout_seconds,
+            operation_name="Diagram refinement",
         )
-        # Propagate style to the new diagram version
         _style_store[result.diagram_id] = existing_style
         return result
+    except AppTimeoutError as e:
+        raise HTTPException(
+            status_code=504,
+            detail=ErrorResponse(
+                code=e.code,
+                message=e.message,
+                suggestion=e.suggestion,
+                retry_allowed=True,
+            ).model_dump(),
+        )
     except Exception as e:
         raise HTTPException(
             status_code=500,

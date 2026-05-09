@@ -28,6 +28,17 @@ Organized by status. Tasks derived from updated requirements.
 - [x] Reset loading state to idle on hydration; never auto-trigger API calls
 - [x] Safe recovery for corrupted/invalid stored state with user notice
 
+### Phase 10 — Expensive API Reliability & UX ✅
+- [x] Backend timeouts: Enhance 30s, Refine 45s, Analyze 60s (`core/timeouts.py`, `core/config.py`)
+- [x] Backend rate limiting: Enhance 10/min, Refine 8/min, Analyze 5/min (`core/rate_limit.py`)
+- [x] Wire timeouts + rate limits into FastAPI routes with HTTP 504/429 responses
+- [x] Frontend `fetchWithTimeout` with per-API timeouts and AbortController merging
+- [x] Typed error classes: `TimeoutError`, `RateLimitError`, `CancelledError`
+- [x] Loading UX with context-aware subtext per API
+- [x] Duplicate request prevention via `isBusy` guard
+- [x] Safe state on failure: diagram/conversation never overwritten
+- [x] Cancel button on loading overlay aborts in-flight request
+
 ---
 
 ## Backlog

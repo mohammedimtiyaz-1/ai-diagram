@@ -4,11 +4,12 @@ import { X } from "lucide-react";
 
 interface LoadingOverlayProps {
   message: string;
+  subtext?: string;
   onCancel?: () => void;
   visible: boolean;
 }
 
-export default function LoadingOverlay({ message, onCancel, visible }: LoadingOverlayProps) {
+export default function LoadingOverlay({ message, subtext, onCancel, visible }: LoadingOverlayProps) {
   if (!visible) return null;
 
   return (
@@ -23,7 +24,9 @@ export default function LoadingOverlay({ message, onCancel, visible }: LoadingOv
 
         <div className="space-y-1.5 sm:space-y-2">
           <h3 className="text-base sm:text-lg font-bold text-gray-900">{message}</h3>
-          <p className="text-xs sm:text-sm text-gray-500 italic">This usually takes a few seconds...</p>
+          <p className="text-xs sm:text-sm text-gray-500 italic">
+            {subtext || "This usually takes a few seconds..."}
+          </p>
         </div>
 
         {onCancel && (

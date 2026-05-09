@@ -93,3 +93,32 @@
 5. Global preferences (provider, theme, style defaults) are preserved
 6. Clean state is persisted to `localStorage`
 7. UI resets to empty prompt input state
+
+---
+
+## Workflow 12: API Timeout & Rate Limit (NEW)
+
+### Timeout Flow
+1. Frontend calls `fetchWithTimeout` with per-API timeout (Enhance 30s, Refine 45s, Analyze 60s)
+2. Backend wraps service call in `with_timeout()` with matching config
+3. If timeout fires, backend returns HTTP 504 with friendly message
+4. Frontend catches `TimeoutError`, shows: "This is taking longer than expected."
+5. Current workspace state is preserved; user can retry
+
+### Rate Limit Flow
+1. Backend `RateLimiter` tracks requests per client IP in 60s sliding window
+2. Limits: Enhance 10/min, Refine 8/min, Analyze 5/min
+3. If exceeded, backend returns HTTP 429 with `Retry-After` header
+4. Frontend catches `RateLimitError`, shows: "You're sending requests too quickly."
+
+### Cancel Flow
+1. User clicks Cancel on loading overlay
+2. Frontend aborts external `AbortController` passed to `fetchWithTimeout`
+3. Request is cancelled; `CancelledError` is thrown
+4. UI shows: "Request cancelled. Your current work was not changed."
+
+### Duplicate Prevention
+1. Each handler checks `isBusy` before starting
+2. Submit buttons are disabled while any API is in-flight
+3. Current diagram remains visible during refine
+4. On any failure, previous state is never overwritten

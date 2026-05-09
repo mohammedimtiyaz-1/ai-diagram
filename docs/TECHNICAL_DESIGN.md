@@ -111,6 +111,16 @@ interface WorkspaceState {
 - **Auto-save**: Zustand `subscribe` writes stable state on every change
 - **Hydration**: `useEffect` in `WorkspacePage` calls `hydrateFromStorage()` once on mount; loading is reset to `idle`; no API calls are auto-triggered
 
+### Expensive API Reliability & UX
+- **Timeouts**: Backend `with_timeout()` wrapper; frontend `fetchWithTimeout()` with per-API timeouts
+  - Enhance: 30s, Refine: 45s, Analyze: 60s
+- **Rate Limiting**: In-memory sliding-window `RateLimiter` per client IP; replaceable with Redis
+  - Enhance: 10/min, Refine: 8/min, Analyze: 5/min
+- **Error Classification**: Frontend `TimeoutError`, `RateLimitError`, `CancelledError` with friendly messages
+- **Cancel**: User clicks Cancel → `AbortController` aborts in-flight request; previous state preserved
+- **Duplicate Prevention**: Each handler guards with `isBusy`; buttons disabled while loading
+- **Safe State**: On any failure, current diagram/conversation is never overwritten
+
 ---
 
 ## 3. Backend Architecture
