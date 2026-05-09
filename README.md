@@ -172,6 +172,15 @@ curl http://localhost:8000/health
 | `cd apps/api && pytest` | Run backend tests |
 | `cd apps/api && ruff check .` | Run backend linter |
 
+## Deployment
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for full deployment instructions.
+
+**Quick overview:**
+- **Frontend** → Vercel (auto-deployed via GitHub Actions)
+- **Backend** → Render (auto-deployed via GitHub Actions + deploy hook)
+- **CI/CD** → GitHub Actions (`.github/workflows/ci.yml`, `deploy-frontend.yml`, `deploy-backend.yml`)
+
 ## Project Structure
 
 ```

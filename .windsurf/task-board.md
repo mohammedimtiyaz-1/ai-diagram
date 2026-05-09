@@ -39,6 +39,14 @@ Organized by status. Tasks derived from updated requirements.
 - [x] Safe state on failure: diagram/conversation never overwritten
 - [x] Cancel button on loading overlay aborts in-flight request
 
+### Phase 11 — CI/CD & Deployment ✅
+- [x] GitHub Actions CI workflow (frontend lint + type-check + build, backend lint + test)
+- [x] GitHub Actions frontend deploy workflow (Vercel with `workflow_dispatch`)
+- [x] GitHub Actions backend deploy workflow (Render deploy hook)
+- [x] Backend Dockerfile for Render Docker deployment
+- [x] docs/DEPLOYMENT.md with secrets, env vars, and troubleshooting
+- [x] README.md deployment section
+
 ---
 
 ## Backlog

@@ -264,3 +264,33 @@ class CodebaseAnalysisResponse(BaseModel):
 - **Secret Redaction**: AI analyzer prompt includes instructions to ignore/redact `.env` patterns or credentials.
 - **No Private Repos**: MVP strictly enforces public GitHub URL check.
 - **CORS & Proxying**: All GitHub requests are proxied through the backend to protect client IP and manage rate limits centrally.
+
+---
+
+## 9. CI/CD & Deployment
+
+### Platforms
+- **Frontend**: Vercel (Next.js)
+- **Backend**: Render (Docker-based FastAPI)
+- **CI/CD**: GitHub Actions
+
+### Workflows
+
+| Workflow | Trigger | Jobs |
+|----------|---------|------|
+| `ci.yml` | Push to `main`, PR to `main` | frontend lint + type-check + build; backend ruff + pytest |
+| `deploy-frontend.yml` | Push to `main` (apps/web/**) | Vercel pull → build → deploy production |
+| `deploy-backend.yml` | Push to `main` (apps/api/**) | CI checks → call Render deploy hook |
+
+### Secrets
+- `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`
+- `RENDER_DEPLOY_HOOK_URL`
+
+### Backend Dockerfile
+- `python:3.11-slim` base
+- Installs from `pyproject.toml`
+- Runs `uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}`
+
+### Production Env Vars
+- Frontend: `NEXT_PUBLIC_API_BASE_URL` (points to Render backend)
+- Backend: `APP_ENV`, `CORS_ORIGINS`, `OPENAI_API_KEY`, timeout/rate-limit configs
