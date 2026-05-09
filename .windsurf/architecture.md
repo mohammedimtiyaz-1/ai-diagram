@@ -3,112 +3,92 @@
 ## System Overview
 
 ```
-User Input (text/voice)
-  → Input Normalization
-  → Design-System Intent Extraction
-  → Prompt Enhancement (AI)
+User Input (text/voice OR GitHub URL)
+  → Mode Selection (Prompt vs Codebase)
+  → [Case Codebase]: 
+      → GitHub API extraction (tree + key files)
+      → AI Codebase Analysis (summary + detect stack)
+  → [Case Prompt]:
+      → Design-System Intent Extraction
+      → Prompt Enhancement (AI)
   → Diagram Type Classification
-  → Provider-Specific Prompt Adaptation
-  → Diagram Provider (Mermaid / Eraser / Structured Graph)
-  → Generated Diagram
-  → Frontend Renderer
-  → User Follow-up Chat
-  → Context-Aware Refinement (AI)
-  → New Diagram Version
+  → Diagram Provider (Mermaid / Structured Graph)
+  → Generated Diagram (Topology + Metadata + related_files)
+  → Frontend Renderer (with Hover Tooltips)
+  → Conversational Refinement (AI - Incremental Patching)
 ```
-
----
-
-## Frontend Architecture
-
-### Pages
-- **Landing Page** — product explanation, examples, CTA
-- **Workspace Page** — main working area (chat + diagram)
-
-| Feature | Description |
-|---------|-------------|
-| **Intent Classification** | Determines if request is NEW, PATCH, STYLE, or REGENERATE |
-| **Metadata Enrichment** | Generates DS-specific tooltip info for every node |
-| **Incremental Patching** | Preserves existing topology across refinements |
-| **Visual Style State** | Decouples styling from AI logic |
 
 ---
 
 ## Frontend Architecture
 
 ### Components
-- **Chat Input Panel** — text/voice input, intent handling
+- **Input Mode Selector** — toggle between Design Prompt and GitHub URL
+- **GitHub Input Component** — URL validation, type/theme selectors
 - **Diagram Preview Panel** — rendering, hover tooltip integration
-- **Node Tooltip** — hover popover with context-specific metadata
-- **Diagram Style Toolbar** — bottom ribbon for visual customizations
+- **Node Tooltip** — context metadata + **related files** links
+- **Diagram Style Toolbar** — ribbon for typography and **Node Theme** customization
 - **Version History** — track iterative changes and summaries
 
 ### State Management
 - `TopologyState`: JSON representation of current nodes/edges
-- `MetadataState`: Map of node IDs to tooltip data
-- `StyleState`: Global visual settings (font, colors)
+- `MetadataState`: Map of node IDs to tooltip data (includes `related_files`)
+- `StyleState`: Global visual settings (font, colors) and **Node Theme**
 - `ConversationState`: Messages and versions
+- `AnalysisState`: (For Codebase) Stored architecture summary and stack info
 
 ---
 
 ## Backend Architecture
 
 ### Services
+- **Codebase Analyzer** — (AI) summarizes repo architecture and extracts modules
 - **Intent Classifier** — (AI) classifies user request for strategy selection
 - **Prompt Enhancer** — (AI) expands prompt + generates node metadata
 - **Diagram Generator** — (AI) generates/patches Mermaid source
-- **Style Controller** — (No-AI) updates style state without topology mutation
+- **GitHub Service** — fetches repo tree and filters important files
 - **Versioning Service** — creates immutable versions of topology + metadata + style
 
 ---
 
 ## Data Flow (Detailed)
 
-### Incremental Refinement
+### Codebase Analysis (Flow B)
 ```
-1. User: "Add Storybook layer"
-2. Intent Classifier: ADD_ELEMENT
-3. Refinement Service:
-   - Load vN Topology + Metadata
-   - AI: Generate Mermaid patch + new node metadata
-   - Update Topology + Metadata
-4. Frontend: Rerender diagram + update tooltips
+1. User provides GitHub URL
+2. Backend:
+   - GitHub Service: Fetch tree + package.json
+   - Codebase Analyzer: AI summarizes tech stack and architecture
+3. Diagram Generator: AI generates Mermaid diagram with tooltips pointing to repo files
+4. Frontend: Render diagram with 'related_files' metadata in tooltips
 ```
 
-### Visual Style Update
+### Visual Theme Update
 ```
-1. User clicks "Blue Nodes" in toolbar (or types in chat)
-2. Case Toolbar: Frontend updates StyleState immediately
-3. Case Chat: Intent Classifier: STYLE_CHANGE
-4. Style Controller: Updates StyleState (skip AI generation)
-5. Frontend: Rerender with new styles
+1. User selects "Technical" theme in toolbar
+2. Frontend: Update StyleState (theme: 'technical')
+3. MermaidRenderer: Apply theme-specific classDefs/styles to existing source
+4. Result: Immediate visual change without AI or backend call
 ```
 
 ---
 
-## Data Models
+## Data Models (Updated)
 
 ### DiagramNode
 - id, label, type
-- metadata: { tooltip_title, description, role, connections_summary }
+- metadata: { tooltip_title, description, role, connections_summary, **related_files[]** }
 - style: { bg_color, font_color }
 
 ### DiagramStyle
 - font_family, font_size, font_color
 - node_background_color, diagram_background_color
+- **node_theme** (default, minimal, soft, technical, colorful, dark, enterprise)
 
-### DiagramVersion
-- diagram_id, base_diagram_id, parent_diagram_id
-- version, change_intent
-- nodes[], edges[], style{}
-- diagram_source (Mermaid)
-- changes_summary[]
-
-### Message
-- role (user | assistant | system)
-- content
-- type (input | enhanced_prompt | diagram | refinement | error)
-- timestamp
+### CodebaseMetadata
+- repo_name, repo_url
+- detected_stack[], important_files[]
+- architecture_summary, project_type
 
 ---
 
@@ -116,8 +96,7 @@ User Input (text/voice)
 
 | Extension | How to Add |
 |-----------|-----------|
+| New codebase provider | Add provider to `GitHubService` (e.g. GitLab, Bitbucket) |
 | New diagram provider | Implement `DiagramProvider` interface |
-| New diagram type | Add type to classifier, add prompt template |
-| New export format | Add format to `ExportService` |
+| New node theme | Add theme styles to `MermaidRenderer` mapping |
 | Persistent storage | Swap in-memory store for SQLite/PostgreSQL |
-| Real-time collaboration | Add WebSocket layer on top of conversation service |

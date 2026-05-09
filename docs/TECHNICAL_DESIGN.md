@@ -9,6 +9,8 @@
 │  Landing Page → Workspace (Chat Panel + Diagram Panel)      │
 │                                                              │
 │  - Text/Voice Input                                          │
+│  - GitHub URL Input (Mode Selection)                         │
+│  - Diagram Type & Theme Selectors                            │
 │  - Enhanced Prompt Preview                                   │
 │  - Mermaid Renderer                                          │
 │  - Conversation History                                      │
@@ -22,6 +24,7 @@
 │  API Layer → Services → Provider Abstraction → AI (OpenAI)  │
 │                                                              │
 │  - Prompt Enhancement Service                                │
+│  - Codebase Analysis Service (GitHub Integration)            │
 │  - Diagram Generation Service                                │
 │  - Refinement Service                                        │
 │  - Conversation Context Service                              │
@@ -64,7 +67,9 @@ components/
 │   ├── WorkspaceLayout.tsx    # Split panel layout
 │   ├── ChatPanel.tsx          # Left panel
 │   ├── DiagramPanel.tsx       # Right panel
+│   ├── InputModeToggle.tsx    # Prompt vs GitHub selection
 │   ├── PromptInput.tsx        # Text input + type selector
+│   ├── CodebaseInput.tsx      # GitHub URL + type + theme selectors
 │   ├── VoiceInput.tsx         # Mic button + transcript
 │   ├── EnhancedPromptPreview.tsx
 │   ├── ConversationHistory.tsx
@@ -80,7 +85,10 @@ components/
 
 ### State Management (Zustand)
 ```typescript
+type InputMode = "prompt" | "codebase";
+
 interface WorkspaceState {
+  inputMode: InputMode;
   conversationId: string | null;
   messages: Message[];
   currentDiagram: DiagramVersion | null;
@@ -89,6 +97,7 @@ interface WorkspaceState {
   isEnhancing: boolean;
   isGenerating: boolean;
   isRefining: boolean;
+  isAnalyzing: boolean;
   error: string | null;
 }
 ```
@@ -102,7 +111,7 @@ interface WorkspaceState {
 - **FastAPI**
 - **Pydantic v2** for validation
 - **OpenAI Python SDK** (GPT-4o)
-- **uvicorn** for ASGI server
+- **httpx** for GitHub API interaction
 
 ### Project Structure
 ```
@@ -112,10 +121,12 @@ backend/
 │   ├── api/
 │   │   ├── router.py         # Route registration
 │   │   ├── prompts.py        # /api/prompts/* endpoints
+│   │   ├── codebase.py       # /api/codebase/* endpoints (NEW)
 │   │   ├── diagrams.py       # /api/diagrams/* endpoints
 │   │   └── health.py         # /health endpoint
 │   ├── services/
 │   │   ├── enhancement.py    # Prompt enhancement logic
+│   │   ├── codebase.py       # GitHub tree fetching & file selection (NEW)
 │   │   ├── generation.py     # Diagram generation orchestration
 │   │   ├── refinement.py     # Follow-up refinement logic
 │   │   ├── conversation.py   # Context management
@@ -124,262 +135,113 @@ backend/
 │   ├── providers/
 │   │   ├── base.py           # Abstract DiagramProvider
 │   │   ├── mermaid.py        # MermaidProvider implementation
-│   │   └── registry.py       # Provider registry
 │   ├── schemas/
 │   │   ├── requests.py       # API request models
-│   │   ├── responses.py      # API response models
+│   │   ├── codebase.py       # Codebase analysis models (NEW)
 │   │   ├── diagram.py        # Diagram/Version models
 │   │   └── conversation.py   # Conversation/Message models
 │   ├── prompts/
 │   │   ├── enhancement.py    # Enhancement prompt templates
+│   │   ├── codebase.py       # Codebase analysis templates (NEW)
 │   │   ├── generation.py     # Generation prompt templates
 │   │   └── refinement.py     # Refinement prompt templates
-│   └── config.py             # Settings and environment
-├── tests/
-├── pyproject.toml
-└── .env.example
 ```
 
 ---
 
 ## 4. AI Workflow Architecture
 
-### Pipeline Stages
+### Flow A: Prompt Enhancement
+- Identical to existing design-system flow.
 
+### Flow B: Codebase Analysis (NEW)
 ```
-1. Input Normalization
-   - Trim whitespace, validate length
-   - Detect source (text/voice)
+1. Repository Parsing
+   - Extract owner/repo from GitHub URL
+   - Validate public accessibility
 
-2. Prompt Enhancement (AI Call #1)
-   - Extract design-system entities
-   - Identify relationships
-   - Classify diagram type
-   - Rewrite into structured prompt
-   - Flag assumptions
+2. Tree Extraction
+   - Fetch recursive tree from GitHub API
+   - Filter out node_modules, dist, hidden files
+   - Identify "important" files (package.json, tsconfig, etc.)
 
-3. Diagram Generation (AI Call #2)
-   - Select provider (Mermaid for MVP)
-   - Adapt enhanced prompt for provider
-   - Call AI with diagram-specific template
-   - Validate output schema
-   - Validate Mermaid syntax
+3. Content Fetching (Selective)
+   - Read content of package.json for stack detection
+   - Read README.md for project overview
+   - Fetch entry points (main.ts, app.py, etc.)
+   - Fetch route definitions if possible
 
-4. Error Recovery
-   - If invalid → retry with repair prompt
-   - If still invalid → return error
+4. Architecture Summary (AI Call #1 - Codebase Analyzer)
+   - Input: Filtered tree + Selected file contents
+   - Output: Tech stack, major modules, architecture pattern, summary
 
-5. Refinement (AI Call on follow-up)
-   - Load conversation context
-   - Enhance follow-up in context
-   - Generate updated diagram
-   - Track as new version
+5. Diagram Prompt Generation (AI Call #2 - Codebase Enhancer)
+   - Convert analysis into a structured diagram prompt based on selected type
+
+6. Diagram Generation (AI Call #3 - Provider)
+   - Generate Mermaid source with node metadata (related_files included)
 ```
-
-### Token Budget Management
-- Enhancement prompt: ~500 tokens input, ~800 tokens output
-- Generation prompt: ~800 tokens input, ~1500 tokens output
-- Refinement: ~1500 tokens input (includes existing diagram), ~1500 tokens output
-- Total per turn: ~2000-3000 tokens
-- Context window for conversation: summarize after 5 messages
 
 ---
 
-## 5. Provider Abstraction
+## 5. Provider Abstraction & Themes
 
-```python
-from abc import ABC, abstractmethod
+### Node Themes System
+Node themes are visual-only customizations that map theme names to Mermaid styling configurations.
 
-class DiagramProvider(ABC):
-    @abstractmethod
-    async def generate_diagram(
-        self, enhanced_prompt: str, context: DiagramContext
-    ) -> DiagramResult:
-        ...
+**Supported Themes:**
+- **Default**: standard design-system colors
+- **Minimal**: grayscale, thin borders
+- **Soft**: pastel backgrounds, rounded corners
+- **Technical**: high contrast, mono fonts
+- **Colorful**: vibrant per-type colors
+- **Dark**: neon colors on dark backgrounds
+- **Enterprise**: deep blues, formal structure
 
-    @abstractmethod
-    async def refine_diagram(
-        self, existing_diagram: str, enhanced_followup: str, context: DiagramContext
-    ) -> DiagramResult:
-        ...
-
-    @abstractmethod
-    async def export_diagram(
-        self, diagram_source: str, format: ExportFormat
-    ) -> ExportResult:
-        ...
-```
-
-### MVP: MermaidProvider
-- Calls OpenAI with Mermaid-specific prompt
-- Returns valid Mermaid syntax
-- Validates syntax before returning
-
-### Future: EraserProvider
-- Adapts enhanced prompt to Eraser API format
-- Calls Eraser AI endpoint
-- Returns Eraser diagram embed or image URL
+**Implementation Rule:**
+Theme changes should apply via CSS variable updates in the `MermaidRenderer` or by appending `style` / `classDef` blocks to the Mermaid source without calling the AI, unless a complete regeneration is required by the user.
 
 ---
 
 ## 6. Data Models
 
-### Conversation
-```python
-class Conversation(BaseModel):
-    id: str
-    messages: list[Message]
-    current_diagram_id: str | None
-    diagram_versions: list[str]  # diagram IDs
-    created_at: datetime
-    updated_at: datetime
-```
-
-### DiagramNode
+### DiagramNode (Updated)
 ```python
 class DiagramNode(BaseModel):
     id: str
     label: str
-    type: str  # token | component | documentation | workflow | testing | generic
+    type: str
     metadata: dict = {
         "tooltip_title": str,
         "tooltip_description": str,
         "role": str,
         "importance": "low | medium | high",
-        "connections_summary": str
+        "connections_summary": str,
+        "related_files": list[str] | None  # NEW: Paths in the codebase
     }
-    style: dict = {
-        "background_color": str | None,
-        "font_color": str | None
-    }
+    style: dict
 ```
 
-### DiagramEdge
+### CodebaseAnalysisResponse (NEW)
 ```python
-class DiagramEdge(BaseModel):
-    id: str
-    source: str
-    target: str
-    label: str | None
-    description: str | None
-```
-
-### DiagramStyle
-```python
-class DiagramStyle(BaseModel):
-    font_family: str  # Inter | Arial | Roboto | System
-    font_size: str    # small | medium | large
-    font_color: str   # default | dark | muted
-    node_background_color: str
-    diagram_background_color: str
-```
-
-### DiagramVersion
-```python
-class DiagramVersion(BaseModel):
-    id: str
-    base_diagram_id: str         # First diagram in conversation
-    parent_diagram_id: str | None # Previous version
-    conversation_id: str
-    version: int
-    change_intent: str           # PATCH | ADD | REMOVE | STYLE | REGENERATE
-    diagram_source: str          # Mermaid syntax
-    diagram_format: str          # "mermaid"
-    nodes: list[DiagramNode]
-    edges: list[DiagramEdge]
-    style: DiagramStyle
-    title: str
-    explanation: str
-    changes_summary: list[str]
-    metadata: dict
-    created_at: datetime
-```
-
-### Message
-```python
-class Message(BaseModel):
-    id: str
-    role: str                    # user | assistant | system
-    content: str
-    message_type: str            # input | diagram | refinement | error
-    timestamp: datetime
-```
-
----
-
-## 7. Error Handling Strategy
-
-| Layer | Error Type | Action |
-|-------|-----------|--------|
-| Frontend input | Validation | Show inline error, prevent submit |
-| Backend input | Schema validation | Return 422 with field-level errors |
-| AI call | Timeout/rate limit | Retry once, then return 503 |
-| AI output | Invalid JSON | Parse repair prompt, retry |
-| AI output | Invalid Mermaid | Validate, retry with repair prompt |
-| AI output | Irrelevant content | Return error suggesting rephrase |
-| Provider | Connection failure | Return 503 with retry suggestion |
-
-### Error Response Schema
-```json
-{
-  "error": {
-    "code": "GENERATION_FAILED",
-    "message": "We couldn't generate a diagram from that input.",
-    "suggestion": "Try being more specific about components and relationships.",
-    "retry_allowed": true
-  }
-}
+class CodebaseAnalysisResponse(BaseModel):
+    analysis_id: str
+    repo_name: str
+    detected_stack: list[str]
+    important_files: list[str]
+    project_summary: str
+    architecture_summary: str
+    recommended_diagram_type: str
+    enhanced_prompt: str
+    warnings: list[str]
 ```
 
 ---
 
 ## 8. Security Considerations
 
-- **API key management**: OpenAI key stored server-side only, never exposed to frontend
-- **Input sanitization**: All user inputs validated and sanitized
-- **Rate limiting**: Per-session rate limits to prevent abuse (future)
-- **No PII storage**: No user accounts, no personal data stored
-- **CORS**: Configured for frontend origin only
-- **Error messages**: Never expose internal details, stack traces, or API keys
-
----
-
-## 9. Deployment Notes
-
-### Local Development
-```bash
-# Terminal 1: Backend
-cd backend && uvicorn app.main:app --reload --port 8000
-
-# Terminal 2: Frontend
-cd frontend && npm run dev
-
-# Or single command:
-make dev
-```
-
-### Environment Variables
-```
-OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-4o
-BACKEND_URL=http://localhost:8000
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-### Future Deployment
-- Frontend: Vercel (Next.js native)
-- Backend: Railway / Render / Fly.io
-- No database needed for MVP
-
----
-
-## 10. Extension Strategy
-
-| What to Add | How |
-|-------------|-----|
-| New provider (e.g., Eraser) | Implement `DiagramProvider` interface, register in provider registry |
-| New diagram type | Add type to classifier, add prompt template in `prompts/` |
-| New export format | Add format handler in `ExportService` |
-| Persistence | Swap in-memory stores for SQLite/PostgreSQL |
-| Authentication | Add auth middleware, user model, session management |
-| Real-time updates | Add WebSocket layer for streaming generation |
+- **GitHub Public API**: Use public endpoints; enforce rate-limit awareness in UI.
+- **Selective Fetching**: Never fetch entire repositories; limit total bytes read.
+- **Secret Redaction**: AI analyzer prompt includes instructions to ignore/redact `.env` patterns or credentials.
+- **No Private Repos**: MVP strictly enforces public GitHub URL check.
+- **CORS & Proxying**: All GitHub requests are proxied through the backend to protect client IP and manage rate limits centrally.

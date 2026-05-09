@@ -81,6 +81,17 @@ class DiagramProvider(ABC):
         ...
 
     @abstractmethod
+    async def generate_codebase_diagram(
+        self,
+        analysis_summary: str,
+        enhanced_prompt: str,
+        diagram_type: str,
+        context: DiagramContext,
+    ) -> DiagramResult:
+        """Generate a diagram from codebase analysis."""
+        ...
+
+    @abstractmethod
     async def refine_diagram(
         self,
         existing_diagram: str,

@@ -44,13 +44,32 @@ export default function NodeTooltip({ metadata, x, y, visible }: NodeTooltipProp
       </p>
 
       {metadata.connections_summary && (
-        <div className="border-t border-gray-100 pt-2">
+        <div className="border-t border-gray-100 pt-2 mb-2">
           <p className="text-[10px] font-semibold text-gray-900 uppercase tracking-tighter mb-0.5">
             Connections
           </p>
           <p className="text-[11px] italic text-gray-500">
             {metadata.connections_summary}
           </p>
+        </div>
+      )}
+
+      {metadata.related_files && metadata.related_files.length > 0 && (
+        <div className="border-t border-gray-100 pt-2">
+          <p className="text-[10px] font-semibold text-gray-900 uppercase tracking-tighter mb-1">
+            Source Files
+          </p>
+          <div className="flex flex-wrap gap-1">
+            {metadata.related_files.map((file, i) => (
+              <span
+                key={i}
+                className="rounded bg-gray-50 border border-gray-200 px-1.5 py-0.5 text-[9px] font-mono text-gray-600 truncate max-w-full"
+                title={file}
+              >
+                {file.split('/').pop()}
+              </span>
+            ))}
+          </div>
         </div>
       )}
     </div>

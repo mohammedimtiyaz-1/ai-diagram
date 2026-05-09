@@ -28,6 +28,36 @@ const BG_MAP: Record<string, string> = {
   "soft-gray": "#f9fafb", // gray-50
 };
 
+const THEME_MAP: Record<string, string> = {
+  default: "",
+  technical: `
+    classDef default fill:#f8fafc,stroke:#334155,stroke-width:1px,color:#0f172a,rx:2,ry:2;
+    classDef component fill:#eff6ff,stroke:#2563eb,stroke-width:2px,color:#1e40af;
+    classDef token fill:#f0fdf4,stroke:#16a34a,stroke-width:1px,color:#166534,stroke-dasharray: 5 5;
+  `,
+  soft: `
+    classDef default fill:#ffffff,stroke:#e2e8f0,stroke-width:1px,rx:10,ry:10;
+    classDef component fill:#fdf4ff,stroke:#d946ef,stroke-width:1px;
+    classDef token fill:#fff7ed,stroke:#f97316,stroke-width:1px;
+  `,
+  colorful: `
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:2px;
+    classDef token fill:#ffe4e6,stroke:#e11d48,stroke-width:2px;
+    classDef component fill:#dcfce7,stroke:#16a34a,stroke-width:2px;
+    classDef documentation fill:#fef9c3,stroke:#ca8a04,stroke-width:2px;
+  `,
+  dark: `
+    classDef default fill:#1e293b,stroke:#475569,stroke-width:1px,color:#f8fafc;
+    classDef component fill:#1e1b4b,stroke:#4f46e5,stroke-width:2px,color:#e0e7ff;
+    classDef token fill:#064e3b,stroke:#10b981,stroke-width:1px,color:#d1fae5;
+  `,
+  enterprise: `
+    classDef default fill:#f1f5f9,stroke:#64748b,stroke-width:1px,rx:0,ry:0;
+    classDef component fill:#0f172a,stroke:#0f172a,stroke-width:1px,color:#ffffff,rx:0,ry:0;
+    classDef token fill:#ffffff,stroke:#cbd5e1,stroke-width:1px,rx:0,ry:0;
+  `,
+};
+
 export default function DiagramPreview() {
   const currentDiagram = useWorkspaceStore((s) => s.currentDiagram);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -140,9 +170,14 @@ export default function DiagramPreview() {
         if (cancelled || !containerRef.current) return;
 
         const id = `mermaid-${Date.now()}`;
+        
+        // Append theme styles to the source
+        const themeStyles = THEME_MAP[style.node_theme || "default"] || "";
+        const diagramSourceWithTheme = `${currentDiagram.diagram_source}\n${themeStyles}`;
+
         const { svg } = await mermaid.default.render(
           id,
-          currentDiagram.diagram_source,
+          diagramSourceWithTheme,
         );
 
         if (cancelled || !containerRef.current) return;

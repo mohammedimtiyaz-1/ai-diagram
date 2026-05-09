@@ -98,6 +98,83 @@ class MermaidProvider(DiagramProvider):
         return self._fallback_diagram(diagram_type)
 
     # ──────────────────────────────────────────────────────────────────────────
+    # Public: generate_codebase_diagram
+    # ──────────────────────────────────────────────────────────────────────────
+
+    async def generate_codebase_diagram(
+        self,
+        analysis_summary: str,
+        enhanced_prompt: str,
+        diagram_type: str,
+        context: DiagramContext,
+    ) -> DiagramResult:
+        """Generate a codebase-aware diagram with file path metadata."""
+        client = OpenAIClient.get_async()
+
+        user_prompt = f"""
+Codebase Analysis Summary:
+{analysis_summary}
+
+Diagram Goal:
+{enhanced_prompt}
+
+Diagram Type: {diagram_type}
+
+Task:
+Generate a Mermaid diagram representing the codebase architecture. 
+For each node, include 'related_files' metadata which should be a list of relevant file paths from the repository.
+Return valid JSON as specified in the system prompt.
+"""
+
+        last_error = None
+        for attempt in range(self.max_retries + 1):
+            try:
+                response = await client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[
+                        {"role": "system", "content": GENERATION_SYSTEM_PROMPT},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    response_format={"type": "json_object"},
+                    temperature=0.4,
+                    max_tokens=3500,
+                )
+
+                content = response.choices[0].message.content
+                if not content:
+                    raise ValueError("OpenAI returned empty content")
+
+                data = json.loads(content)
+                mermaid_code = self._sanitize_mermaid(data.get("mermaid_code", ""))
+
+                nodes = self._parse_nodes(data.get("nodes", []))
+                edges = self._parse_edges(data.get("edges", []))
+
+                return DiagramResult(
+                    diagram_id=str(uuid.uuid4()),
+                    conversation_id="",  # filled by service layer
+                    title=data.get("title", "Codebase Architecture"),
+                    diagram_type=diagram_type or "flowchart",
+                    provider=self.name,
+                    diagram_source=mermaid_code,
+                    diagram_format="mermaid",
+                    explanation=data.get("explanation", ""),
+                    nodes=nodes,
+                    edges=edges,
+                    style=DiagramStyle(),
+                    change_intent="NEW_DIAGRAM",
+                    is_full_regeneration=True,
+                    metadata={"node_count": len(nodes), "edge_count": len(edges)},
+                )
+
+            except Exception as e:
+                last_error = e
+                logger.warning(f"Codebase generation attempt {attempt + 1} failed: {e}")
+
+        logger.error(f"Codebase generation failed after {self.max_retries + 1} attempts: {last_error}")
+        return self._fallback_diagram(diagram_type)
+
+    # ──────────────────────────────────────────────────────────────────────────
     # Public: classify_intent
     # ──────────────────────────────────────────────────────────────────────────
 
@@ -247,6 +324,7 @@ class MermaidProvider(DiagramProvider):
                         role=meta.get("role", ""),
                         importance=meta.get("importance", "medium"),
                         connections_summary=meta.get("connections_summary", ""),
+                        related_files=meta.get("related_files", None),
                     ),
                     style=NodeStyle(),
                 )

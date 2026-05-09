@@ -12,6 +12,7 @@ class NodeMetadata(BaseModel):
     role: str = ""
     importance: str = "medium"   # low | medium | high
     connections_summary: str = ""
+    related_files: list[str] | None = None
 
 
 class NodeStyle(BaseModel):
@@ -45,6 +46,7 @@ class DiagramStyle(BaseModel):
     font_color: str = "default"         # default | dark | muted
     node_background_color: str = "default"  # default | white | soft-blue | soft-gray | soft-purple
     diagram_background_color: str = "default"  # default | white | light-gray
+    node_theme: str = "default"         # default | minimal | soft | technical | colorful | dark | enterprise
 
 
 # ──────────────────────────────────────────────

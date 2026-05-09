@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import Link from "next/link";
 import PromptInput from "@/components/workspace/PromptInput";
+import CodebaseInput from "@/components/workspace/CodebaseInput";
 import ConversationHistory from "@/components/workspace/ConversationHistory";
 import DiagramPreview from "@/components/workspace/DiagramPreview";
 import FollowUpInput from "@/components/workspace/FollowUpInput";
@@ -15,6 +16,7 @@ export default function WorkspacePage() {
   const error = store.error;
   const conversationId = store.conversationId;
   const currentDiagram = store.currentDiagram;
+  const inputMode = store.inputMode;
 
   const isBusy = loading !== "idle";
 
@@ -57,6 +59,50 @@ export default function WorkspacePage() {
         });
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Something went wrong";
+        store.setError(msg);
+        store.addMessage({ role: "assistant", content: msg, type: "error" });
+        store.setLoading("idle");
+      }
+    },
+    [store],
+  );
+
+  const handleCodebaseSubmit = useCallback(
+    async (repoUrl: string, diagramType: string, nodeTheme: string) => {
+      store.setLoading("analyzing");
+      store.setError(null);
+      store.addMessage({ role: "user", content: `Analyze repository: ${repoUrl}`, type: "input" });
+
+      try {
+        // Step 1: Analyze codebase
+        const analysis = await api.analyzeCodebase(repoUrl, diagramType);
+        store.addMessage({
+          role: "assistant",
+          content: analysis.architecture_summary,
+          type: "analysis",
+        });
+        
+        store.setLoading("generating");
+
+        // Step 2: Generate diagram
+        const diagram = await api.generateCodebaseDiagram(
+          repoUrl,
+          diagramType,
+          nodeTheme,
+          undefined,
+        );
+
+        store.setConversationId(diagram.conversation_id);
+        store.setCurrentDiagram(diagram);
+        store.setLoading("idle");
+
+        store.addMessage({
+          role: "assistant",
+          content: `Generated "${diagram.title}" based on codebase analysis. ${diagram.explanation}`,
+          type: "diagram",
+        });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Codebase analysis failed";
         store.setError(msg);
         store.addMessage({ role: "assistant", content: msg, type: "error" });
         store.setLoading("idle");
@@ -142,7 +188,36 @@ export default function WorkspacePage() {
             {currentDiagram ? (
               <FollowUpInput onSubmit={handleRefine} disabled={isBusy} />
             ) : (
-              <PromptInput onSubmit={handleGenerate} disabled={isBusy} />
+              <>
+                <div className="mb-4 flex rounded-lg bg-gray-100 p-1">
+                  <button
+                    onClick={() => store.setInputMode("prompt")}
+                    className={`flex-1 rounded-md py-1.5 text-xs font-medium transition ${
+                      inputMode === "prompt"
+                        ? "bg-white text-black shadow-sm"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    Design Prompt
+                  </button>
+                  <button
+                    onClick={() => store.setInputMode("codebase")}
+                    className={`flex-1 rounded-md py-1.5 text-xs font-medium transition ${
+                      inputMode === "codebase"
+                        ? "bg-white text-black shadow-sm"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    GitHub URL
+                  </button>
+                </div>
+
+                {inputMode === "prompt" ? (
+                  <PromptInput onSubmit={handleGenerate} disabled={isBusy} />
+                ) : (
+                  <CodebaseInput onSubmit={handleCodebaseSubmit} disabled={isBusy} />
+                )}
+              </>
             )}
           </div>
         </section>

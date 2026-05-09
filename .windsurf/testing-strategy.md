@@ -10,191 +10,94 @@
 - Diagram type enum validation
 - Conversation model integrity
 
-### Prompt Enhancement API
-- Enhancement returns valid JSON matching schema
-- All 5 example inputs produce sensible enhanced prompts
-- Entity extraction accuracy
-- Diagram type classification correctness
-- Assumption flagging works
-- Error handling for empty/gibberish input
+### Codebase Analysis (NEW)
+- GitHub URL parser handles owner/repo extraction
+- Tree fetcher filters noise correctly
+- Stack detection identifies React, Next.js, FastAPI, etc.
+- AI analyzer returns valid architecture summary
+- Prompt enhancer generates specific codebase-focused prompt
 
 ### Diagram Generation API
 - MermaidProvider returns valid Mermaid syntax
 - Generated Mermaid is parseable by Mermaid.js
 - Retry mechanism works on first failure
-- Second failure returns proper error response
-- Diagram metadata populated correctly
-- Conversation ID assigned on first generation
+- Diagram metadata populated correctly (including `related_files`)
 
 ### Refinement API
-- Follow-up modifies existing diagram (not generates from scratch)
-- Context preserved (new diagram references previous)
-- Changes summary accurately reflects modifications
+- Follow-up modifies existing diagram
+- Context preserved (Codebase summary used in refinement)
 - Version number incremented
-- Invalid follow-up returns helpful error
-
-### Provider Abstraction
-- MermaidProvider implements full interface
-- Provider can be swapped without changing API layer
-- Each provider returns normalized DiagramResult
-
-### Export Service
-- Mermaid export matches current diagram state
-- JSON export includes all fields
-- Prompt export returns enhanced prompt
-- Explanation export returns diagram explanation
 
 ---
 
 ## Frontend Tests
 
-### Text Input Flow
-- Input validates minimum length (10 chars)
-- Input rejects exceeding maximum (2000 chars)
-- Diagram type selector works
-- Submit disabled when invalid
-- Example prompts populate input on click
-- Submit triggers API call
+### Input Mode Flow (NEW)
+- Toggle between Prompt and GitHub modes works
+- Input field placeholder changes based on mode
+- GitHub mode shows Diagram Type and Node Theme selectors
+- URL validation for GitHub links
 
-### Voice Transcript Flow
-- Mic button visible on supported browsers
-- Recording state shown while active
-- Transcript appears after recording stops
-- Transcript is editable
-- Confirm sends transcript to generation
-- Cancel clears transcript
-- Graceful fallback on unsupported browsers
+### Codebase Analysis Flow (NEW)
+- Analyze button triggers analysis API
+- Loading state shows "Analyzing repository..."
+- Results populate the workspace appropriately
 
-### Enhanced Prompt Preview
-- Shows both raw and enhanced prompt
-- Copy button works
-- Toggle between raw/enhanced
-- Displays loading while enhancing
+### Node Tooltips & Themes (NEW)
+- `related_files` displayed in tooltips for codebase diagrams
+- Node Theme dropdown updates diagram visuals immediately (local CSS/Mermaid update)
+- Node Theme persists after refinement
 
 ### Diagram Rendering
 - Mermaid source renders without error
-- Diagram title displayed
-- Diagram explanation displayed
 - Invalid Mermaid shows error state (no crash)
-- Diagram scales reasonably in viewport
-
-### Chat Refinement
-- Follow-up input available after diagram exists
-- Message appears in conversation history
-- New diagram version renders after refinement
-- Previous messages visible in history
-
-### Version History
-- Shows list of diagram versions
-- Each version shows version number and timestamp
-- Clicking version shows that diagram
-- Current version highlighted
-
-### Export Actions
-- Mermaid copy works
-- JSON copy works
-- Enhanced prompt copy works
-- Success feedback shown (toast)
-- All exports reflect current diagram state
 
 ---
 
 ## AI Quality Tests
 
-### Prompt Enhancement Quality
-- Enhanced prompt is more specific than raw input
-- Entities extracted match design-system domain
-- Relationships are logical
-- Diagram type recommendation is appropriate
-- Assumptions are reasonable and flagged
+### Codebase Analysis Quality
+- Detected stack matches actual repository dependencies
+- Major modules are logical based on file structure
+- Architecture summary accurately describes project type (monorepo, etc.)
 
 ### Diagram Generation Quality
-- Generated diagrams have 5-15 nodes (readable)
-- Node labels are meaningful (not generic "Node1")
-- Relationships reflect actual design-system patterns
-- Mermaid syntax is valid
-- Diagram matches enhanced prompt intent
-
-### Refinement & Styling
-- Intent classification (PATCH vs STYLE vs REGENERATE)
-- Minimal Mermaid patching (topology preservation)
-- Node metadata enrichment accuracy
-- Style Toolbar reactivity (<100ms update)
-- Style preservation across topology refinements
+- Diagrams represent actual folder/file structure (for folder-structure diagrams)
+- Architecture diagrams show logical service boundaries
+- API flow diagrams identify actual route files
+- Node metadata (`related_files`) points to valid repo paths
 
 ---
 
-## AI Quality Tests
+## Demo Scenarios
 
-### Metadata & Tooltip Quality
-- Tooltip content is context-specific to the node's role in the DS
-- 100% coverage: every generated node has a non-empty tooltip
-- Importance levels (low/medium/high) are logical
+### Scenario 6: GitHub Architecture (NEW)
+- Input URL: `https://github.com/microsoft/TypeScript` (or a smaller known repo)
+- Diagram Type: Architecture
+- Verify: Renders logical architecture, tooltips show related source files
 
-### Refinement Stability
-- Unchanged elements remain identical across versions
-- Metadata is preserved for existing nodes during refinement
-- Patching doesn't break Mermaid syntax
+### Scenario 7: Folder Structure Visualization (NEW)
+- Input URL: `https://github.com/facebook/react`
+- Diagram Type: Folder Structure
+- Verify: Renders high-level folder map (src, packages, etc.)
 
----
+### Scenario 8: Node Theme Customization (NEW)
+- Generate a diagram, then change Node Theme to "Technical"
+- Verify: Sharp corners, mono font, high contrast, no re-regeneration from AI
 
-## Frontend UI Tests
-
-### Node Tooltips
-- Tooltip appears on hover, disappears on mouseleave
-- Tooltip displays Title, Role, Summary, and Description
-- Tooltip handles long text gracefully
-
-### Style Toolbar (Ribbon)
-- Controls for Font, Size, Color, and Backgrounds
-- Immediate update of the rendered diagram style
-- Style settings persist after a refinement update
-
-### Demo Scenario 1: Design System Architecture
-- Input: "Create a design system architecture for a React and Next.js app with tokens, components, themes, and documentation."
-- Expected: Multi-layer architecture diagram
-- Verify: Renders, is readable, entities correct
-
-### Demo Scenario 2: Component Hierarchy
-- Input: "Show how buttons, forms, modals, and layout components should be structured."
-- Expected: Hierarchical component diagram
-- Verify: Hierarchy is logical, atomic design levels if present
-
-### Demo Scenario 3: Token Architecture
-- Input: "Generate a diagram for design tokens, semantic tokens, component variants, and Tailwind integration."
-- Expected: Token flow diagram
-- Verify: Pipeline shows transformation steps
-
-### Demo Scenario 4: Design-to-Code Workflow
-- Input: "Create a design system workflow showing Figma tokens, code tokens, React components, Storybook, and app usage."
-- Expected: Workflow diagram left-to-right
-- Verify: Tools and steps connected logically
-
-### Demo Scenario 5: Conversational Refinement
-- Start: Generate Scenario 1
-- Follow-up: "Add accessibility testing and documentation layers."
-- Verify: Original preserved, new layers added, version 2 created
-
-### Edge Cases
-- Empty input → validation error shown
-- Very short input ("tokens") → enhancement adds context, or error
-- Gibberish input → helpful error message
-- Very long input (2000 chars) → works within limits
-- Rapid successive submits → loading state prevents double-submit
-- Network failure → error state with retry option
-- Mobile viewport → layout doesn't break (desktop-first but no crash)
+### Scenario 9: Codebase Refinement (NEW)
+- Generate codebase diagram
+- Follow-up: "Add the deployment flow based on the GitHub actions in the repo"
+- Verify: Diagram updated to include CI/CD nodes, version 2 created
 
 ---
 
-## Test Metrics
+## Test Metrics (Updated)
 
 | Metric | Target |
 |--------|--------|
-| Schema tests passing | 100% |
-| API endpoint tests passing | 100% |
-| Enhancement accuracy (manual review) | ≥80% |
-| Diagram generation success rate | ≥80% |
-| Mermaid validity rate | 100% (after retry) |
-| Refinement accuracy | ≥70% |
-| UI states covered (loading/error/empty) | 100% |
-| Demo scenarios passing | 5/5 |
+| GitHub analysis success rate | ≥95% |
+| Codebase stack detection accuracy | ≥90% |
+| Node Theme update time | <100ms |
+| Mermaid validity rate (Codebase) | 100% |
+| Related Files accuracy | ≥80% |

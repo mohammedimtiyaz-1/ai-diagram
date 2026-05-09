@@ -81,9 +81,9 @@ export default function DiagramStyleToolbar() {
 
       <div className="h-8 w-px bg-gray-100" />
 
-      {/* Node Background */}
+      {/* Node Color Swatches */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Node Theme</label>
+        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Node Base</label>
         <div className="flex items-center gap-2">
           {COLOR_SWATCHES.map((item) => (
             <button
@@ -97,6 +97,28 @@ export default function DiagramStyleToolbar() {
               <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 scale-0 rounded bg-gray-900 px-1 py-0.5 text-[8px] text-white transition-all group-hover:scale-100">
                 {item.id}
               </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="h-8 w-px bg-gray-100" />
+
+      {/* Visual Themes */}
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Aesthetic Theme</label>
+        <div className="flex gap-1">
+          {["default", "technical", "soft", "colorful", "dark", "enterprise"].map((t) => (
+            <button
+              key={t}
+              onClick={() => updateStyle({ node_theme: t })}
+              className={`rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-tighter transition-all ${
+                style.node_theme === t 
+                  ? "bg-blue-600 text-white shadow-sm" 
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              {t}
             </button>
           ))}
         </div>

@@ -3,13 +3,13 @@
 import { create } from "zustand";
 import type { EnhancementResult, DiagramResult } from "@/lib/api";
 
-type LoadingState = "idle" | "enhancing" | "generating" | "refining" | "exporting";
+type LoadingState = "idle" | "enhancing" | "generating" | "refining" | "exporting" | "analyzing";
 
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
-  type: "input" | "enhancement" | "diagram" | "refinement" | "error";
+  type: "input" | "enhancement" | "diagram" | "refinement" | "error" | "analysis";
   timestamp: number;
 }
 
@@ -29,6 +29,9 @@ interface WorkspaceState {
   loading: LoadingState;
   error: string | null;
 
+  // Input mode
+  inputMode: "prompt" | "codebase";
+
   // Actions
   addMessage: (msg: Omit<Message, "id" | "timestamp">) => void;
   setConversationId: (id: string) => void;
@@ -37,6 +40,7 @@ interface WorkspaceState {
   setLastEnhancement: (result: EnhancementResult | null) => void;
   setLoading: (state: LoadingState) => void;
   setError: (error: string | null) => void;
+  setInputMode: (mode: "prompt" | "codebase") => void;
   clearError: () => void;
   reset: () => void;
 }
@@ -51,6 +55,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   lastEnhancement: null,
   loading: "idle",
   error: null,
+  inputMode: "prompt",
 
   addMessage: (msg) =>
     set((state) => ({
@@ -83,6 +88,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   setLoading: (loading) => set({ loading }),
 
   setError: (error) => set({ error, loading: "idle" }),
+
+  setInputMode: (inputMode) => set({ inputMode }),
 
   clearError: () => set({ error: null }),
 

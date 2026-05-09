@@ -2,14 +2,15 @@
 
 ## What is This?
 
-A portfolio-grade AI SaaS application that helps frontend engineers, UI architects, and design system teams transform rough design-system ideas into clear architecture diagrams. The application uses AI to **enhance user prompts** before generating diagrams, then allows **iterative chat-based refinement** of the generated output.
+A portfolio-grade AI SaaS application that helps frontend engineers, UI architects, and design system teams transform rough design-system ideas OR existing codebases into clear architecture diagrams. The application uses AI to **enhance user prompts** or **analyze GitHub repositories** before generating diagrams, then allows **iterative chat-based refinement** of the generated output.
 
 **Target feel**: Small startup MVP — polished enough to demo, scalable enough to extend.
 
 ---
 
-## Core Flow
+## Core Flows
 
+### Flow A: Prompt to Diagram
 ```
 User input (text/voice)
   → AI prompt enhancement & metadata enrichment (tooltips)
@@ -18,6 +19,16 @@ User input (text/voice)
   → Visual customization via style toolbar (no AI)
   → Conversational refinement (incremental patching)
   → Export
+```
+
+### Flow B: Codebase to Diagram (NEW)
+```
+GitHub Repository URL
+  → Repository tree extraction & key file analysis
+  → AI architecture summary & diagram prompt generation
+  → Diagram generation with 'related_files' metadata
+  → Visual customization via themes (no AI)
+  → Conversational refinement (incremental patching)
 ```
 
 ---
@@ -29,13 +40,10 @@ User input (text/voice)
 **System enhances**: Adds entities, metadata (tooltips), relationships, and structure hints.
 **System generates**: Mermaid architecture diagram. Hovering over "Component Library" shows "The central repository for reusable UI components...".
 
-### Conversational Refinement (Incremental)
-**User follows up**: "Add a Storybook layer for documentation."
-**System**: Classifies as `ADD_ELEMENT` → preserve existing nodes → append Storybook to Mermaid → update v2.
-
-### Visual Customization (No AI)
-**User clicks toolbar**: Changes "Node Background" to "Soft Gray".
-**System**: Updates style state → preview re-renders immediately.
+### GitHub URL → Analysis → Diagram
+**User enters**: `https://github.com/example/design-system`
+**System analyzes**: Detects React, Next.js, and Tailwind; identifies components/ and tokens/ folders.
+**System generates**: "Architecture Diagram" showing the actual folder structure and dependencies, with tooltips pointing to relevant source files.
 
 ---
 
@@ -43,24 +51,11 @@ User input (text/voice)
 
 | Feature | Why It Matters |
 |---------|---------------|
+| **Codebase-to-Diagram** | Automatic documentation of existing repositories — massive time saver |
 | **Prompt enhancement** | Raw ideas are improved before generation — better diagrams |
 | **Incremental Refinement** | Stable iteration: preserve existing nodes/edges unless changed |
-| **Node Tooltips** | Contextual DS knowledge embedded in diagrams |
-| **Style Toolbar** | Rapid visual customization without AI latency |
-| **Transparent AI** | Shows enhanced prompt — user sees what AI understood |
-
----
-
-## Target Users
-
-| User | Goal |
-|------|------|
-| Frontend engineers | Visualize component architecture and dependencies |
-| Design system engineers | Map token pipelines, governance, documentation |
-| UI architects | Plan scalable component hierarchies |
-| Product engineers | Understand design-to-code workflows |
-| Technical leads | Communicate architecture decisions visually |
-| Design operations teams | Document design system governance |
+| **Node Tooltips** | Contextual DS knowledge or codebase paths embedded in diagrams |
+| **Node Themes** | Rapid visual customization without AI latency or topology breakage |
 
 ---
 
@@ -69,33 +64,17 @@ User input (text/voice)
 | Type | Use Case |
 |------|----------|
 | Design System Architecture | Overall system layers and integrations |
-| Component Hierarchy | Atomic/composite/page component structure |
+| Folder Structure Diagram | (Codebase) High-level map of repository layout |
+| Component Hierarchy | (Design/Codebase) Atomic/composite/page component structure |
+| API Flow Diagram | (Codebase) Request/response flow through services |
 | Token Architecture | Primitive → Semantic → Component token pipeline |
-| Design-to-Code Workflow | Figma → Tokens → Code → Storybook → App |
-| Component Dependency Map | What depends on what |
 
 ---
 
 ## Key Principles
 
 1. **Small MVP, scalable design** — don't overbuild, but keep module boundaries clean
-2. **Prompt enhancement is first-class** — never send raw input directly to diagram provider
+2. **Analysis before Generation** — always analyze context (prompt or code) first
 3. **Provider-agnostic** — diagram generation layer is pluggable
-4. **Transparent AI** — show what was enhanced, what was assumed
+4. **Transparent AI** — show analysis results and enhanced prompts
 5. **Design-system domain focus** — not a generic diagram tool
-
----
-
-## Documentation Map
-
-| Document | Location |
-|----------|----------|
-| Product Requirements | `docs/PRODUCT_REQUIREMENTS.md` |
-| Technical Design | `docs/TECHNICAL_DESIGN.md` |
-| API Contracts | `docs/API_CONTRACTS.md` |
-| AI Workflow Design | `docs/AI_WORKFLOW_DESIGN.md` |
-| Development Plan | `docs/DEVELOPMENT_PLAN.md` |
-| Task Board | `.windsurf/task-board.md` |
-| Progress Tracker | `.windsurf/progress-tracker.md` |
-| Architecture | `.windsurf/architecture.md` |
-| Prompts | `.windsurf/prompts.md` |

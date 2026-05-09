@@ -51,25 +51,94 @@ Base URL: `http://localhost:8000`
 }
 ```
 
-**Error** `422 Unprocessable Entity`:
+---
+
+## POST /api/codebase/analyze (NEW)
+
+**Purpose**: Analyze a public GitHub repository and suggest an architecture diagram.
+
+**Request Body**:
 ```json
 {
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Input must be between 10 and 2000 characters.",
-    "field": "raw_prompt"
-  }
+  "repo_url": "string (valid public GitHub URL, required)",
+  "diagram_type": "auto | architecture | folder-structure | component-dependency | api-flow | sequence | data-flow | design-system | state-management | auth-flow",
+  "node_theme": "default | minimal | soft | technical | colorful | dark | enterprise"
 }
 ```
 
-**Error** `500 Internal Server Error`:
+**Response** `200 OK`:
 ```json
 {
-  "error": {
-    "code": "ENHANCEMENT_FAILED",
-    "message": "Unable to enhance this prompt. Please try rephrasing.",
-    "suggestion": "Be more specific about design system components and relationships.",
-    "retry_allowed": true
+  "analysis_id": "string (uuid)",
+  "repo_name": "string",
+  "detected_stack": ["React", "Next.js", "Tailwind"],
+  "important_files": ["package.json", "src/app/page.tsx"],
+  "project_summary": "string",
+  "architecture_summary": "string",
+  "recommended_diagram_type": "architecture",
+  "enhanced_prompt": "string (structured prompt for diagram generator)",
+  "warnings": ["string"]
+}
+```
+
+---
+
+## POST /api/codebase/generate-diagram (NEW)
+
+**Purpose**: Generate a diagram from a codebase analysis.
+
+**Request Body**:
+```json
+{
+  "repo_url": "string",
+  "analysis_id": "string | null",
+  "diagram_type": "string",
+  "node_theme": "string",
+  "provider": "mermaid | structured-graph",
+  "conversation_id": "string | null"
+}
+```
+
+**Response** `200 OK`:
+```json
+{
+  "diagram_id": "string (uuid)",
+  "conversation_id": "string (uuid)",
+  "base_diagram_id": "string (uuid)",
+  "version": 1,
+  "source_type": "codebase",
+  "repo_url": "string",
+  "title": "string",
+  "diagram_type": "string",
+  "provider": "mermaid",
+  "diagram_source": "string",
+  "diagram_format": "mermaid",
+  "nodes": [
+    {
+      "id": "node1",
+      "label": "App Router",
+      "type": "module",
+      "metadata": {
+        "tooltip_title": "App Router",
+        "tooltip_description": "Next.js 13+ App Router structure",
+        "role": "Routing",
+        "importance": "high",
+        "connections_summary": "Manages page navigation",
+        "related_files": ["src/app/layout.tsx", "src/app/page.tsx"]
+      },
+      "style": {}
+    }
+  ],
+  "edges": [],
+  "style": {
+    "node_theme": "technical"
+  },
+  "explanation": "string",
+  "codebase_summary": "string",
+  "metadata": {
+    "detected_stack": ["Next.js"],
+    "important_files": ["..."],
+    "analysis_warnings": []
   }
 }
 ```
@@ -92,70 +161,7 @@ Base URL: `http://localhost:8000`
 ```
 
 **Response** `200 OK`:
-```json
-{
-  "diagram_id": "string (uuid)",
-  "conversation_id": "string (uuid)",
-  "base_diagram_id": "string (uuid)",
-  "version": 1,
-  "title": "string",
-  "diagram_type": "string",
-  "provider": "string",
-  "diagram_source": "string (Mermaid syntax)",
-  "diagram_format": "mermaid",
-  "nodes": [
-    {
-      "id": "A",
-      "label": "Design Tokens",
-      "type": "token",
-      "metadata": {
-        "tooltip_title": "Design Tokens",
-        "tooltip_description": "Reusable values like colors and spacing.",
-        "role": "Foundation",
-        "importance": "high",
-        "connections_summary": "Feeds into components"
-      },
-      "style": {
-        "background_color": null,
-        "font_color": null
-      }
-    }
-  ],
-  "edges": [
-    {
-      "id": "e1",
-      "source": "A",
-      "target": "B",
-      "label": "uses"
-    }
-  ],
-  "style": {
-    "font_family": "Inter",
-    "font_size": "medium",
-    "font_color": "default",
-    "node_background_color": "default",
-    "diagram_background_color": "default"
-  },
-  "explanation": "string",
-  "metadata": {
-    "node_count": 8,
-    "edge_count": 7,
-    "generated_at": "2026-05-08T14:00:00Z"
-  }
-}
-```
-
-**Error** `500 Internal Server Error`:
-```json
-{
-  "error": {
-    "code": "GENERATION_FAILED",
-    "message": "Could not generate a valid diagram after retrying.",
-    "suggestion": "Try simplifying your description or selecting a specific diagram type.",
-    "retry_allowed": true
-  }
-}
-```
+*(Schema identical to /api/codebase/generate-diagram, but source_type is "prompt")*
 
 ---
 
@@ -170,40 +176,13 @@ Base URL: `http://localhost:8000`
   "diagram_id": "string (current diagram ID)",
   "followup_prompt": "string (10-1000 chars)",
   "current_diagram_source": "string (current Mermaid/graph)",
+  "current_nodes": ["DiagramNode (optional, for topology preservation)"],
   "provider": "string"
 }
 ```
 
 **Response** `200 OK`:
-```json
-{
-  "diagram_id": "string (new uuid)",
-  "conversation_id": "string",
-  "base_diagram_id": "string",
-  "parent_diagram_id": "string",
-  "version": 2,
-  "change_intent": "PATCH_CHANGE | ADD_ELEMENT | REMOVE_ELEMENT | STYLE_CHANGE | REGENERATE",
-  "is_full_regeneration": false,
-  "diagram_source": "string",
-  "nodes": [],
-  "edges": [],
-  "style": {},
-  "explanation": "string",
-  "changes_summary": ["Added Storybook layer"],
-  "metadata": {}
-}
-```
-
-**Error** `404 Not Found`:
-```json
-{
-  "error": {
-    "code": "CONVERSATION_NOT_FOUND",
-    "message": "Conversation not found. Please start a new diagram.",
-    "retry_allowed": false
-  }
-}
-```
+*(Schema same as generation, with change_intent and changes_summary)*
 
 ---
 
@@ -219,161 +198,18 @@ Base URL: `http://localhost:8000`
     "font_size": "small | medium | large",
     "font_color": "default | dark | muted",
     "node_background_color": "default | white | soft-blue | soft-gray | soft-purple",
-    "diagram_background_color": "default | white | light-gray"
+    "node_theme": "default | minimal | soft | technical | colorful | dark | enterprise"
   }
 }
 ```
 
-**Response** `200 OK`:
-```json
-{
-  "diagram_id": "string",
-  "style": {
-    "font_family": "Inter",
-    "font_size": "medium",
-    "font_color": "default",
-    "node_background_color": "soft-blue",
-    "diagram_background_color": "white"
-  },
-  "updated_at": "2026-05-08T14:10:00Z"
-}
-```
-
 ---
 
-## GET /api/diagrams/{diagram_id}/nodes/{node_id}/tooltip
-
-**Purpose**: (Optional) Fetch detailed tooltip metadata for a specific node.
-
-**Response** `200 OK`:
-```json
-{
-  "node_id": "string",
-  "tooltip_title": "string",
-  "tooltip_description": "string",
-  "role": "string",
-  "connections_summary": "string"
-}
-```
-
----
-
-## POST /api/diagrams/export
-
-**Purpose**: Export the current diagram in the requested format.
-
-**Request Body**:
-```json
-{
-  "conversation_id": "string",
-  "diagram_id": "string",
-  "format": "mermaid | json | enhanced-prompt | explanation"
-}
-```
-
-**Response** `200 OK`:
-```json
-{
-  "format": "mermaid",
-  "content": "string (formatted content in requested format)",
-  "filename_suggestion": "design-system-architecture.md"
-}
-```
-
----
-
-## POST /api/voice/transcribe (Optional/Future)
-
-**Purpose**: Server-side speech-to-text (if browser API insufficient).
-
-**Note**: MVP uses browser Web Speech API. This endpoint is reserved for future backend STT.
-
-**Request**: `multipart/form-data` with audio file
-**Response**:
-```json
-{
-  "transcript": "string",
-  "confidence": 0.95,
-  "language": "en"
-}
-```
-
----
-
-## GET /api/conversations/{conversation_id}/versions
-
-**Purpose**: Get all diagram versions for a conversation.
-
-**Response** `200 OK`:
-```json
-{
-  "conversation_id": "string",
-  "versions": [
-    {
-      "diagram_id": "string",
-      "version": 1,
-      "title": "string",
-      "diagram_type": "string",
-      "changes_summary": [],
-      "created_at": "2026-05-08T14:00:00Z"
-    },
-    {
-      "diagram_id": "string",
-      "version": 2,
-      "title": "string",
-      "diagram_type": "string",
-      "changes_summary": ["Added testing layer"],
-      "created_at": "2026-05-08T14:05:00Z"
-    }
-  ]
-}
-```
-
----
-
-## Common Error Schema
-
-All errors follow this structure:
-
-```json
-{
-  "error": {
-    "code": "string (machine-readable error code)",
-    "message": "string (human-readable message for UI display)",
-    "suggestion": "string | null (actionable suggestion for user)",
-    "field": "string | null (specific field for validation errors)",
-    "retry_allowed": "boolean"
-  }
-}
-```
-
-### Error Codes
+## Common Error Codes (Added Codebase Specifics)
 
 | Code | HTTP Status | Meaning |
 |------|-------------|---------|
-| `VALIDATION_ERROR` | 422 | Input failed validation |
-| `ENHANCEMENT_FAILED` | 500 | AI could not enhance the prompt |
-| `GENERATION_FAILED` | 500 | AI could not generate a valid diagram |
-| `REFINEMENT_FAILED` | 500 | AI could not refine the diagram |
-| `CONVERSATION_NOT_FOUND` | 404 | Conversation ID does not exist |
-| `PROVIDER_ERROR` | 503 | Diagram provider is unavailable |
-| `RATE_LIMITED` | 429 | Too many requests |
-
----
-
-## CORS Configuration
-
-```python
-origins = [
-    "http://localhost:3000",  # Next.js dev
-]
-```
-
----
-
-## Request Headers
-
-| Header | Required | Description |
-|--------|----------|-------------|
-| `Content-Type` | Yes | `application/json` |
-| `X-Request-ID` | Optional | Client-generated request ID for tracing |
+| `GITHUB_REPO_NOT_FOUND` | 404 | Public GitHub repository not found |
+| `GITHUB_RATE_LIMIT` | 429 | GitHub API rate limit hit |
+| `CODE_ANALYSIS_FAILED` | 500 | AI could not analyze the repository tree |
+| `INVALID_GITHUB_URL` | 400 | The provided URL is not a valid GitHub URL |

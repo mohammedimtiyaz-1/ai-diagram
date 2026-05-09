@@ -3,10 +3,8 @@
 ---
 
 ## Workflow 1: Text to Design System Diagram
+*(Flow A: Design Prompt)*
 
-**Trigger**: User types a design-system description and submits.
-
-**Steps**:
 1. User enters text in chat input panel
 2. Frontend validates input (≥10 chars, ≤2000 chars)
 3. Frontend sends raw prompt to `/api/prompts/enhance`
@@ -15,95 +13,60 @@
 6. Frontend sends enhanced prompt to `/api/diagrams/generate`
 7. Provider generates diagram (Mermaid syntax)
 8. Frontend renders diagram in preview panel
-9. Conversation initialized with context
 
 ---
 
-## Workflow 2: Voice to Design System Diagram
+## Workflow 8: Codebase to Diagram (NEW)
+*(Flow B: GitHub URL)*
 
-**Trigger**: User clicks microphone and speaks.
-
-**Steps**:
-1. User clicks mic button — browser requests permission
-2. Speech recognition captures audio
-3. Transcript displayed in editable text area
-4. User reviews/edits transcript
-5. User confirms → transcript sent through Workflow 1 (step 2 onward)
-6. Diagram generated and rendered
-
----
-
-## Workflow 3: Prompt Enhancement
-
-**Trigger**: Raw user input received by backend.
-
-**Steps**:
-1. Raw prompt received
-2. Design-system intent extracted (entities, relationships)
-3. Missing context inferred carefully (flagged as assumptions)
-4. Diagram type classified (architecture / hierarchy / token / workflow)
-5. Prompt rewritten for diagram generation clarity
-6. Enhanced prompt returned with:
-   - diagram goal
-   - entities list
-   - relationships
-   - recommended type
-   - visual structure hints
-   - assumptions made
+1. User switches input mode to "GitHub URL"
+2. User enters public GitHub URL (e.g., `https://github.com/owner/repo`)
+3. User selects **Diagram Type** and **Node Theme**
+4. Backend parses URL and fetches repository tree via GitHub API
+5. Backend selects key files (package.json, tsconfig, entry points)
+6. AI analyzes codebase structure and tech stack
+7. AI generates enhanced diagram prompt based on analysis
+8. Provider generates diagram with `related_files` metadata for nodes
+9. Frontend renders diagram with interactive tooltips
 
 ---
 
-## Workflow 4: Conversational Refinement
+## Workflow 9: Node Theme Update (NEW)
+*(Visual Customization)*
 
-**Trigger**: User sends follow-up message after diagram exists.
-
-**Steps**:
-1. User types follow-up (e.g., "Add accessibility testing layer")
-2. Frontend sends to `/api/diagrams/refine` with conversation_id and current diagram
-3. AI loads previous context (original prompt, enhanced prompt, diagram, messages)
-4. Follow-up is enhanced in context of existing diagram
-5. Provider generates updated diagram
-6. New diagram version created
-7. Frontend renders new version
-8. Version history updated
+1. User selects a new **Node Theme** (e.g., "Technical") from the style toolbar
+2. Frontend updates the global `StyleState`
+3. `MermaidRenderer` detects the change
+4. Renderer applies new `classDef` and `style` blocks to the *existing* Mermaid source
+5. Diagram re-renders instantly without calling the AI or backend
 
 ---
 
-## Workflow 5: Provider Switching
+## Workflow 4: Conversational Refinement (Updated)
 
-**Trigger**: User selects different provider (future feature).
-
-**Steps**:
-1. Same enhanced prompt can be sent to different providers
-2. Provider adapter translates prompt to provider-specific format
-3. Provider returns normalized diagram response
-4. Frontend renders regardless of provider used
-5. Frontend remains provider-agnostic
+1. User sends follow-up (e.g., "Add accessibility testing layer")
+2. Backend classifies intent (PATCH, ADD, REMOVE, etc.)
+3. AI loads previous context (Design Prompt or Codebase Analysis)
+4. AI generates Mermaid patch + new node metadata
+5. For codebase diagrams, new nodes are mapped to repo paths where possible
+6. New diagram version created and rendered
 
 ---
 
-## Workflow 6: Export
+## Workflow 6: Export (Updated)
 
-**Trigger**: User clicks export action.
-
-**Steps**:
-1. User selects export format (Mermaid / JSON / prompt / explanation)
-2. System retrieves current diagram state
-3. Format-specific export generated
-4. Content displayed and/or copied to clipboard
-5. Success feedback shown (toast notification)
+1. User clicks export action
+2. User selects format:
+    - **MMD**: Raw Mermaid source file download
+    - **JSON**: Full structured data (topology, metadata, style) download
+3. System generates file and triggers browser download
+4. Success feedback shown (toast notification)
 
 ---
 
-## Workflow 7: Error Recovery
+## Workflow 7: Error Recovery (Updated)
 
-**Trigger**: AI returns invalid or unusable diagram.
-
-**Steps**:
-1. Diagram provider returns invalid output
-2. Backend validates output against schema
-3. If invalid → retry once with repair prompt
-4. If still invalid → return clear error to frontend
-5. Frontend shows actionable error message
-6. User can rephrase or try different diagram type
-7. Previous valid diagram remains visible if exists
+1. GitHub API rate limit hit or private repo detected
+2. Backend returns specific error code (`GITHUB_RATE_LIMIT`, `GITHUB_REPO_NOT_FOUND`)
+3. Frontend shows mode-specific error with guidance (e.g., "Repository is private or non-existent")
+4. AI-related generation errors trigger retry logic once before failing

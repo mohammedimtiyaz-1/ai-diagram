@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import conversations, diagrams, health, prompts
+from app.api.routes import conversations, diagrams, health, prompts, codebase
 from app.core.config import settings
 
 
@@ -31,3 +31,4 @@ app.include_router(health.router, tags=["health"])
 app.include_router(prompts.router, tags=["prompts"])
 app.include_router(diagrams.router, tags=["diagrams"])
 app.include_router(conversations.router, tags=["conversations"])
+app.include_router(codebase.router, tags=["codebase"])
