@@ -1,11 +1,18 @@
 "use client";
 
 import { create } from "zustand";
-import type { EnhancementResult, DiagramResult } from "@/lib/api";
+import type { EnhancementResult, DiagramResult, DiagramStyle } from "@/lib/api";
+import {
+  saveWorkspaceState,
+  loadWorkspaceState,
+  clearWorkspaceState,
+  createNewConversationState,
+  type PersistedWorkspaceState,
+} from "@/lib/storage/workspace-storage";
 
 type LoadingState = "idle" | "enhancing" | "generating" | "refining" | "exporting" | "analyzing";
 
-interface Message {
+export interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
@@ -13,59 +20,63 @@ interface Message {
   timestamp: number;
 }
 
-interface WorkspaceState {
-  // Messages
-  messages: Message[];
-  conversationId: string | null;
-
-  // Current diagram
-  currentDiagram: DiagramResult | null;
-  diagramVersions: DiagramResult[];
-
-  // Enhanced prompt (last enhancement result)
-  lastEnhancement: EnhancementResult | null;
-
-  // Loading & error
+interface WorkspaceState extends PersistedWorkspaceState {
+  // Transient — never persisted
   loading: LoadingState;
   error: string | null;
 
-  // Input mode
-  inputMode: "prompt" | "codebase";
-
   // Actions
   addMessage: (msg: Omit<Message, "id" | "timestamp">) => void;
-  setConversationId: (id: string) => void;
-  setCurrentDiagram: (diagram: DiagramResult) => void;
+  setConversationId: (id: string | null) => void;
+  setCurrentDiagram: (diagram: DiagramResult | null) => void;
   addDiagramVersion: (diagram: DiagramResult) => void;
   setLastEnhancement: (result: EnhancementResult | null) => void;
   setLoading: (state: LoadingState) => void;
   setError: (error: string | null) => void;
   setInputMode: (mode: "prompt" | "codebase") => void;
+  setRawPrompt: (prompt: string) => void;
+  setSelectedDiagramType: (type: string) => void;
+  setSelectedNodeTheme: (theme: string) => void;
+  setRepoUrl: (url: string) => void;
+  setDiagramStyle: (style: DiagramStyle | null) => void;
   clearError: () => void;
-  reset: () => void;
+  hydrateFromStorage: () => { recovered: boolean; error: string | null };
+  startNewConversation: () => void;
 }
 
 let messageId = 0;
 
+function createInitialState(): Omit<
+  WorkspaceState,
+  keyof Omit<WorkspaceState, keyof PersistedWorkspaceState> | "hydrateFromStorage" | "startNewConversation"
+> & { loading: LoadingState; error: string | null } {
+  return {
+    schema_version: 1,
+    conversationId: null,
+    messages: [],
+    currentDiagram: null,
+    diagramVersions: [],
+    lastEnhancement: null,
+    inputMode: "prompt",
+    rawPrompt: "",
+    selectedDiagramType: "auto",
+    selectedNodeTheme: "default",
+    repoUrl: "",
+    diagramStyle: null,
+    updatedAt: new Date().toISOString(),
+    loading: "idle",
+    error: null,
+  };
+}
+
 export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
-  messages: [],
-  conversationId: null,
-  currentDiagram: null,
-  diagramVersions: [],
-  lastEnhancement: null,
-  loading: "idle",
-  error: null,
-  inputMode: "prompt",
+  ...createInitialState(),
 
   addMessage: (msg) =>
     set((state) => ({
       messages: [
         ...state.messages,
-        {
-          ...msg,
-          id: `msg-${++messageId}`,
-          timestamp: Date.now(),
-        },
+        { ...msg, id: `msg-${++messageId}`, timestamp: Date.now() },
       ],
     })),
 
@@ -74,7 +85,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   setCurrentDiagram: (diagram) =>
     set((state) => ({
       currentDiagram: diagram,
-      diagramVersions: [...state.diagramVersions, diagram],
+      diagramVersions: diagram ? [...state.diagramVersions, diagram] : state.diagramVersions,
     })),
 
   addDiagramVersion: (diagram) =>
@@ -91,16 +102,61 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
 
   setInputMode: (inputMode) => set({ inputMode }),
 
+  setRawPrompt: (rawPrompt) => set({ rawPrompt }),
+
+  setSelectedDiagramType: (selectedDiagramType) => set({ selectedDiagramType }),
+
+  setSelectedNodeTheme: (selectedNodeTheme) => set({ selectedNodeTheme }),
+
+  setRepoUrl: (repoUrl) => set({ repoUrl }),
+
+  setDiagramStyle: (diagramStyle) => set({ diagramStyle }),
+
   clearError: () => set({ error: null }),
 
-  reset: () =>
+  hydrateFromStorage: () => {
+    const { state, recovered, error } = loadWorkspaceState();
+    if (state) {
+      set({
+        ...state,
+        loading: "idle",
+        error: error,
+      });
+    }
+    return { recovered, error };
+  },
+
+  startNewConversation: () => {
+    const fresh = createNewConversationState();
     set({
-      messages: [],
-      conversationId: null,
-      currentDiagram: null,
-      diagramVersions: [],
-      lastEnhancement: null,
+      ...fresh,
       loading: "idle",
       error: null,
-    }),
+    });
+    saveWorkspaceState(fresh);
+  },
 }));
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Auto-persist stable state on every change
+// ──────────────────────────────────────────────────────────────────────────────
+
+useWorkspaceStore.subscribe((state) => {
+  // Only persist stable fields; skip transient UI state
+  const toSave: PersistedWorkspaceState = {
+    schema_version: state.schema_version,
+    conversationId: state.conversationId,
+    messages: state.messages,
+    currentDiagram: state.currentDiagram,
+    diagramVersions: state.diagramVersions,
+    lastEnhancement: state.lastEnhancement,
+    inputMode: state.inputMode,
+    rawPrompt: state.rawPrompt,
+    selectedDiagramType: state.selectedDiagramType,
+    selectedNodeTheme: state.selectedNodeTheme,
+    repoUrl: state.repoUrl,
+    diagramStyle: state.diagramStyle,
+    updatedAt: new Date().toISOString(),
+  };
+  saveWorkspaceState(toSave);
+});

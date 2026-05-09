@@ -70,3 +70,26 @@
 2. Backend returns specific error code (`GITHUB_RATE_LIMIT`, `GITHUB_REPO_NOT_FOUND`)
 3. Frontend shows mode-specific error with guidance (e.g., "Repository is private or non-existent")
 4. AI-related generation errors trigger retry logic once before failing
+
+---
+
+## Workflow 10: Refresh Restore (NEW)
+
+1. User refreshes the browser page
+2. `WorkspacePage` calls `hydrateFromStorage()` on mount
+3. Storage adapter reads `localStorage` key `ai-design-system-diagram-assistant:workspace:v1`
+4. Schema version is validated; loading state is reset to `idle`
+5. Zustand store is hydrated with persisted conversation, diagram, versions, and settings
+6. UI renders the restored state; no API calls are triggered automatically
+
+---
+
+## Workflow 11: New Conversation (NEW)
+
+1. User clicks the **New Conversation** button in the header
+2. If active work exists (messages or diagram), a confirmation dialog appears
+3. `startNewConversation()` creates a fresh conversation ID
+4. Current messages, diagram, versions, prompts, and repo URL are cleared
+5. Global preferences (provider, theme, style defaults) are preserved
+6. Clean state is persisted to `localStorage`
+7. UI resets to empty prompt input state

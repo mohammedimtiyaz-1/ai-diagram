@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useWorkspaceStore } from "@/stores/workspace";
 
 const CODEBASE_DIAGRAM_TYPES = [
   { value: "architecture", label: "System Architecture" },
@@ -23,9 +24,12 @@ interface CodebaseInputProps {
 }
 
 export default function CodebaseInput({ onSubmit, disabled }: CodebaseInputProps) {
-  const [repoUrl, setRepoUrl] = useState("");
+  const repoUrl = useWorkspaceStore((s) => s.repoUrl);
+  const nodeTheme = useWorkspaceStore((s) => s.selectedNodeTheme);
+  const setRepoUrl = useWorkspaceStore((s) => s.setRepoUrl);
+  const setNodeTheme = useWorkspaceStore((s) => s.setSelectedNodeTheme);
+
   const [diagramType, setDiagramType] = useState("architecture");
-  const [nodeTheme, setNodeTheme] = useState("technical");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

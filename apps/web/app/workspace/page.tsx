@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, MessageSquarePlus } from "lucide-react";
 import PromptInput from "@/components/workspace/PromptInput";
 import CodebaseInput from "@/components/workspace/CodebaseInput";
 import ConversationHistory from "@/components/workspace/ConversationHistory";
@@ -21,8 +21,18 @@ export default function WorkspacePage() {
   const inputMode = store.inputMode;
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [hydrationError, setHydrationError] = useState<string | null>(null);
 
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Hydrate from localStorage on first mount
+  useEffect(() => {
+    const result = store.hydrateFromStorage();
+    if (result.error) {
+      setHydrationError(result.error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const isBusy = loading !== "idle";
 
@@ -230,16 +240,34 @@ export default function WorkspacePage() {
             AI Design System Diagram Assistant
           </Link>
         </div>
-        {isBusy && (
-          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
-            <div className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin rounded-full border-2 border-gray-300 border-t-black" />
-            <span className="hidden sm:inline">
-              {loading === "enhancing" && "Enhancing prompt..."}
-              {loading === "generating" && "Generating diagram..."}
-              {loading === "refining" && "Refining diagram..."}
-            </span>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              if (store.messages.length > 0 || store.currentDiagram) {
+                const confirmed = window.confirm(
+                  "Start a new conversation? Your current workspace will be saved in history."
+                );
+                if (!confirmed) return;
+              }
+              store.startNewConversation();
+            }}
+            className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-2.5 py-1.5 text-[11px] sm:text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition"
+            title="New Conversation"
+          >
+            <MessageSquarePlus className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">New</span>
+          </button>
+          {isBusy && (
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
+              <div className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin rounded-full border-2 border-gray-300 border-t-black" />
+              <span className="hidden sm:inline">
+                {loading === "enhancing" && "Enhancing prompt..."}
+                {loading === "generating" && "Generating diagram..."}
+                {loading === "refining" && "Refining diagram..."}
+              </span>
+            </div>
+          )}
+        </div>
       </header>
 
       {/* Main workspace */}
@@ -276,6 +304,19 @@ export default function WorkspacePage() {
           <div className="flex-1 overflow-y-auto px-3 py-3 lg:px-4 lg:py-4">
             <ConversationHistory />
           </div>
+
+          {/* Recovery / hydration error banner */}
+          {hydrationError && (
+            <div className="mx-3 lg:mx-4 mb-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              <strong>Notice:</strong> {hydrationError}
+              <button
+                onClick={() => setHydrationError(null)}
+                className="ml-2 underline hover:text-amber-900"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
 
           {/* Error banner */}
           {error && (

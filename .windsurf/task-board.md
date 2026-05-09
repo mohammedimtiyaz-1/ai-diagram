@@ -11,6 +11,22 @@ Organized by status. Tasks derived from updated requirements.
 ### Phase 3 — Frontend Workspace Shell ✅
 ### Phase 4 — AI Prompt Enhancement ✅
 ### Phase 5 — AI Refinement & Tooltips ✅
+### Phase 8 — Resilience & Timeout Optimization ✅
+- [x] Apply strict 10s timeout to Enhance and Refine APIs (Backend)
+- [x] Implement AbortController with 10s timeout (Frontend)
+- [x] Create Premium Loading Overlay with Cancel functionality
+- [x] Show "Taking longer than expected" error message on timeout
+- [x] Ensure diagram state preservation on request failure
+- [x] Updated API documentation and test suite
+
+### Phase 9 — Workspace Persistence ✅
+- [x] Create `workspace-storage.ts` adapter with schema versioning
+- [x] Extend Zustand store with persisted fields and auto-save
+- [x] Wire PromptInput/CodebaseInput to store for cross-refresh retention
+- [x] Hydrate store from localStorage on workspace mount
+- [x] Add New Conversation button with confirmation dialog
+- [x] Reset loading state to idle on hydration; never auto-trigger API calls
+- [x] Safe recovery for corrupted/invalid stored state with user notice
 
 ---
 

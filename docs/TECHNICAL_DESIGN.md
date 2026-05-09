@@ -102,6 +102,15 @@ interface WorkspaceState {
 }
 ```
 
+### Client-Side Persistence
+- **Storage**: `localStorage` via clean adapter at `lib/storage/workspace-storage.ts`
+- **Key**: `ai-design-system-diagram-assistant:workspace:v1`
+- **Schema version**: `1` (validated on load; invalid/outdated data resets safely)
+- **Persisted fields**: conversation, messages, diagram, versions, rawPrompt, selectedDiagramType, selectedNodeTheme, repoUrl, diagramStyle, inputMode
+- **Excluded fields**: loading, error, AbortController, tooltip positions, hover state
+- **Auto-save**: Zustand `subscribe` writes stable state on every change
+- **Hydration**: `useEffect` in `WorkspacePage` calls `hydrateFromStorage()` once on mount; loading is reset to `idle`; no API calls are auto-triggered
+
 ---
 
 ## 3. Backend Architecture

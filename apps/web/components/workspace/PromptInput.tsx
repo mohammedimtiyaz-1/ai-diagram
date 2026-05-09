@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useWorkspaceStore } from "@/stores/workspace";
 import VoiceInput from "./VoiceInput";
 
 const DIAGRAM_TYPES = [
@@ -24,8 +24,10 @@ interface PromptInputProps {
 }
 
 export default function PromptInput({ onSubmit, disabled }: PromptInputProps) {
-  const [prompt, setPrompt] = useState("");
-  const [diagramType, setDiagramType] = useState("auto");
+  const prompt = useWorkspaceStore((s) => s.rawPrompt);
+  const diagramType = useWorkspaceStore((s) => s.selectedDiagramType);
+  const setPrompt = useWorkspaceStore((s) => s.setRawPrompt);
+  const setDiagramType = useWorkspaceStore((s) => s.setSelectedDiagramType);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,10 +41,8 @@ export default function PromptInput({ onSubmit, disabled }: PromptInputProps) {
   };
 
   const handleTranscript = (transcript: string) => {
-    setPrompt((prev) => {
-      const newText = prev ? `${prev} ${transcript}` : transcript;
-      return newText;
-    });
+    const newText = prompt ? `${prompt} ${transcript}` : transcript;
+    setPrompt(newText);
   };
 
   return (
