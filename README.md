@@ -4,9 +4,14 @@ A portfolio-grade fullstack SaaS application that transforms design system ideas
 
 ## What It Does
 
-Describe your design system in plain text or voice. The AI enhances your raw prompt into a structured diagram-generation prompt, produces a Mermaid diagram, and lets you refine it conversationally. All diagram versions are tracked, and everything can be exported.
+Describe your design system in plain text or voice, or provide a GitHub repository URL. The AI enhances your raw prompt into a structured diagram-generation prompt, produces a Mermaid diagram, and lets you refine it conversationally. All diagram versions are tracked, and everything can be exported.
 
-**Current Phase:** Phase 9 — Testing & Documentation (Final Phase)
+**Current Phase:** Complete — All Phases Delivered
+
+## Live Demo
+
+- **Frontend:** https://ai-design-system-diagram.vercel.app
+- **Backend API:** https://ai-diagram-fds0.onrender.com
 
 ## Architecture
 
@@ -19,10 +24,12 @@ Frontend (Next.js 14+ App Router)
 
 Backend (FastAPI)
   ├── /health
-  ├── /api/prompts/enhance  (Phase 4)
-  ├── /api/diagrams/generate  (Phase 5)
-  ├── /api/diagrams/refine  (Phase 6)
-  └── /api/diagrams/export  (Phase 8)
+  ├── /api/prompts/enhance
+  ├── /api/diagrams/generate
+  ├── /api/diagrams/refine
+  ├── /api/diagrams/export
+  ├── /api/codebase/analyze
+  └── /api/codebase/generate-diagram
 ```
 
 ## Tech Stack
@@ -136,30 +143,52 @@ curl http://localhost:8000/health
 ### Phase 6 — Conversational Refinement (Complete)
 - [x] Mermaid refinement template with system prompt
 - [x] Real MermaidProvider.refine_diagram() using GPT-4o
+- [x] Intent classification (ADD_ELEMENT, REMOVE_ELEMENT, PATCH_CHANGE, STYLE_CHANGE, EXPLAIN_ONLY, REGENERATE)
+- [x] EXPLAIN_ONLY intent handling without AI calls
 - [x] Retry logic and fallback for resilience
+- [x] Node/edge parsing from diagram source when not provided
+- [x] Version history metadata persistence for nodes/edges
 - [x] 2 refinement tests passing
 
-### Phase 7 — Voice Input (Complete)
+### Phase 7 — Codebase Analysis (Complete)
+- [x] GitHub repository URL input component
+- [x] GitHub service for fetching repository data
+- [x] File tree parsing and important file detection
+- [x] Parallel file content fetching with httpx
+- [x] Evidence-based codebase analysis using GPT-4o
+- [x] Architecture pattern detection (Monolith, Monorepo, Microservices, etc.)
+- [x] Tech stack detection from manifests
+- [x] Module boundary identification
+- [x] Enhanced prompt generation from codebase analysis
+- [x] Codebase diagram generation endpoint
+- [x] 4 codebase analysis tests passing
+
+### Phase 8 — Voice Input (Complete)
 - [x] Web Speech API integration
 - [x] VoiceInput component with microphone button
 - [x] Speech-to-text transcription
 - [x] Integration with PromptInput component
 - [x] Visual feedback (recording state with Mic/MicOff icons)
 
-### Phase 8 — Export & Polish (Complete)
+### Phase 9 — Export & Polish (Complete)
 - [x] ExportPanel component with Mermaid, JSON, and Explanation export options
 - [x] Download functionality using Blob API
 - [x] Loading states for export operations
 - [x] Integration with DiagramPreview component
+- [x] DiagramStyleToolbar for visual customization
+- [x] Client-side form validation with inline error messages
+- [x] Chat loading indicator with context-aware messages
+- [x] CORS configuration for production domains
+- [x] API error parsing for Pydantic validation arrays
 
 ## What's Not Implemented Yet
 
-### Phase 9 — Testing & Documentation (In Progress)
-- [x] Backend tests (24/24 passing)
-- [x] Fix failing API tests for AI behavior
-- [x] Update README with complete setup instructions
-- [ ] Add API documentation
-- [ ] Add frontend testing
+### Future Enhancements (Optional)
+- [ ] Add API documentation (Swagger/OpenAPI)
+- [ ] Add frontend testing (Playwright/Vitest)
+- [ ] Add more diagram providers (PlantUML, Draw.io)
+- [ ] Add real-time collaboration features
+- [ ] Add diagram sharing and public links
 
 ## Development Commands
 
@@ -174,12 +203,45 @@ curl http://localhost:8000/health
 
 ## Deployment
 
-See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for full deployment instructions.
+### Live URLs
+- **Frontend:** https://ai-design-system-diagram.vercel.app
+- **Backend API:** https://ai-diagram-fds0.onrender.com
 
-**Quick overview:**
+### Deployment Platforms
 - **Frontend** → Vercel (auto-deployed via GitHub Actions)
 - **Backend** → Render (auto-deployed via GitHub Actions + deploy hook)
 - **CI/CD** → GitHub Actions (`.github/workflows/ci.yml`, `deploy-frontend.yml`, `deploy-backend.yml`)
+
+### Environment Variables
+
+**Frontend (Vercel):**
+- `NEXT_PUBLIC_API_BASE_URL` - Backend API URL (set in Vercel dashboard)
+
+**Backend (Render):**
+- `OPENAI_API_KEY` - OpenAI API key for AI operations
+- `CORS_ORIGINS` - Comma-separated list of allowed frontend origins (e.g., `http://localhost:3000,https://ai-design-system-diagram.vercel.app`)
+- `ENHANCE_MODEL` - AI model for prompt enhancement (default: `gpt-4o-mini`)
+- `REFINE_MODEL` - AI model for refinement (default: `gpt-4o-mini`)
+- `ANALYZE_MODEL` - AI model for codebase analysis (default: `gpt-4o`)
+- `GENERATION_MODEL` - AI model for diagram generation (default: `gpt-4o-mini`)
+- `ENHANCE_TIMEOUT_SECONDS` - Timeout for prompt enhancement (default: 30)
+- `REFINE_TIMEOUT_SECONDS` - Timeout for refinement (default: 45)
+- `ANALYZE_TIMEOUT_SECONDS` - Timeout for codebase analysis (default: 60)
+- `ENHANCE_RATE_LIMIT` - Rate limit for enhance API (default: 10 req/min)
+- `REFINE_RATE_LIMIT` - Rate limit for refine API (default: 8 req/min)
+- `ANALYZE_RATE_LIMIT` - Rate limit for analyze API (default: 5 req/min)
+
+### Manual Deployment
+
+**To Vercel:**
+1. Go to https://vercel.com/dashboard
+2. Find your `ai-design-system-diagram` project
+3. Click **Deployments** → **Redeploy**
+
+**To Render:**
+1. Go to https://dashboard.render.com
+2. Find your `ai-diagram-api` service
+3. Click **Manual Deploy** → **Deploy latest commit**
 
 ## Project Structure
 
