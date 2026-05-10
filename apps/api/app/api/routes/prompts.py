@@ -13,7 +13,7 @@ enhancer = PromptEnhancerService()
 
 
 @router.post(
-    "/api/prompts/enhance",
+    "/enhance",
     response_model=EnhancementResult,
     dependencies=[Depends(rate_limit(settings.enhance_rate_limit))],
 )

@@ -36,6 +36,17 @@ async def app_error_handler(request: Request, exc: AppError):
         }
     )
 
+@app.exception_handler(404)
+async def not_found_handler(request: Request, exc):
+    return JSONResponse(
+        status_code=404,
+        content={
+            "code": "NOT_FOUND",
+            "message": f"Endpoint {request.method} {request.url.path} not found.",
+            "suggestion": "Check the URL and try again."
+        }
+    )
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
@@ -45,7 +56,7 @@ app.add_middleware(
 )
 
 app.include_router(health.router, tags=["health"])
-app.include_router(prompts.router, tags=["prompts"])
-app.include_router(diagrams.router, tags=["diagrams"])
-app.include_router(conversations.router, tags=["conversations"])
-app.include_router(codebase.router, tags=["codebase"])
+app.include_router(prompts.router, prefix="/api/prompts", tags=["prompts"])
+app.include_router(diagrams.router, prefix="/api/diagrams", tags=["diagrams"])
+app.include_router(conversations.router, prefix="/api/conversations", tags=["conversations"])
+app.include_router(codebase.router) # Prefix is already in the router

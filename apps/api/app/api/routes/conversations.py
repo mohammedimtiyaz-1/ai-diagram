@@ -8,7 +8,7 @@ router = APIRouter()
 version_service = VersionService()
 
 
-@router.get("/api/conversations/{conversation_id}/versions", response_model=VersionListResponse)
+@router.get("/{conversation_id}/versions", response_model=VersionListResponse)
 async def list_versions(conversation_id: str):
     try:
         versions = version_service.get_versions(conversation_id)

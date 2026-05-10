@@ -28,7 +28,7 @@ export_service = ExportService()
 _style_store: dict[str, DiagramStyle] = {}
 
 
-@router.post("/api/diagrams/generate", response_model=DiagramResult)
+@router.post("/generate", response_model=DiagramResult)
 async def generate_diagram(request: GenerateRequest):
     try:
         result = await generator.generate(
@@ -54,7 +54,7 @@ async def generate_diagram(request: GenerateRequest):
 
 
 @router.post(
-    "/api/diagrams/refine",
+    "/refine",
     response_model=DiagramResult,
     dependencies=[Depends(rate_limit(settings.refine_rate_limit))],
 )
@@ -100,7 +100,7 @@ async def refine_diagram(request: RefineRequest):
         )
 
 
-@router.patch("/api/diagrams/{diagram_id}/style", response_model=StyleUpdateResponse)
+@router.patch("/{diagram_id}/style", response_model=StyleUpdateResponse)
 async def update_diagram_style(diagram_id: str, request: StyleUpdateRequest):
     """Update visual style of a diagram — no AI call, no topology change."""
     try:
@@ -124,7 +124,7 @@ async def get_diagram_style(diagram_id: str):
     return StyleUpdateResponse(diagram_id=diagram_id, style=style)
 
 
-@router.post("/api/diagrams/export", response_model=ExportResult)
+@router.post("/export", response_model=ExportResult)
 async def export_diagram(request: ExportRequest):
     try:
         result = export_service.export(
