@@ -82,6 +82,11 @@ class CodebaseService:
             used += len(block)
         file_contents_str = "".join(contents_buf)
 
+        logger.info(
+            f"Context for AI: tree_paths={len(truncated_paths)}, "
+            f"files_fetched={len(file_contents)}, content_chars={used}"
+        )
+
         user_prompt = CODEBASE_ANALYSIS_USER_TEMPLATE.format(
             repo_name=f"{owner}/{repo}",
             file_tree=file_tree_str,
@@ -124,11 +129,23 @@ class CodebaseService:
             ai_response = {}
 
         analysis_id = str(uuid4())
+
+        # Map major_modules from AI response (array of dicts to ModuleInfo objects)
+        major_modules_raw = ai_response.get("major_modules", [])
+        major_modules = [
+            {"name": m.get("name", ""), "path": m.get("path", ""), "responsibility": m.get("responsibility", "")}
+            for m in major_modules_raw
+        ]
+
         return CodebaseAnalysisResponse(
             analysis_id=analysis_id,
             repo_name=f"{owner}/{repo}",
             detected_stack=ai_response.get("detected_stack", []),
             important_files=important_paths,
+            major_modules=major_modules,
+            entry_points=ai_response.get("entry_points", []),
+            deployment_targets=ai_response.get("deployment_targets", []),
+            architecture_pattern=ai_response.get("architecture_pattern", ""),
             project_summary=ai_response.get("project_summary", "No summary available."),
             architecture_summary=ai_response.get(
                 "architecture_summary", "No architecture summary available."

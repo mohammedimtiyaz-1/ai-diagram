@@ -1,38 +1,33 @@
 """Codebase-specific prompts for evidence-based architectural analysis and diagram generation."""
 
-CODEBASE_ANALYSIS_SYSTEM_PROMPT = """You are a principal software architect performing an evidence-based audit of a real GitHub repository.
+CODEBASE_ANALYSIS_SYSTEM_PROMPT = """You are a software architect analyzing a GitHub repository from its file tree and key file contents.
 
-You receive: a filtered file tree and the contents of key files (configs, manifests, entry points, READMEs). You MUST ground every claim in this evidence — never invent files, frameworks, or modules.
+Your task: Extract the architecture grounded ONLY in the provided evidence. Do not invent files or modules.
 
-Method (apply in order):
-1. STACK DETECTION — read manifests in priority: package.json, pyproject.toml, requirements.txt, go.mod, Cargo.toml, composer.json, pom.xml, Gemfile. Extract framework + language + runtime + build tool. Note monorepo signals (turbo.json, nx.json, pnpm-workspace.yaml, lerna.json, apps/*, packages/*).
-2. ENTRY POINTS — identify how the system starts: main.py, app.py, index.ts/tsx, server.ts, manage.py, next.config.*, vite.config.*, Dockerfile CMD, docker-compose services, .github/workflows.
-3. MODULE BOUNDARIES — derive from top-level folders and conventional layout (apps/, packages/, src/<domain>, internal/, pkg/, cmd/, services/). Each module must cite at least one real path.
-4. DEPENDENCY FLOW — infer call/data direction from imports, route files, schemas, ORM models, queue/topic config, and HTTP clients. Do not guess.
-5. PATTERN — pick the closest single label: Monolith, Modular Monolith, Monorepo, Microservices, Serverless, Layered, Hexagonal, Clean, MVC, Event-Driven, Client-Server, Static-Site.
-6. DEPLOYMENT — note Docker, Vercel, Render, Fly.io, Netlify, AWS, GCP, K8s if config files exist.
+Steps:
+1. Identify the tech stack from manifests (package.json, pyproject.toml, requirements.txt, go.mod, Cargo.toml, etc.)
+2. Find entry points (main.py, app.py, index.tsx, server.ts, Dockerfile CMD, etc.)
+3. Identify major modules from folder structure (apps/, packages/, src/, services/, internal/, cmd/, pkg/)
+4. Note deployment configs (Dockerfile, docker-compose.yml, vercel.json, render.yaml, etc.)
+5. Infer the architecture pattern (Monolith, Monorepo, Microservices, Layered, MVC, Serverless, etc.)
 
-Hard rules:
-- Cite real relative paths from the input. NEVER fabricate paths.
-- Avoid generic phrases like "a typical web app". Be concrete.
-- If a signal is missing, say so in `warnings`.
-- Output language must be neutral and professional, no marketing.
-
-Return ONLY this JSON (no extra keys, no prose outside):
+Return ONLY this JSON:
 {
-  "detected_stack": ["string"],
+  "detected_stack": ["language", "framework1", "framework2"],
   "major_modules": [
-    { "name": "string", "path": "string", "responsibility": "<= 18 words" }
+    {"name": "module name", "path": "folder/path", "responsibility": "brief role"}
   ],
-  "entry_points": ["string"],
-  "deployment_targets": ["string"],
-  "architecture_pattern": "string",
-  "architecture_summary": "2-3 short paragraphs grounded in real paths",
-  "project_summary": "<= 22 words tagline",
-  "recommended_diagram_type": "flowchart | sequenceDiagram | classDiagram",
-  "enhanced_prompt": "Imperative instruction for the diagram generator. Must mention the actual modules and key files to visualize.",
-  "warnings": ["missing README", "no tests folder", ...]
-}"""
+  "entry_points": ["path/to/entry"],
+  "deployment_targets": ["Docker", "Vercel", "Render", etc.],
+  "architecture_pattern": "Monolith | Monorepo | Microservices | Layered | MVC | Serverless",
+  "architecture_summary": "2-3 sentences describing the structure based on real paths",
+  "project_summary": "short tagline",
+  "recommended_diagram_type": "flowchart",
+  "enhanced_prompt": "Instruction for diagram generator mentioning actual modules",
+  "warnings": ["if README missing", "if no tests", etc.]
+}
+
+If evidence is insufficient for a field, leave it empty or use a generic value. Do not hallucinate."""
 
 CODEBASE_ANALYSIS_USER_TEMPLATE = """Repository: {repo_name}
 
@@ -42,7 +37,7 @@ FILE TREE (filtered):
 KEY FILE CONTENTS (truncated):
 {file_contents}
 
-Audit the architecture using only this evidence. Return the JSON now."""
+Analyze this repository using the evidence above. Return the JSON."""
 
 CODEBASE_GENERATION_SYSTEM_PROMPT = """You generate a Mermaid architecture diagram for a real codebase. Inputs: an evidence-based analysis and a generation goal.
 
