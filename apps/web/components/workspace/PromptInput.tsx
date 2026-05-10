@@ -33,16 +33,13 @@ export default function PromptInput({ onSubmit, disabled }: PromptInputProps) {
   const setDiagramType = useWorkspaceStore((s) => s.setSelectedDiagramType);
   const [error, setError] = useState("");
 
+  const isTooShort = prompt.trim().length > 0 && prompt.trim().length < MIN_PROMPT_LENGTH;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = prompt.trim();
     
-    if (!trimmed) return;
-    if (disabled) return;
-    if (trimmed.length < MIN_PROMPT_LENGTH) {
-      setError(`Please enter at least ${MIN_PROMPT_LENGTH} characters.`);
-      return;
-    }
+    if (!trimmed || trimmed.length < MIN_PROMPT_LENGTH || disabled) return;
     
     setError("");
     onSubmit(trimmed, diagramType);
@@ -62,7 +59,9 @@ export default function PromptInput({ onSubmit, disabled }: PromptInputProps) {
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPrompt(e.target.value);
-    setError("");
+    if (e.target.value.trim().length >= MIN_PROMPT_LENGTH) {
+      setError("");
+    }
   };
 
   return (
@@ -93,7 +92,11 @@ export default function PromptInput({ onSubmit, disabled }: PromptInputProps) {
           placeholder="Describe your design system idea..."
           rows={3}
           disabled={disabled}
-          className="w-full resize-none rounded-lg border border-gray-300 p-3 pr-12 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black disabled:opacity-50 min-h-[80px] sm:min-h-[100px]"
+          className={`w-full resize-none rounded-lg border p-3 pr-12 text-sm transition-all focus:outline-none focus:ring-1 disabled:opacity-50 min-h-[80px] sm:min-h-[100px] ${
+            isTooShort 
+              ? "border-red-300 focus:border-red-500 focus:ring-red-500 bg-red-50/30" 
+              : "border-gray-300 focus:border-black focus:ring-black"
+          }`}
         />
         <div className="absolute right-2 top-2">
           <VoiceInput onTranscript={handleTranscript} disabled={disabled} />
@@ -116,15 +119,17 @@ export default function PromptInput({ onSubmit, disabled }: PromptInputProps) {
         </div>
         <button
           type="submit"
-          disabled={disabled || !prompt.trim()}
+          disabled={disabled || prompt.trim().length < MIN_PROMPT_LENGTH}
           className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40 shrink-0"
         >
           {disabled ? "..." : "Generate"}
         </button>
       </div>
 
-      {error && (
-        <div className="text-xs text-red-600">{error}</div>
+      {(error || isTooShort) && (
+        <div className="text-xs font-medium text-red-500 px-1 animate-in fade-in slide-in-from-top-1 duration-200">
+          {error || `Please enter at least ${MIN_PROMPT_LENGTH} characters to generate a diagram.`}
+        </div>
       )}
     </form>
   );

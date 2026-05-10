@@ -52,9 +52,21 @@ function classifyError(status: number, body: any, originalError?: Error): ApiErr
   if (status === 504) {
     return new TimeoutError(body?.message || body?.suggestion);
   }
+
+  // Handle Pydantic / FastAPI detail lists
+  let message = body?.message;
+  if (!message && body?.detail) {
+    if (Array.isArray(body.detail)) {
+      // Extract the first validation error message if it's a list
+      message = body.detail[0]?.msg || JSON.stringify(body.detail);
+    } else {
+      message = body.detail;
+    }
+  }
+
   return new ApiError(
     status,
-    body?.message || body?.detail || "Something went wrong while processing. Your previous work is safe.",
+    message || "Something went wrong while processing. Your previous work is safe.",
     body?.code,
     body?.retry_allowed ?? false,
   );

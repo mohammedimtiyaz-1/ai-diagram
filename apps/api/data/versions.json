@@ -1641,6 +1641,228 @@
       },
       "base_diagram_id": null,
       "created_at": "2026-05-10T13:08:29.121176"
+    },
+    {
+      "diagram_id": "44215226-9a5f-410f-8036-61d332ce8ace",
+      "conversation_id": "57cdb0b4-8896-4684-8be9-08d5b1c21cff",
+      "version": 7,
+      "title": "UI Components Flowchart",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    primitiveTokens[Primitive Tokens] --> semanticTokens[Semantic Tokens]\n    semanticTokens --> componentStyles[Component Styles]\n    componentStyles --> uiComponents[UI Components]\n    uiComponents --> buttonComponent[Button Component]\n    uiComponents --> cardComponent[Card Component]",
+      "diagram_format": "mermaid",
+      "explanation": "Added 'Card Component' to the flowchart. This represents another UI component styled using component styles.",
+      "changes_summary": [
+        "Added Card Component to UI Components",
+        "Updated flowchart to include new component"
+      ],
+      "metadata": {
+        "node_count": 6,
+        "edge_count": 5,
+        "nodes": [
+          {
+            "id": "primitiveTokens",
+            "label": "Primitive Tokens",
+            "type": "token",
+            "metadata": {
+              "tooltip_title": "Primitive Tokens",
+              "tooltip_description": "Basic style values such as colors, spacing, and typography.",
+              "role": "Foundation",
+              "importance": "high",
+              "connections_summary": "Provides foundational values for semantic tokens.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "semanticTokens",
+            "label": "Semantic Tokens",
+            "type": "token",
+            "metadata": {
+              "tooltip_title": "Semantic Tokens",
+              "tooltip_description": "Tokens that represent meaningful design properties derived from primitive tokens.",
+              "role": "Foundation",
+              "importance": "high",
+              "connections_summary": "Transforms primitive tokens into context-aware styles for components.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "componentStyles",
+            "label": "Component Styles",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "Component Styles",
+              "tooltip_description": "Styling rules applied to UI components based on semantic tokens.",
+              "role": "Component",
+              "importance": "high",
+              "connections_summary": "Utilizes semantic tokens to define the visual appearance of components.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "uiComponents",
+            "label": "UI Components",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "UI Components",
+              "tooltip_description": "The final user interface elements styled using component styles.",
+              "role": "Component",
+              "importance": "high",
+              "connections_summary": "Represents the end result of styling processes.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "buttonComponent",
+            "label": "Button Component",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "Button Component",
+              "tooltip_description": "A clickable element used to trigger actions.",
+              "role": "Component",
+              "importance": "medium",
+              "connections_summary": "Part of UI components styled with component styles.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "cardComponent",
+            "label": "Card Component",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "Card Component",
+              "tooltip_description": "A container for displaying content and actions.",
+              "role": "Component",
+              "importance": "medium",
+              "connections_summary": "Part of UI components styled with component styles.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          }
+        ],
+        "edges": [
+          {
+            "id": "e1",
+            "source": "primitiveTokens",
+            "target": "semanticTokens",
+            "label": "feeds into",
+            "description": null,
+            "metadata": {
+              "tooltip_title": "Primitive to Semantic",
+              "tooltip_description": "Primitive tokens are processed to create semantic tokens.",
+              "relationship_type": "data-flow",
+              "source_to_target_summary": "Primitive Tokens provide values that are transformed into Semantic Tokens.",
+              "importance": "high",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "e2",
+            "source": "semanticTokens",
+            "target": "componentStyles",
+            "label": "feeds into",
+            "description": null,
+            "metadata": {
+              "tooltip_title": "Semantic to Component Styles",
+              "tooltip_description": "Semantic tokens are used to style components.",
+              "relationship_type": "data-flow",
+              "source_to_target_summary": "Semantic Tokens define the styling rules for Component Styles.",
+              "importance": "high",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "edge_componentStyles_uiComponents",
+            "source": "componentStyles",
+            "target": "uiComponents",
+            "label": null,
+            "description": null,
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "relationship_type": "generic",
+              "source_to_target_summary": "",
+              "importance": "medium",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "edge_uiComponents_buttonComponent",
+            "source": "uiComponents",
+            "target": "buttonComponent",
+            "label": null,
+            "description": null,
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "relationship_type": "generic",
+              "source_to_target_summary": "",
+              "importance": "medium",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "edge_uiComponents_cardComponent",
+            "source": "uiComponents",
+            "target": "cardComponent",
+            "label": null,
+            "description": null,
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "relationship_type": "generic",
+              "source_to_target_summary": "",
+              "importance": "medium",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          }
+        ]
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T13:23:31.716873"
     }
   ]
 }
