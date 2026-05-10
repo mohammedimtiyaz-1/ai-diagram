@@ -23,6 +23,16 @@ class Settings(BaseSettings):
     refine_rate_limit: int = 8
     analyze_rate_limit: int = 5
 
+    # ── AI Models per use-case ─────────────────────────────────────
+    # Fast, small models for short prompt-shaping tasks
+    enhance_model: str = "gpt-4o-mini"
+    refine_model: str = "gpt-4o-mini"
+    intent_model: str = "gpt-4o-mini"
+    generation_model: str = "gpt-4o-mini"
+    # Powerful model for deep, evidence-based codebase analysis
+    analyze_model: str = "gpt-4o"
+    codebase_generation_model: str = "gpt-4o"
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",")]

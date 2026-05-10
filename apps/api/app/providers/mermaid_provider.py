@@ -58,16 +58,16 @@ class MermaidProvider(DiagramProvider):
             try:
                 response = await asyncio.wait_for(
                     client.chat.completions.create(
-                        model="gpt-4o-mini",
+                        model=settings.generation_model,
                         messages=[
                             {"role": "system", "content": GENERATION_SYSTEM_PROMPT},
                             {"role": "user", "content": user_prompt},
                         ],
                         response_format={"type": "json_object"},
-                        temperature=0.7,
-                        max_tokens=3000,
+                        temperature=0.5,
+                        max_tokens=2500,
                     ),
-                    timeout=settings.ai_timeout_seconds
+                    timeout=settings.enhance_timeout_seconds,
                 )
 
                 content = response.choices[0].message.content
@@ -98,8 +98,11 @@ class MermaidProvider(DiagramProvider):
                 )
 
             except asyncio.TimeoutError:
-                logger.error(f"Generation timed out after {settings.ai_timeout_seconds}s")
-                raise AiTimeoutError(f"Generation timed out after {settings.ai_timeout_seconds}s. This usually happens with very complex prompts.")
+                logger.error(f"Generation timed out after {settings.enhance_timeout_seconds}s")
+                raise AiTimeoutError(
+                    f"Generation timed out after {settings.enhance_timeout_seconds}s. "
+                    "Try a simpler prompt or fewer entities."
+                )
             except Exception as e:
                 last_error = e
                 logger.warning(f"Attempt {attempt + 1} failed: {e}")
@@ -141,16 +144,16 @@ Return valid JSON as specified in the system prompt.
             try:
                 response = await asyncio.wait_for(
                     client.chat.completions.create(
-                        model="gpt-4o",
+                        model=settings.codebase_generation_model,
                         messages=[
                             {"role": "system", "content": CODEBASE_GENERATION_SYSTEM_PROMPT},
                             {"role": "user", "content": user_prompt},
                         ],
                         response_format={"type": "json_object"},
-                        temperature=0.4,
+                        temperature=0.2,
                         max_tokens=3500,
                     ),
-                    timeout=settings.ai_timeout_seconds
+                    timeout=settings.analyze_timeout_seconds,
                 )
 
                 content = response.choices[0].message.content
@@ -181,8 +184,11 @@ Return valid JSON as specified in the system prompt.
                 )
 
             except asyncio.TimeoutError:
-                logger.error(f"Codebase generation timed out after {settings.ai_timeout_seconds}s")
-                raise AiTimeoutError(f"Codebase generation timed out after {settings.ai_timeout_seconds}s. Large repository analyses might take longer.")
+                logger.error(f"Codebase generation timed out after {settings.analyze_timeout_seconds}s")
+                raise AiTimeoutError(
+                    f"Codebase generation timed out after {settings.analyze_timeout_seconds}s. "
+                    "Large repositories may exceed this limit; try a sub-path."
+                )
             except Exception as e:
                 last_error = e
                 logger.warning(f"Codebase generation attempt {attempt + 1} failed: {e}")
@@ -203,14 +209,14 @@ Return valid JSON as specified in the system prompt.
         )
         try:
             response = await client.chat.completions.create(
-                model="gpt-4o-mini",
+                model=settings.intent_model,
                 messages=[
                     {"role": "system", "content": INTENT_SYSTEM_PROMPT},
                     {"role": "user", "content": user_prompt},
                 ],
                 response_format={"type": "json_object"},
-                temperature=0.3,
-                max_tokens=200,
+                temperature=0.0,
+                max_tokens=120,
             )
             data = json.loads(response.choices[0].message.content or "{}")
             return data.get("intent", "PATCH_CHANGE")
@@ -254,16 +260,16 @@ Return valid JSON as specified in the system prompt.
             try:
                 response = await asyncio.wait_for(
                     client.chat.completions.create(
-                        model="gpt-4o-mini",
+                        model=settings.refine_model,
                         messages=[
                             {"role": "system", "content": REFINEMENT_SYSTEM_PROMPT},
                             {"role": "user", "content": user_prompt},
                         ],
                         response_format={"type": "json_object"},
-                        temperature=0.6,
-                        max_tokens=3000,
+                        temperature=0.3,
+                        max_tokens=2500,
                     ),
-                    timeout=settings.ai_timeout_seconds
+                    timeout=settings.refine_timeout_seconds,
                 )
 
                 content = response.choices[0].message.content
@@ -303,8 +309,11 @@ Return valid JSON as specified in the system prompt.
                 )
 
             except asyncio.TimeoutError:
-                logger.error(f"Refinement timed out after {settings.ai_timeout_seconds}s")
-                raise AiTimeoutError(f"Refinement timed out after {settings.ai_timeout_seconds}s. Complex refinements can sometimes exceed this limit.")
+                logger.error(f"Refinement timed out after {settings.refine_timeout_seconds}s")
+                raise AiTimeoutError(
+                    f"Refinement timed out after {settings.refine_timeout_seconds}s. "
+                    "Try a smaller change or shorter instruction."
+                )
             except Exception as e:
                 last_error = e
                 logger.warning(f"Refinement attempt {attempt + 1} failed: {e}")

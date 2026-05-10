@@ -44,7 +44,7 @@ class RefinementService:
                     diagram_title=diagram_title,
                     followup_prompt=followup_prompt,
                 ),
-                timeout=settings.ai_timeout_seconds
+                timeout=settings.refine_timeout_seconds,
             )
 
             # ── Step 2: Handle STYLE_CHANGE without AI topology mutation ────────
@@ -82,11 +82,14 @@ class RefinementService:
                     parent_diagram_id=diagram_id,
                     base_diagram_id=base_diagram_id,
                 ),
-                timeout=settings.ai_timeout_seconds
+                timeout=settings.refine_timeout_seconds,
             )
         except asyncio.TimeoutError:
-            logger.error(f"Refinement timed out after {settings.ai_timeout_seconds}s")
-            raise AiTimeoutError(f"Refinement timed out after {settings.ai_timeout_seconds}s. This is taking longer than expected. Please try again with a shorter prompt.")
+            logger.error(f"Refinement timed out after {settings.refine_timeout_seconds}s")
+            raise AiTimeoutError(
+                f"Refinement timed out after {settings.refine_timeout_seconds}s. "
+                "Please try a shorter follow-up."
+            )
 
         # ── Step 5: Preserve existing style unless AI changed it ────────────
         final_style = existing_style or DiagramStyle()

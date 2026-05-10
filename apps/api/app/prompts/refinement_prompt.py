@@ -1,84 +1,66 @@
 """Mermaid diagram incremental refinement prompts with intent classification."""
 
-INTENT_SYSTEM_PROMPT = """You are an intent classifier for a design system diagram assistant.
-Classify the user's follow-up instruction into exactly one of these intents:
+INTENT_SYSTEM_PROMPT = """Classify a single follow-up instruction for a diagram editor into exactly ONE intent.
 
-- ADD_ELEMENT    → User wants to add a new node, layer, or connection
-- REMOVE_ELEMENT → User wants to delete a node or relationship
-- PATCH_CHANGE   → User wants to edit/rename/modify an existing node
-- STYLE_CHANGE   → User wants to change colors, fonts, or visual styling only
-- EXPLAIN_ONLY   → User is asking a question, not requesting a diagram mutation
-- REGENERATE     → User explicitly wants to start over or replace everything
+Intents and triggers:
+- ADD_ELEMENT     → adds a new node/edge ("add", "include", "connect X to Y", "show also")
+- REMOVE_ELEMENT  → deletes ("remove", "delete", "drop", "hide")
+- PATCH_CHANGE    → edits/renames/updates a node or label ("rename", "change label", "update", "fix")
+- STYLE_CHANGE    → visual only ("color", "font", "theme", "make it dark", "background")
+- EXPLAIN_ONLY    → a question ("what is", "explain", "why", "how does")
+- REGENERATE      → start over ("redo", "regenerate", "scrap and recreate", "build from scratch")
 
-Return ONLY valid JSON:
-{
-  "intent": "ADD_ELEMENT",
-  "confidence": "high | medium | low",
-  "reasoning": "one line explaining the classification"
-}"""
+Rules:
+- Choose the single most specific intent. If multiple, pick the one with strongest verb.
+- Style words (color/font/theme) ALWAYS map to STYLE_CHANGE unless paired with structural changes.
+- Pure questions ALWAYS map to EXPLAIN_ONLY.
 
-INTENT_USER_TEMPLATE = """Current diagram title: {diagram_title}
-Follow-up instruction: "{followup_prompt}"
+Return ONLY JSON:
+{ "intent": "ADD_ELEMENT", "confidence": "high|medium|low", "reasoning": "<= 12 words" }"""
 
-Classify the intent."""
+INTENT_USER_TEMPLATE = """Diagram: {diagram_title}
+Instruction: "{followup_prompt}"
+Classify."""
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Incremental refinement — called when intent is ADD/REMOVE/PATCH
 # ──────────────────────────────────────────────────────────────────────────────
 
-SYSTEM_PROMPT = """You are an expert in Mermaid diagram syntax and design system architecture.
-Your task is to INCREMENTALLY refine an existing diagram based on follow-up instructions.
+SYSTEM_PROMPT = """You are a Mermaid diagram editor performing INCREMENTAL refinements.
 
-CRITICAL RULES — NEVER VIOLATE:
-1. PRESERVE existing nodes and edges unless the instruction explicitly removes them.
-2. MINIMAL EDITS — only add/modify/remove what the user asked for.
-3. Return the COMPLETE updated Mermaid diagram (not just the patch lines).
-4. Generate metadata ONLY for new or changed nodes. Preserve metadata for existing nodes.
-5. Apply all MERMAID SYNTAX RULES:
-   - No comma-separated class names.
-   - Node IDs must be camelCase or underscore — no spaces/punctuation.
-   - Valid arrow syntax: -->, --, <|--, *--, o-- etc.
+Hard rules (never violate):
+1. PRESERVE every existing node and edge unless the instruction explicitly removes it.
+2. Make the SMALLEST change that satisfies the instruction.
+3. Return the COMPLETE updated Mermaid source (not a diff).
+4. Emit metadata only for nodes you created or changed. Do NOT re-emit unchanged existing nodes.
+5. Mermaid syntax: each `class X` on its own line; node ids camelCase/snake_case (no spaces/punctuation); wrap labels containing ()[]{}|<>"' in double quotes; arrows use --> -- <|-- *-- o--.
+6. Do NOT change the diagram_type implied by the existing source.
 
-Your output must be valid JSON with this EXACT schema:
+Output JSON schema (exact keys):
 {
-  "mermaid_code": "Complete updated Mermaid diagram",
-  "title": "Updated title (or same if unchanged)",
-  "explanation": "What changed and why",
-  "changes_summary": ["Added X node", "Connected Y to Z"],
+  "mermaid_code": "string (full updated diagram)",
+  "title": "string",
+  "explanation": "<= 2 sentences describing what changed and why",
+  "changes_summary": ["<= 6 bullets, each <= 10 words"],
   "is_full_regeneration": false,
   "new_or_updated_nodes": [
-    {
-      "id": "node_id",
-      "label": "Node Label",
-      "type": "token | component | documentation | workflow | testing | generic",
-      "metadata": {
-        "tooltip_title": "Short display name",
-        "tooltip_description": "1-sentence DS definition",
-        "role": "Foundation | Component | Documentation | Tooling | Application",
-        "importance": "low | medium | high",
-        "connections_summary": "How it connects to others"
-      }
-    }
+    { "id": "string", "label": "string", "type": "token|component|documentation|workflow|testing|service|data|generic",
+      "metadata": { "tooltip_title": "string", "tooltip_description": "string",
+                    "role": "Foundation|Component|Documentation|Tooling|Application|Service|Data",
+                    "importance": "low|medium|high", "connections_summary": "string" } }
   ],
-  "new_edges": [
-    {
-      "id": "e_new_1",
-      "source": "source_node_id",
-      "target": "target_node_id",
-      "label": "optional label"
-    }
-  ]
+  "new_edges": [ { "id": "string", "source": "string", "target": "string", "label": "string|null" } ]
 }
 
-Always return valid JSON. Do not include any text outside the JSON object."""
+Return ONLY the JSON object."""
 
-USER_PROMPT_TEMPLATE = """Existing Mermaid diagram:
+USER_PROMPT_TEMPLATE = """Existing Mermaid:
 {existing_diagram}
 
-Existing nodes (for reference, do NOT repeat these in new_or_updated_nodes unless modified):
+Existing nodes (do not repeat unchanged ones):
 {existing_nodes_json}
 
-Follow-up instruction: {enhanced_followup}
-Classified intent: {intent}
+Instruction: {enhanced_followup}
+Intent: {intent}
 
-Apply the change incrementally. Return the complete updated diagram."""
+Apply the minimal change and return the full updated JSON."""

@@ -42,16 +42,16 @@ class PromptEnhancerService:
             try:
                 response = await asyncio.wait_for(
                     client.chat.completions.create(
-                        model="gpt-4o-mini",
+                        model=settings.enhance_model,
                         messages=[
                             {"role": "system", "content": SYSTEM_PROMPT},
                             {"role": "user", "content": user_prompt},
                         ],
                         response_format={"type": "json_object"},
-                        temperature=0.7,
-                        max_tokens=1000,
+                        temperature=0.4,
+                        max_tokens=700,
                     ),
-                    timeout=settings.ai_timeout_seconds,
+                    timeout=settings.enhance_timeout_seconds,
                 )
 
                 content = response.choices[0].message.content
@@ -80,8 +80,11 @@ class PromptEnhancerService:
                 )
 
             except asyncio.TimeoutError:
-                logger.error(f"Enhancement timed out after {settings.ai_timeout_seconds}s")
-                raise AiTimeoutError(f"Enhancement timed out after {settings.ai_timeout_seconds}s. This is taking longer than expected. Please try again with a shorter prompt.")
+                logger.error(f"Enhancement timed out after {settings.enhance_timeout_seconds}s")
+                raise AiTimeoutError(
+                    f"Enhancement timed out after {settings.enhance_timeout_seconds}s. "
+                    "Please try a shorter prompt."
+                )
             except Exception as e:
                 last_error = e
                 logger.warning(f"Attempt {attempt + 1} failed: {e}")
