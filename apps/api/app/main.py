@@ -11,6 +11,7 @@ from app.core.errors import AppError
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    print(f"INFO: Allowed CORS origins: {settings.cors_origins_list}")
     yield
 
 

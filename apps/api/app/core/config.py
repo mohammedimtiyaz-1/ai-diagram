@@ -35,7 +35,14 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins_list(self) -> list[str]:
-        return [origin.strip() for origin in self.cors_origins.split(",")]
+        if not self.cors_origins:
+            return ["*"]
+        origins = [origin.strip() for origin in self.cors_origins.split(",")]
+        # Ensure common variants are included
+        if "https://ai-design-system-diagram.vercel.app" in origins:
+            if "https://ai-design-system-diagram-three.vercel.app" not in origins:
+                origins.append("https://ai-design-system-diagram-three.vercel.app")
+        return origins
 
 
 settings = Settings()
