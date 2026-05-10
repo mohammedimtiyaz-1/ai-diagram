@@ -70,5 +70,7 @@ def test_enhance_prompt_timeout():
         )
         assert response.status_code == 504
         data = response.json()
-        assert data["code"] == "AI_TIMEOUT"
-        assert "taking longer than expected" in data["suggestion"]
+        # FastAPI wraps detail in "detail" key by default
+        error_detail = data.get("detail", data)
+        assert error_detail.get("code") == "AI_TIMEOUT"
+        assert "taking longer than expected" in error_detail.get("suggestion", "")
