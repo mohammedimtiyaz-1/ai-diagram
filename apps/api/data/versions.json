@@ -1,0 +1,1646 @@
+{
+  "07b61ee0-e5d2-4515-8378-46b26a66a90b": [
+    {
+      "diagram_id": "57395c53-3c81-478c-8c00-2af9ace0f8f7",
+      "conversation_id": "07b61ee0-e5d2-4515-8378-46b26a66a90b",
+      "version": 1,
+      "title": "Design System Architecture",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    designTokens[Design Tokens] --> componentLib[Component Library]\n    componentLib --> reactApp[React Application]",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the relationship between design tokens, the component library, and the React application, showcasing how design tokens are utilized in building components and how these components are integrated into the application.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 3,
+        "edge_count": 2
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T07:01:10.319784"
+    }
+  ],
+  "bff9a79a-168a-495a-88b9-3cf9c138e3d6": [
+    {
+      "diagram_id": "24b85e2c-f1ad-43e2-9563-524cadaf901b",
+      "conversation_id": "bff9a79a-168a-495a-88b9-3cf9c138e3d6",
+      "version": 1,
+      "title": "Component Hierarchy in Design System",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    button[Button] -->|uses| input[Input]\n    form[Form] -->|contains| button\n    modal[Modal] -->|includes| form",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the relationships between the Button, Input, Form, and Modal components, demonstrating how they interact to create a cohesive user interface.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 4,
+        "edge_count": 3
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T07:04:11.261567"
+    }
+  ],
+  "fa6bcab7-7d06-4ccd-a66e-6960261f90a1": [
+    {
+      "diagram_id": "0d28ac4a-9655-444b-971c-dfebf7a5f410",
+      "conversation_id": "fa6bcab7-7d06-4ccd-a66e-6960261f90a1",
+      "version": 1,
+      "title": "Design System Architecture: Regeneration Process",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    designTokens[Design Tokens] --> componentLib[Component Library]\n    componentLib --> documentation[Documentation]\n    documentation --> designTools[Design Tools]\n    designTools --> regeneration[Regeneration Process]\n    regeneration --> designTokens",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the regeneration process of design components and tokens, showing the flow of information and dependencies between design tools, component libraries, and documentation systems.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 5,
+        "edge_count": 5
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T07:06:56.187393"
+    },
+    {
+      "diagram_id": "dfd5559e-e375-4943-bcdf-9bce7cae6ebd",
+      "conversation_id": "fa6bcab7-7d06-4ccd-a66e-6960261f90a1",
+      "version": 2,
+      "title": "Updated title (or same if unchanged)",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    designTokens[Design Tokens] --> componentLib[Component Library]\n    componentLib --> designTools[Design Tools]\n    designTools --> regeneration[Regeneration Process]\n    regeneration --> designTokens",
+      "diagram_format": "mermaid",
+      "explanation": "The Documentation node has been removed from the diagram, and the connections have been updated accordingly.",
+      "changes_summary": [
+        "Removed Documentation node",
+        "Updated connections to eliminate Documentation"
+      ],
+      "metadata": {
+        "node_count": 5,
+        "edge_count": 0
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T07:08:51.333409"
+    },
+    {
+      "diagram_id": "168d7b92-d7b9-46dd-87b3-0d4208394b37",
+      "conversation_id": "fa6bcab7-7d06-4ccd-a66e-6960261f90a1",
+      "version": 3,
+      "title": "Updated Design System Diagram",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    designTokens[Design Tokens] --> componentLib[Component Library]\n    componentLib --> designTools[Design Tools]\n    designTools --> regeneration[Regeneration Process]\n    regeneration --> designTokens\n    componentLib --> documentation[Documentation]\n    designTools --> documentation",
+      "diagram_format": "mermaid",
+      "explanation": "Added a Documentation node and connected it to both the Component Library and Design Tools to reflect its role in providing resources for users.",
+      "changes_summary": [
+        "Added Documentation node",
+        "Connected Component Library to Documentation",
+        "Connected Design Tools to Documentation"
+      ],
+      "metadata": {
+        "node_count": 5,
+        "edge_count": 2
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T07:10:00.977217"
+    }
+  ],
+  "bcaca430-5900-484d-86b6-359092fef120": [
+    {
+      "diagram_id": "db9f088d-04db-4896-b634-fc89f4628037",
+      "conversation_id": "bcaca430-5900-484d-86b6-359092fef120",
+      "version": 1,
+      "title": "Component Hierarchy in Design System",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    designTokens[Design Tokens] --> button[Button]\n    designTokens --> input[Input]\n    designTokens --> modal[Modal]\n    form[Form] --> button\n    form --> input\n    form --> modal",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the relationships and structure of a button, input, form, and modal system, highlighting shared design tokens and interactions.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 5,
+        "edge_count": 6
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T07:23:19.393511"
+    }
+  ],
+  "dee2319b-2fd6-4381-8361-e7dc63d7088d": [
+    {
+      "diagram_id": "b25d6f41-5b3f-4583-b223-3a44faeeb1ba",
+      "conversation_id": "dee2319b-2fd6-4381-8361-e7dc63d7088d",
+      "version": 1,
+      "title": "Design System Architecture",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    designTokens[Design Tokens] --> componentLib[Component Library]\n    componentLib --> reactApp[React Application]\n    componentLib -->|uses| designTokens",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the relationship between design tokens, a component library, and a React application, highlighting the flow of design values into components and their integration into the application.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 3,
+        "edge_count": 2
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T07:28:45.460559"
+    }
+  ],
+  "c415041a-61c5-40db-b8a4-74760d162aeb": [
+    {
+      "diagram_id": "a091a560-6e24-434e-89d7-68fd75cc6af0",
+      "conversation_id": "c415041a-61c5-40db-b8a4-74760d162aeb",
+      "version": 1,
+      "title": "Design System Architecture",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    designTokens[Design Tokens] --> componentLib[Component Library]\n    componentLib --> reactApp[React Application]\n    styleUsage[Style Usage] --> componentLib",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the flow of design tokens into a component library and how these components are utilized within a React application.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 4,
+        "edge_count": 3
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T07:29:46.731414"
+    }
+  ],
+  "efb1044c-b79d-40c6-989f-d18490a81630": [
+    {
+      "diagram_id": "7ef79905-1011-42ae-873f-6fe1cc6291af",
+      "conversation_id": "efb1044c-b79d-40c6-989f-d18490a81630",
+      "version": 1,
+      "title": "Component Hierarchy in Design System",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    button[Button] -->|contains| form[Form]\n    input[Input] -->|part of| form\n    modal[Modal] -->|enhances| form\n    form -->|utilizes| button\n    form -->|utilizes| input",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the relationships and dependencies between the Button, Input, Form, and Modal components within a design system to create cohesive user interfaces.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 4,
+        "edge_count": 5
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T07:37:14.399368"
+    },
+    {
+      "diagram_id": "3ae5dd0f-3492-418e-a781-6aa27197b3ae",
+      "conversation_id": "efb1044c-b79d-40c6-989f-d18490a81630",
+      "version": 2,
+      "title": "Updated Complex Form Diagram",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    button[Button] -->|contains| form[Form]\n    input[Input] -->|part of| form\n    modal[Modal] -->|enhances| form\n    form -->|utilizes| button\n    form -->|utilizes| input\n    checkbox[Checkbox] -->|part of| form\n    dropdown[Dropdown] -->|part of| form\n    form -->|utilizes| checkbox\n    form -->|utilizes| dropdown\n    validation[Validation] -->|ensures| form\n    form -->|validated by| validation",
+      "diagram_format": "mermaid",
+      "explanation": "Added Checkbox and Dropdown components to represent a more complex form structure, and included Validation to ensure form integrity.",
+      "changes_summary": [
+        "Added Checkbox node",
+        "Added Dropdown node",
+        "Added Validation node",
+        "Connected Checkbox to Form",
+        "Connected Dropdown to Form",
+        "Connected Validation to Form"
+      ],
+      "metadata": {
+        "node_count": 7,
+        "edge_count": 3
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T07:42:57.559779"
+    },
+    {
+      "diagram_id": "3bc7fe4b-39dd-437d-8a10-a146b80f3d04",
+      "conversation_id": "efb1044c-b79d-40c6-989f-d18490a81630",
+      "version": 3,
+      "title": "Complex Form Diagram",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    button[Button] -->|contains| form[Form]\n    input[Input] -->|part of| form\n    modal[Modal] -->|enhances| form\n    form -->|utilizes| button\n    form -->|utilizes| input\n    checkbox[Checkbox] -->|part of| form\n    dropdown[Dropdown] -->|part of| form\n    form -->|utilizes| checkbox\n    form -->|utilizes| dropdown",
+      "diagram_format": "mermaid",
+      "explanation": "Added Checkbox and Dropdown components as part of the Form, enhancing its complexity and functionality.",
+      "changes_summary": [
+        "Added Checkbox node",
+        "Added Dropdown node",
+        "Connected Checkbox to Form",
+        "Connected Dropdown to Form"
+      ],
+      "metadata": {
+        "node_count": 6,
+        "edge_count": 2
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T07:43:24.877696"
+    }
+  ],
+  "46910b79-a28d-4608-af9d-08b108899fd6": [
+    {
+      "diagram_id": "e498135e-e16c-46e3-9cfa-ccdb1ade5cce",
+      "conversation_id": "46910b79-a28d-4608-af9d-08b108899fd6",
+      "version": 1,
+      "title": "AI Design System Diagram Assistant Architecture",
+      "diagram_type": "architecture",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n  subgraph NextJS_Frontend [Next.js Frontend]\n    LP[Landing Page] --> WP[Workspace Page]\n    WP --> Zustand[Zustand State Management]\n    WP --> TanStack[Data Fetching]\n  end\n  subgraph FastAPI_Backend [FastAPI Backend]\n    health[Health Route] --> prompts[Prompts Route]\n    prompts --> diagrams[Diagrams Route]\n    diagrams --> conversations[Conversations Route]\n  end\n  NextJS_Frontend -->|HTTP Requests| FastAPI_Backend\n  FastAPI_Backend -->|AI Requests| OpenAI[OpenAI API]\n  WP -->|Diagram Generation| MermaidJS[Mermaid.js Integration]",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the architecture of the AI Design System Diagram Assistant. It shows the separation between the Next.js frontend and the FastAPI backend. The frontend is responsible for user interactions, with main pages like the Landing Page and Workspace Page, and uses Zustand for state management and TanStack Query for data fetching. The backend handles API requests with routes for health checks, prompts, diagrams, and conversations. It interacts with OpenAI for AI enhancements and integrates with Mermaid.js for diagram generation.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 12,
+        "edge_count": 3,
+        "repo_url": "https://github.com/mohammedimtiyaz-1/ai-diagram"
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T07:45:36.019529"
+    }
+  ],
+  "b991632d-7b59-4d38-b383-f9f452b18635": [
+    {
+      "diagram_id": "6b37d716-e745-47e3-9c36-afe298433001",
+      "conversation_id": "b991632d-7b59-4d38-b383-f9f452b18635",
+      "version": 1,
+      "title": "Component Hierarchy for Design System",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    Button[Button] --> Input[Input]\n    Input --> Form[Form]\n    Form --> Modal[Modal]",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the hierarchy and interaction between key components in a design system, showcasing how buttons, inputs, forms, and modals relate to one another.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 4,
+        "edge_count": 3
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T08:33:45.475687"
+    }
+  ],
+  "927203ad-4dd6-4c72-ab51-3a05fa5d699a": [
+    {
+      "diagram_id": "fdb238bf-b150-4eb7-95e2-5a99e0880e38",
+      "conversation_id": "927203ad-4dd6-4c72-ab51-3a05fa5d699a",
+      "version": 1,
+      "title": "Design System Architecture",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    designTokens[Design Tokens] --> componentLib[Component Library]\n    componentLib --> reactApp[React Application]",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the relationship between design tokens, the component library, and a React application, highlighting the flow of style values and component usage.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 3,
+        "edge_count": 2
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T08:59:36.348218"
+    }
+  ],
+  "4cb490c2-48e6-416c-b2ff-379bae40a9ba": [
+    {
+      "diagram_id": "f2b25292-e4ac-45be-9da0-e1e05474a16a",
+      "conversation_id": "4cb490c2-48e6-416c-b2ff-379bae40a9ba",
+      "version": 1,
+      "title": "Design System Architecture: Figma to React",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    figmaTokens[Figma Design Tokens] --> tailwindConfig[Tailwind CSS Configuration]\n    tailwindConfig --> reactComponents[React Components]",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the flow from Figma design tokens to Tailwind CSS configuration and then to React components, highlighting the dependencies and interactions in the design-to-development process.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 3,
+        "edge_count": 2
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T09:06:09.306270"
+    }
+  ],
+  "bfe86258-01e4-40d1-835c-126e9aac40a2": [
+    {
+      "diagram_id": "0348ed78-a6aa-40a5-bee4-7000b945dbd6",
+      "conversation_id": "bfe86258-01e4-40d1-835c-126e9aac40a2",
+      "version": 1,
+      "title": "Component Hierarchy in Design System",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    button[Button] --> input[Input]\n    form[Form] --> button\n    modal[Modal] --> form\n    modal --> input",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the relationships and dependencies between various UI components in the design system, highlighting how buttons, inputs, forms, and modals interact with one another.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 4,
+        "edge_count": 4
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T09:40:22.775286"
+    }
+  ],
+  "07f35d60-e090-40c8-98c4-5dc9a1eff0eb": [
+    {
+      "diagram_id": "0525706a-cf9f-4bfc-8d74-a65173fba0f5",
+      "conversation_id": "07f35d60-e090-40c8-98c4-5dc9a1eff0eb",
+      "version": 1,
+      "title": "AI Design System Diagram Assistant Architecture",
+      "diagram_type": "architecture",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n  subgraph Frontend [Next.js Frontend]\n    direction TB\n    ui[UI Component] -->|User Input| apiCall[API Call]\n    style ui fill:#f9f,stroke:#333,stroke-width:2px\n    style apiCall fill:#f9f,stroke:#333,stroke-width:2px\n  end\n  subgraph Backend [FastAPI Backend]\n    direction TB\n    api[API Layer] -->|Process Prompt| aiService[AI Service]\n    aiService -->|Generate Diagram| response[Response Handler]\n    style api fill:#bbf,stroke:#333,stroke-width:2px\n    style aiService fill:#bbf,stroke:#333,stroke-width:2px\n    style response fill:#bbf,stroke:#333,stroke-width:2px\n  end\n  apiCall -->|HTTP Request| api\n  response -->|HTTP Response| ui",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the architecture of the AI Design System Diagram Assistant. It shows the interaction between the Next.js frontend and the FastAPI backend. User inputs from the UI are sent as API calls to the backend, where they are processed by the AI service. The generated diagrams are then sent back to the frontend for display.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 7,
+        "edge_count": 4,
+        "repo_url": "https://github.com/mohammedimtiyaz-1/ai-diagram"
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T09:43:39.524190"
+    }
+  ],
+  "0695c919-49eb-4240-b88b-f0f00df47aa1": [
+    {
+      "diagram_id": "8fef6087-9e97-4339-b09b-1026adde7d52",
+      "conversation_id": "0695c919-49eb-4240-b88b-f0f00df47aa1",
+      "version": 1,
+      "title": "AI Design System Diagram Assistant Architecture",
+      "diagram_type": "architecture",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n  subgraph Frontend [Frontend (Next.js)]\n    LandingPage[Landing Page]\n    WorkspacePage[Workspace Page]\n  end\n  subgraph Backend [Backend (FastAPI)]\n    APIRoutes[API Routes]\n    HealthRoute[Health Route]\n    PromptsRoute[Prompts Route]\n    DiagramsRoute[Diagrams Route]\n    ConversationsRoute[Conversations Route]\n  end\n  Frontend -- uses --> Backend\n  Backend -- enhances with --> OpenAI[OpenAI GPT-4o]\n  Frontend -- generates with --> MermaidJS[Mermaid.js]\n  Frontend -- manages state with --> Zustand[Zustand]\n  Frontend -- communicates with --> TanStackQuery[TanStack Query]\n  LandingPage -- part of --> Frontend\n  WorkspacePage -- part of --> Frontend\n  APIRoutes -- contains --> HealthRoute\n  APIRoutes -- contains --> PromptsRoute\n  APIRoutes -- contains --> DiagramsRoute\n  APIRoutes -- contains --> ConversationsRoute",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram represents the architecture of the AI Design System Diagram Assistant. The frontend is built with Next.js and includes components for the Landing Page and Workspace Page. It communicates with the backend developed using FastAPI, which provides API routes for health checks, prompts, diagrams, and conversations. The system uses OpenAI for AI enhancements and Mermaid.js for diagram generation. State management is handled by Zustand, and server communication is facilitated by TanStack Query.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 13,
+        "edge_count": 5,
+        "repo_url": "https://github.com/mohammedimtiyaz-1/ai-diagram"
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T09:43:43.626308"
+    }
+  ],
+  "bfeb4a1c-877b-4811-9a15-0e029de51be1": [
+    {
+      "diagram_id": "e1a8b376-49a6-45d3-b1f9-fd534867b03d",
+      "conversation_id": "bfeb4a1c-877b-4811-9a15-0e029de51be1",
+      "version": 1,
+      "title": "Component Hierarchy Diagram for Design System",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "graph TD\n    Button --> Form\n    Input --> Form\n    Modal --> Form\n    Form --> Button\n    Form --> Input\n    Form --> Modal",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the relationships and dependencies between various components in a design system, including buttons, inputs, forms, and modals.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 4,
+        "edge_count": 3
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T09:50:57.092302"
+    }
+  ],
+  "c5fcaad7-9b62-4c60-81d8-85d2f9f2af19": [
+    {
+      "diagram_id": "46453c1a-be67-4bd2-81e6-f47c37d074ba",
+      "conversation_id": "c5fcaad7-9b62-4c60-81d8-85d2f9f2af19",
+      "version": 1,
+      "title": "AI Design System Diagram Assistant Architecture",
+      "diagram_type": "architecture",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n  subgraph Frontend [Frontend - Next.js]\n    direction TB\n    page1[\"Page: Home\"]\n    page2[\"Page: Diagram Editor\"]\n    component1[\"Component: Header\"]\n    component2[\"Component: Diagram Canvas\"]\n  end\n  subgraph Backend [Backend - FastAPI]\n    direction TB\n    api1[\"API: /generate\"]\n    api2[\"API: /enhance\"]\n    service1[\"Service: Diagram Generation\"]\n    service2[\"Service: Prompt Enhancement\"]\n  end\n  subgraph AI [AI - OpenAI GPT-4o]\n    direction TB\n    ai1[\"AI Processing\"]\n  end\n  page1 -->|\"User Input\"| api1\n  page2 -->|\"User Input\"| api2\n  api1 -->|\"Process Request\"| service1\n  api2 -->|\"Process Request\"| service2\n  service1 -->|\"AI Request\"| ai1\n  service2 -->|\"AI Request\"| ai1\n  ai1 -->|\"Response\"| service1\n  ai1 -->|\"Response\"| service2\n  service1 -->|\"Response\"| page2\n  service2 -->|\"Response\"| page2",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the architecture of the AI Design System Diagram Assistant, showcasing the interaction between the frontend, backend, and AI components. The frontend, built with Next.js, contains pages and components that interact with the backend, developed using FastAPI. API routes handle requests for diagram generation and prompt enhancement, which are processed by AI services using OpenAI's GPT-4o. The flow of data is depicted from user input in the frontend to AI processing in the backend and back to the frontend for rendering diagrams.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 9,
+        "edge_count": 10,
+        "repo_url": "https://github.com/mohammedimtiyaz-1/ai-diagram"
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-09T09:54:35.207814"
+    }
+  ],
+  "ce73e42a-910d-4a32-a097-8e0a1c6d4b97": [
+    {
+      "diagram_id": "b4612e79-f3cc-4bc0-b5f4-4236ef2159c3",
+      "conversation_id": "ce73e42a-910d-4a32-a097-8e0a1c6d4b97",
+      "version": 1,
+      "title": "Architecture Diagram of FastAPI and Next.js Modules",
+      "diagram_type": "architecture",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n  subgraph apps_api\n    mainpy[\"main.py\"]\n  end\n  subgraph apps_web\n    layouttsx[\"layout.tsx\"]\n  end\n  mainpy --> layouttsx",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the interaction between the FastAPI backend and the Next.js frontend. The 'main.py' file in the backend handles API requests, while 'layout.tsx' in the frontend manages the user interface layout. The backend and frontend communicate to provide a seamless user experience.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 2,
+        "edge_count": 1,
+        "repo_url": "https://github.com/mohammedimtiyaz-1/ai-diagram/"
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T09:56:12.169568"
+    },
+    {
+      "diagram_id": "4db70bb4-f141-48fd-a7b1-014796bc1d69",
+      "conversation_id": "ce73e42a-910d-4a32-a097-8e0a1c6d4b97",
+      "version": 2,
+      "title": "Design System Architecture (Refined)",
+      "diagram_type": "architecture",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n  subgraph apps_api\n    mainpy[\"main.py\"]\n  end\n  subgraph apps_web\n    layouttsx[\"layout.tsx\"]\n  end\n  mainpy --> layouttsx",
+      "diagram_format": "mermaid",
+      "explanation": "Fallback \u2014 refinement failed. The original diagram is preserved.",
+      "changes_summary": [
+        "Refinement failed \u2014 original diagram preserved"
+      ],
+      "metadata": {
+        "node_count": 0,
+        "edge_count": 0
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T09:57:46.584856"
+    }
+  ],
+  "0249464a-d01f-4e3b-9a14-3cbe42291864": [
+    {
+      "diagram_id": "6239bf6a-8947-4b4f-a0a0-592521400cd9",
+      "conversation_id": "0249464a-d01f-4e3b-9a14-3cbe42291864",
+      "version": 1,
+      "title": "Design System Architecture",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    designTokens[Design Tokens] --> componentLib[Component Library]\n    componentLib --> reactApp[React Application]",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the architecture of a design system, showcasing the relationship between design tokens, component library, and a React application.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 3,
+        "edge_count": 2
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T09:58:33.483011"
+    }
+  ],
+  "2342a667-20d0-4f21-8dbc-87a97cb7ab7f": [
+    {
+      "diagram_id": "f250a9f0-7d90-4f27-8c9f-b70ee12cd5b7",
+      "conversation_id": "2342a667-20d0-4f21-8dbc-87a97cb7ab7f",
+      "version": 1,
+      "title": "Design System Architecture",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "graph TD\n    designTokens[\"Design Tokens\"]\n    componentLib[\"Component Library\"]\n    reactApp[\"React Application\"]\n    designTokens --> componentLib\n    componentLib --> reactApp",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the architecture of a design system, showcasing the relationship between design tokens, component library, and a React application.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 3,
+        "edge_count": 2
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T10:51:34.227008"
+    },
+    {
+      "diagram_id": "e6c467cf-7551-4796-ab20-561eb8731b5e",
+      "conversation_id": "2342a667-20d0-4f21-8dbc-87a97cb7ab7f",
+      "version": 2,
+      "title": "Design System Architecture (Refined)",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "graph TD\n    designTokens[\"Design Tokens\"]\n    componentLib[\"Component Library\"]\n    reactApp[\"React Application\"]\n    designTokens --> componentLib\n    componentLib --> reactApp",
+      "diagram_format": "mermaid",
+      "explanation": "Fallback \u2014 refinement failed. The original diagram is preserved.",
+      "changes_summary": [
+        "Refinement failed \u2014 original diagram preserved"
+      ],
+      "metadata": {
+        "node_count": 0,
+        "edge_count": 0
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T10:52:27.373931"
+    },
+    {
+      "diagram_id": "11271ff7-4fbb-4c0a-bfa8-c5256f86ffae",
+      "conversation_id": "2342a667-20d0-4f21-8dbc-87a97cb7ab7f",
+      "version": 3,
+      "title": "Design System Architecture (Refined)",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "graph TD\n    designTokens[\"Design Tokens\"]\n    componentLib[\"Component Library\"]\n    reactApp[\"React Application\"]\n    designTokens --> componentLib\n    componentLib --> reactApp",
+      "diagram_format": "mermaid",
+      "explanation": "Fallback \u2014 refinement failed. The original diagram is preserved.",
+      "changes_summary": [
+        "Refinement failed \u2014 original diagram preserved"
+      ],
+      "metadata": {
+        "node_count": 0,
+        "edge_count": 0
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T10:55:27.240347"
+    },
+    {
+      "diagram_id": "1f3db98c-a1f7-4002-82fc-010b7f986ece",
+      "conversation_id": "2342a667-20d0-4f21-8dbc-87a97cb7ab7f",
+      "version": 4,
+      "title": "Design System Architecture (Refined)",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "graph TD\n    designTokens[\"Design Tokens\"]\n    componentLib[\"Component Library\"]\n    reactApp[\"React Application\"]\n    designTokens --> componentLib\n    componentLib --> reactApp",
+      "diagram_format": "mermaid",
+      "explanation": "Fallback \u2014 refinement failed. The original diagram is preserved.",
+      "changes_summary": [
+        "Refinement failed \u2014 original diagram preserved"
+      ],
+      "metadata": {
+        "node_count": 0,
+        "edge_count": 0
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T11:02:26.954788"
+    },
+    {
+      "diagram_id": "886fd419-cbbb-4684-8f5e-c83981c75edc",
+      "conversation_id": "2342a667-20d0-4f21-8dbc-87a97cb7ab7f",
+      "version": 5,
+      "title": "Design System Architecture (Refined)",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "graph TD\n    designTokens[\"Design Tokens\"]\n    componentLib[\"Component Library\"]\n    reactApp[\"React Application\"]\n    designTokens --> componentLib\n    componentLib --> reactApp",
+      "diagram_format": "mermaid",
+      "explanation": "Fallback \u2014 refinement failed. The original diagram is preserved.",
+      "changes_summary": [
+        "Refinement failed \u2014 original diagram preserved"
+      ],
+      "metadata": {
+        "node_count": 0,
+        "edge_count": 0
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T11:04:52.499660"
+    },
+    {
+      "diagram_id": "065d62f4-7781-4cd3-a4e7-e8f687cdea51",
+      "conversation_id": "2342a667-20d0-4f21-8dbc-87a97cb7ab7f",
+      "version": 6,
+      "title": "Design System Architecture (Refined)",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "graph TD\n    designTokens[\"Design Tokens\"]\n    componentLib[\"Component Library\"]\n    reactApp[\"React Application\"]\n    designTokens --> componentLib\n    componentLib --> reactApp",
+      "diagram_format": "mermaid",
+      "explanation": "Fallback \u2014 refinement failed. The original diagram is preserved.",
+      "changes_summary": [
+        "Refinement failed \u2014 original diagram preserved"
+      ],
+      "metadata": {
+        "node_count": 3,
+        "edge_count": 2,
+        "nodes": [
+          {
+            "id": "designTokens",
+            "label": "Design Tokens",
+            "type": "generic",
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "role": "",
+              "importance": "medium",
+              "connections_summary": "",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "componentLib",
+            "label": "Component Library",
+            "type": "generic",
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "role": "",
+              "importance": "medium",
+              "connections_summary": "",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "reactApp",
+            "label": "React Application",
+            "type": "generic",
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "role": "",
+              "importance": "medium",
+              "connections_summary": "",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          }
+        ],
+        "edges": [
+          {
+            "id": "designTokens_componentLib",
+            "source": "designTokens",
+            "target": "componentLib",
+            "label": null,
+            "description": null,
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "relationship_type": "generic",
+              "source_to_target_summary": "",
+              "importance": "medium",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "componentLib_reactApp",
+            "source": "componentLib",
+            "target": "reactApp",
+            "label": null,
+            "description": null,
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "relationship_type": "generic",
+              "source_to_target_summary": "",
+              "importance": "medium",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          }
+        ]
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T11:14:13.712071"
+    }
+  ],
+  "57cdb0b4-8896-4684-8be9-08d5b1c21cff": [
+    {
+      "diagram_id": "0fe2d6eb-2172-4599-830a-1abd210292b7",
+      "conversation_id": "57cdb0b4-8896-4684-8be9-08d5b1c21cff",
+      "version": 1,
+      "title": "Token Flow in Design System",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    primitiveTokens[Primitive Tokens] --> semanticTokens[Semantic Tokens]\n    semanticTokens --> componentStyles[Component Styles]",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the flow of design tokens from primitive tokens to semantic tokens and finally to component styles.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 3,
+        "edge_count": 2
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T11:14:55.497173"
+    },
+    {
+      "diagram_id": "715c0192-0f64-4f33-bd6c-d6894a8aa71a",
+      "conversation_id": "57cdb0b4-8896-4684-8be9-08d5b1c21cff",
+      "version": 2,
+      "title": "Design System Architecture (Refined)",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    primitiveTokens[Primitive Tokens] --> semanticTokens[Semantic Tokens]\n    semanticTokens --> componentStyles[Component Styles]",
+      "diagram_format": "mermaid",
+      "explanation": "Fallback \u2014 refinement failed. The original diagram is preserved.",
+      "changes_summary": [
+        "Refinement failed \u2014 original diagram preserved"
+      ],
+      "metadata": {
+        "node_count": 3,
+        "edge_count": 2,
+        "nodes": [
+          {
+            "id": "primitiveTokens",
+            "label": "Primitive Tokens",
+            "type": "token",
+            "metadata": {
+              "tooltip_title": "Primitive Tokens",
+              "tooltip_description": "Basic style values such as colors, spacing, and typography.",
+              "role": "Foundation",
+              "importance": "high",
+              "connections_summary": "Provides foundational values for semantic tokens.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "semanticTokens",
+            "label": "Semantic Tokens",
+            "type": "token",
+            "metadata": {
+              "tooltip_title": "Semantic Tokens",
+              "tooltip_description": "Tokens that represent meaningful design properties derived from primitive tokens.",
+              "role": "Foundation",
+              "importance": "high",
+              "connections_summary": "Transforms primitive tokens into context-aware styles for components.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "componentStyles",
+            "label": "Component Styles",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "Component Styles",
+              "tooltip_description": "Styling rules applied to UI components based on semantic tokens.",
+              "role": "Component",
+              "importance": "high",
+              "connections_summary": "Utilizes semantic tokens to define the visual appearance of components.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          }
+        ],
+        "edges": [
+          {
+            "id": "e1",
+            "source": "primitiveTokens",
+            "target": "semanticTokens",
+            "label": "feeds into",
+            "description": null,
+            "metadata": {
+              "tooltip_title": "Primitive to Semantic",
+              "tooltip_description": "Primitive tokens are processed to create semantic tokens.",
+              "relationship_type": "data-flow",
+              "source_to_target_summary": "Primitive Tokens provide values that are transformed into Semantic Tokens.",
+              "importance": "high",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "e2",
+            "source": "semanticTokens",
+            "target": "componentStyles",
+            "label": "feeds into",
+            "description": null,
+            "metadata": {
+              "tooltip_title": "Semantic to Component Styles",
+              "tooltip_description": "Semantic tokens are used to style components.",
+              "relationship_type": "data-flow",
+              "source_to_target_summary": "Semantic Tokens define the styling rules for Component Styles.",
+              "importance": "high",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          }
+        ]
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T11:15:24.272275"
+    },
+    {
+      "diagram_id": "1a3f49d7-29f8-426f-95c3-8b25216c9eb9",
+      "conversation_id": "57cdb0b4-8896-4684-8be9-08d5b1c21cff",
+      "version": 3,
+      "title": "Flowchart of Design Tokens and Components",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    primitiveTokens[Primitive Tokens] --> semanticTokens[Semantic Tokens]\n    semanticTokens --> componentStyles[Component Styles]\n    componentStyles --> uiComponents[UI Components]",
+      "diagram_format": "mermaid",
+      "explanation": "Added a new node for UI Components to illustrate the relationship with Component Styles. This enhances the diagram by showing the final application of styles.",
+      "changes_summary": [
+        "Added UI Components node",
+        "Connected to Component Styles",
+        "Illustrates final application of styles",
+        "Enhances understanding of design flow",
+        "Maintains existing structure",
+        "Minimal change applied"
+      ],
+      "metadata": {
+        "node_count": 4,
+        "edge_count": 3,
+        "nodes": [
+          {
+            "id": "primitiveTokens",
+            "label": "Primitive Tokens",
+            "type": "token",
+            "metadata": {
+              "tooltip_title": "Primitive Tokens",
+              "tooltip_description": "Basic style values such as colors, spacing, and typography.",
+              "role": "Foundation",
+              "importance": "high",
+              "connections_summary": "Provides foundational values for semantic tokens.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "semanticTokens",
+            "label": "Semantic Tokens",
+            "type": "token",
+            "metadata": {
+              "tooltip_title": "Semantic Tokens",
+              "tooltip_description": "Tokens that represent meaningful design properties derived from primitive tokens.",
+              "role": "Foundation",
+              "importance": "high",
+              "connections_summary": "Transforms primitive tokens into context-aware styles for components.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "componentStyles",
+            "label": "Component Styles",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "Component Styles",
+              "tooltip_description": "Styling rules applied to UI components based on semantic tokens.",
+              "role": "Component",
+              "importance": "high",
+              "connections_summary": "Utilizes semantic tokens to define the visual appearance of components.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "uiComponents",
+            "label": "UI Components",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "UI Components",
+              "tooltip_description": "The final user interface elements styled using component styles.",
+              "role": "Component",
+              "importance": "high",
+              "connections_summary": "Represents the end result of styling processes.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          }
+        ],
+        "edges": [
+          {
+            "id": "e1",
+            "source": "primitiveTokens",
+            "target": "semanticTokens",
+            "label": "feeds into",
+            "description": null,
+            "metadata": {
+              "tooltip_title": "Primitive to Semantic",
+              "tooltip_description": "Primitive tokens are processed to create semantic tokens.",
+              "relationship_type": "data-flow",
+              "source_to_target_summary": "Primitive Tokens provide values that are transformed into Semantic Tokens.",
+              "importance": "high",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "e2",
+            "source": "semanticTokens",
+            "target": "componentStyles",
+            "label": "feeds into",
+            "description": null,
+            "metadata": {
+              "tooltip_title": "Semantic to Component Styles",
+              "tooltip_description": "Semantic tokens are used to style components.",
+              "relationship_type": "data-flow",
+              "source_to_target_summary": "Semantic Tokens define the styling rules for Component Styles.",
+              "importance": "high",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "edge_componentStyles_uiComponents",
+            "source": "componentStyles",
+            "target": "uiComponents",
+            "label": null,
+            "description": null,
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "relationship_type": "generic",
+              "source_to_target_summary": "",
+              "importance": "medium",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          }
+        ]
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T11:20:00.448529"
+    },
+    {
+      "diagram_id": "0db7a426-d567-4a07-b954-f715824c829d",
+      "conversation_id": "57cdb0b4-8896-4684-8be9-08d5b1c21cff",
+      "version": 4,
+      "title": "UI Component Structure",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    primitiveTokens[Primitive Tokens] --> semanticTokens[Semantic Tokens]\n    semanticTokens --> componentStyles[Component Styles]\n    componentStyles --> uiComponents[UI Components]\n    uiComponents --> buttonComponent[Button Component]\n    uiComponents --> cardComponent[Card Component]",
+      "diagram_format": "mermaid",
+      "explanation": "Added two new nodes for specific UI components: Button Component and Card Component.",
+      "changes_summary": [
+        "Added Button Component node",
+        "Added Card Component node",
+        "Connected new nodes to UI Components",
+        "Expanded UI component representation",
+        "Enhanced diagram detail",
+        "Maintained existing structure"
+      ],
+      "metadata": {
+        "node_count": 6,
+        "edge_count": 5,
+        "nodes": [
+          {
+            "id": "primitiveTokens",
+            "label": "Primitive Tokens",
+            "type": "token",
+            "metadata": {
+              "tooltip_title": "Primitive Tokens",
+              "tooltip_description": "Basic style values such as colors, spacing, and typography.",
+              "role": "Foundation",
+              "importance": "high",
+              "connections_summary": "Provides foundational values for semantic tokens.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "semanticTokens",
+            "label": "Semantic Tokens",
+            "type": "token",
+            "metadata": {
+              "tooltip_title": "Semantic Tokens",
+              "tooltip_description": "Tokens that represent meaningful design properties derived from primitive tokens.",
+              "role": "Foundation",
+              "importance": "high",
+              "connections_summary": "Transforms primitive tokens into context-aware styles for components.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "componentStyles",
+            "label": "Component Styles",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "Component Styles",
+              "tooltip_description": "Styling rules applied to UI components based on semantic tokens.",
+              "role": "Component",
+              "importance": "high",
+              "connections_summary": "Utilizes semantic tokens to define the visual appearance of components.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "uiComponents",
+            "label": "UI Components",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "UI Components",
+              "tooltip_description": "The final user interface elements styled using component styles.",
+              "role": "Component",
+              "importance": "high",
+              "connections_summary": "Represents the end result of styling processes.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "buttonComponent",
+            "label": "Button Component",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "Button Component",
+              "tooltip_description": "A clickable element used to trigger actions.",
+              "role": "Component",
+              "importance": "medium",
+              "connections_summary": "Part of UI components styled with component styles.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "cardComponent",
+            "label": "Card Component",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "Card Component",
+              "tooltip_description": "A container for displaying content and actions.",
+              "role": "Component",
+              "importance": "medium",
+              "connections_summary": "Part of UI components styled with component styles.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          }
+        ],
+        "edges": [
+          {
+            "id": "e1",
+            "source": "primitiveTokens",
+            "target": "semanticTokens",
+            "label": "feeds into",
+            "description": null,
+            "metadata": {
+              "tooltip_title": "Primitive to Semantic",
+              "tooltip_description": "Primitive tokens are processed to create semantic tokens.",
+              "relationship_type": "data-flow",
+              "source_to_target_summary": "Primitive Tokens provide values that are transformed into Semantic Tokens.",
+              "importance": "high",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "e2",
+            "source": "semanticTokens",
+            "target": "componentStyles",
+            "label": "feeds into",
+            "description": null,
+            "metadata": {
+              "tooltip_title": "Semantic to Component Styles",
+              "tooltip_description": "Semantic tokens are used to style components.",
+              "relationship_type": "data-flow",
+              "source_to_target_summary": "Semantic Tokens define the styling rules for Component Styles.",
+              "importance": "high",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "edge_componentStyles_uiComponents",
+            "source": "componentStyles",
+            "target": "uiComponents",
+            "label": null,
+            "description": null,
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "relationship_type": "generic",
+              "source_to_target_summary": "",
+              "importance": "medium",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "edge_uiComponents_buttonComponent",
+            "source": "uiComponents",
+            "target": "buttonComponent",
+            "label": null,
+            "description": null,
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "relationship_type": "generic",
+              "source_to_target_summary": "",
+              "importance": "medium",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "edge_uiComponents_cardComponent",
+            "source": "uiComponents",
+            "target": "cardComponent",
+            "label": null,
+            "description": null,
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "relationship_type": "generic",
+              "source_to_target_summary": "",
+              "importance": "medium",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          }
+        ]
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T12:42:01.714781"
+    },
+    {
+      "diagram_id": "1eede3d9-ad5f-40b3-8ba1-e881eb5900f1",
+      "conversation_id": "57cdb0b4-8896-4684-8be9-08d5b1c21cff",
+      "version": 5,
+      "title": "UI Design Token Flow",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    primitiveTokens[Primitive Tokens] --> semanticTokens[Semantic Tokens]\n    semanticTokens --> componentStyles[Component Styles]\n    componentStyles --> uiComponents[UI Components]\n    uiComponents --> buttonComponent[Button Component]\n    uiComponents --> cardComponent[Card Component]",
+      "diagram_format": "mermaid",
+      "explanation": "Added role metadata to existing nodes for clarity.",
+      "changes_summary": [
+        "Added role metadata to existing nodes"
+      ],
+      "metadata": {
+        "node_count": 6,
+        "edge_count": 5,
+        "nodes": [
+          {
+            "id": "primitiveTokens",
+            "label": "Primitive Tokens",
+            "type": "token",
+            "metadata": {
+              "tooltip_title": "Primitive Tokens",
+              "tooltip_description": "Basic style values such as colors, spacing, and typography.",
+              "role": "Foundation",
+              "importance": "high",
+              "connections_summary": "Provides foundational values for semantic tokens.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "semanticTokens",
+            "label": "Semantic Tokens",
+            "type": "token",
+            "metadata": {
+              "tooltip_title": "Semantic Tokens",
+              "tooltip_description": "Tokens that represent meaningful design properties derived from primitive tokens.",
+              "role": "Foundation",
+              "importance": "high",
+              "connections_summary": "Transforms primitive tokens into context-aware styles for components.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "componentStyles",
+            "label": "Component Styles",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "Component Styles",
+              "tooltip_description": "Styling rules applied to UI components based on semantic tokens.",
+              "role": "Component",
+              "importance": "high",
+              "connections_summary": "Utilizes semantic tokens to define the visual appearance of components.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "uiComponents",
+            "label": "UI Components",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "UI Components",
+              "tooltip_description": "The final user interface elements styled using component styles.",
+              "role": "Component",
+              "importance": "high",
+              "connections_summary": "Represents the end result of styling processes.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "buttonComponent",
+            "label": "Button Component",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "Button Component",
+              "tooltip_description": "A clickable element used to trigger actions.",
+              "role": "Component",
+              "importance": "medium",
+              "connections_summary": "Part of UI components styled with component styles.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "cardComponent",
+            "label": "Card Component",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "Card Component",
+              "tooltip_description": "A container for displaying content and actions.",
+              "role": "Component",
+              "importance": "medium",
+              "connections_summary": "Part of UI components styled with component styles.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          }
+        ],
+        "edges": [
+          {
+            "id": "e1",
+            "source": "primitiveTokens",
+            "target": "semanticTokens",
+            "label": "feeds into",
+            "description": null,
+            "metadata": {
+              "tooltip_title": "Primitive to Semantic",
+              "tooltip_description": "Primitive tokens are processed to create semantic tokens.",
+              "relationship_type": "data-flow",
+              "source_to_target_summary": "Primitive Tokens provide values that are transformed into Semantic Tokens.",
+              "importance": "high",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "e2",
+            "source": "semanticTokens",
+            "target": "componentStyles",
+            "label": "feeds into",
+            "description": null,
+            "metadata": {
+              "tooltip_title": "Semantic to Component Styles",
+              "tooltip_description": "Semantic tokens are used to style components.",
+              "relationship_type": "data-flow",
+              "source_to_target_summary": "Semantic Tokens define the styling rules for Component Styles.",
+              "importance": "high",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "edge_componentStyles_uiComponents",
+            "source": "componentStyles",
+            "target": "uiComponents",
+            "label": null,
+            "description": null,
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "relationship_type": "generic",
+              "source_to_target_summary": "",
+              "importance": "medium",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "edge_uiComponents_buttonComponent",
+            "source": "uiComponents",
+            "target": "buttonComponent",
+            "label": null,
+            "description": null,
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "relationship_type": "generic",
+              "source_to_target_summary": "",
+              "importance": "medium",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "edge_uiComponents_cardComponent",
+            "source": "uiComponents",
+            "target": "cardComponent",
+            "label": null,
+            "description": null,
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "relationship_type": "generic",
+              "source_to_target_summary": "",
+              "importance": "medium",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          }
+        ]
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T13:00:57.607233"
+    },
+    {
+      "diagram_id": "0d862a04-ca55-4e18-93d3-e622374610f9",
+      "conversation_id": "57cdb0b4-8896-4684-8be9-08d5b1c21cff",
+      "version": 6,
+      "title": "Updated Flowchart",
+      "diagram_type": "auto",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n    primitiveTokens[Primitive Tokens] --> semanticTokens[Semantic Tokens]\n    semanticTokens --> componentStyles[Component Styles]\n    componentStyles --> uiComponents[UI Components]\n    uiComponents --> buttonComponent[Button Component]",
+      "diagram_format": "mermaid",
+      "explanation": "Removed the Card Component node to simplify the diagram.",
+      "changes_summary": [
+        "Removed Card Component node"
+      ],
+      "metadata": {
+        "node_count": 6,
+        "edge_count": 5,
+        "nodes": [
+          {
+            "id": "primitiveTokens",
+            "label": "Primitive Tokens",
+            "type": "token",
+            "metadata": {
+              "tooltip_title": "Primitive Tokens",
+              "tooltip_description": "Basic style values such as colors, spacing, and typography.",
+              "role": "Foundation",
+              "importance": "high",
+              "connections_summary": "Provides foundational values for semantic tokens.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "semanticTokens",
+            "label": "Semantic Tokens",
+            "type": "token",
+            "metadata": {
+              "tooltip_title": "Semantic Tokens",
+              "tooltip_description": "Tokens that represent meaningful design properties derived from primitive tokens.",
+              "role": "Foundation",
+              "importance": "high",
+              "connections_summary": "Transforms primitive tokens into context-aware styles for components.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "componentStyles",
+            "label": "Component Styles",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "Component Styles",
+              "tooltip_description": "Styling rules applied to UI components based on semantic tokens.",
+              "role": "Component",
+              "importance": "high",
+              "connections_summary": "Utilizes semantic tokens to define the visual appearance of components.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "uiComponents",
+            "label": "UI Components",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "UI Components",
+              "tooltip_description": "The final user interface elements styled using component styles.",
+              "role": "Component",
+              "importance": "high",
+              "connections_summary": "Represents the end result of styling processes.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "buttonComponent",
+            "label": "Button Component",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "Button Component",
+              "tooltip_description": "A clickable element used to trigger actions.",
+              "role": "Component",
+              "importance": "medium",
+              "connections_summary": "Part of UI components styled with component styles.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          },
+          {
+            "id": "cardComponent",
+            "label": "Card Component",
+            "type": "component",
+            "metadata": {
+              "tooltip_title": "Card Component",
+              "tooltip_description": "A container for displaying content and actions.",
+              "role": "Component",
+              "importance": "medium",
+              "connections_summary": "Part of UI components styled with component styles.",
+              "related_files": null
+            },
+            "style": {
+              "background_color": null,
+              "font_color": null
+            }
+          }
+        ],
+        "edges": [
+          {
+            "id": "e1",
+            "source": "primitiveTokens",
+            "target": "semanticTokens",
+            "label": "feeds into",
+            "description": null,
+            "metadata": {
+              "tooltip_title": "Primitive to Semantic",
+              "tooltip_description": "Primitive tokens are processed to create semantic tokens.",
+              "relationship_type": "data-flow",
+              "source_to_target_summary": "Primitive Tokens provide values that are transformed into Semantic Tokens.",
+              "importance": "high",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "e2",
+            "source": "semanticTokens",
+            "target": "componentStyles",
+            "label": "feeds into",
+            "description": null,
+            "metadata": {
+              "tooltip_title": "Semantic to Component Styles",
+              "tooltip_description": "Semantic tokens are used to style components.",
+              "relationship_type": "data-flow",
+              "source_to_target_summary": "Semantic Tokens define the styling rules for Component Styles.",
+              "importance": "high",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "edge_componentStyles_uiComponents",
+            "source": "componentStyles",
+            "target": "uiComponents",
+            "label": null,
+            "description": null,
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "relationship_type": "generic",
+              "source_to_target_summary": "",
+              "importance": "medium",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "edge_uiComponents_buttonComponent",
+            "source": "uiComponents",
+            "target": "buttonComponent",
+            "label": null,
+            "description": null,
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "relationship_type": "generic",
+              "source_to_target_summary": "",
+              "importance": "medium",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          },
+          {
+            "id": "edge_uiComponents_cardComponent",
+            "source": "uiComponents",
+            "target": "cardComponent",
+            "label": null,
+            "description": null,
+            "metadata": {
+              "tooltip_title": "",
+              "tooltip_description": "",
+              "relationship_type": "generic",
+              "source_to_target_summary": "",
+              "importance": "medium",
+              "related_files": null
+            },
+            "style": {
+              "stroke_color": null,
+              "stroke_width": null
+            }
+          }
+        ]
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T13:08:29.121176"
+    }
+  ]
+}

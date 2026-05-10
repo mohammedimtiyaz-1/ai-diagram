@@ -1,0 +1,727 @@
+{
+  "07b61ee0-e5d2-4515-8378-46b26a66a90b": {
+    "id": "07b61ee0-e5d2-4515-8378-46b26a66a90b",
+    "messages": [
+      {
+        "id": "6f7beee4-45e7-4f12-aea8-5c4f206986f1",
+        "role": "user",
+        "content": "Show me the architecture of a design system with tokens, components, and a React app",
+        "message_type": "input",
+        "timestamp": "2026-05-09T07:01:10.318020"
+      },
+      {
+        "id": "8411f717-efe1-42ed-84ab-3aa0fe569928",
+        "role": "assistant",
+        "content": "This diagram illustrates the relationship between design tokens, the component library, and the React application, showcasing how design tokens are utilized in building components and how these components are integrated into the application.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T07:01:10.319085"
+      }
+    ],
+    "current_diagram_id": "57395c53-3c81-478c-8c00-2af9ace0f8f7",
+    "diagram_version_ids": [
+      "57395c53-3c81-478c-8c00-2af9ace0f8f7"
+    ],
+    "created_at": "2026-05-09T07:01:10.314435",
+    "updated_at": "2026-05-09T07:01:10.319091"
+  },
+  "bff9a79a-168a-495a-88b9-3cf9c138e3d6": {
+    "id": "bff9a79a-168a-495a-88b9-3cf9c138e3d6",
+    "messages": [
+      {
+        "id": "f1022062-44d1-4e01-95b6-f2446b0e3530",
+        "role": "user",
+        "content": "Create a component hierarchy for a button, input, form, and modal system",
+        "message_type": "input",
+        "timestamp": "2026-05-09T07:04:11.260679"
+      },
+      {
+        "id": "97661e26-7c4a-4183-8636-bef0a11a5d87",
+        "role": "assistant",
+        "content": "This diagram illustrates the relationships between the Button, Input, Form, and Modal components, demonstrating how they interact to create a cohesive user interface.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T07:04:11.261023"
+      }
+    ],
+    "current_diagram_id": "24b85e2c-f1ad-43e2-9563-524cadaf901b",
+    "diagram_version_ids": [
+      "24b85e2c-f1ad-43e2-9563-524cadaf901b"
+    ],
+    "created_at": "2026-05-09T07:04:11.259380",
+    "updated_at": "2026-05-09T07:04:11.261025"
+  },
+  "fa6bcab7-7d06-4ccd-a66e-6960261f90a1": {
+    "id": "fa6bcab7-7d06-4ccd-a66e-6960261f90a1",
+    "messages": [
+      {
+        "id": "74707ed5-689a-4733-95e4-f79a399632a1",
+        "role": "user",
+        "content": "regenerate",
+        "message_type": "input",
+        "timestamp": "2026-05-09T07:06:56.186439"
+      },
+      {
+        "id": "2dc7424c-d28d-4158-9504-1f447b514bc2",
+        "role": "assistant",
+        "content": "This diagram illustrates the regeneration process of design components and tokens, showing the flow of information and dependencies between design tools, component libraries, and documentation systems.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T07:06:56.186924"
+      },
+      {
+        "id": "fc52e0cd-6672-424c-9d8d-67b698ab1b66",
+        "role": "user",
+        "content": "remove documentation node",
+        "message_type": "refinement",
+        "timestamp": "2026-05-09T07:08:51.329627"
+      },
+      {
+        "id": "1cb5125e-b5f8-4dde-9385-58722f35db08",
+        "role": "assistant",
+        "content": "The Documentation node has been removed from the diagram, and the connections have been updated accordingly.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T07:08:51.332537"
+      },
+      {
+        "id": "1ae64d27-a6bf-4bda-b480-787fc5636985",
+        "role": "user",
+        "content": "add a docuemnt node in the flow",
+        "message_type": "refinement",
+        "timestamp": "2026-05-09T07:10:00.973885"
+      },
+      {
+        "id": "376f211c-f67e-411a-8c0d-d776b94cc440",
+        "role": "assistant",
+        "content": "Added a Documentation node and connected it to both the Component Library and Design Tools to reflect its role in providing resources for users.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T07:10:00.976401"
+      }
+    ],
+    "current_diagram_id": "168d7b92-d7b9-46dd-87b3-0d4208394b37",
+    "diagram_version_ids": [
+      "0d28ac4a-9655-444b-971c-dfebf7a5f410",
+      "dfd5559e-e375-4943-bcdf-9bce7cae6ebd",
+      "168d7b92-d7b9-46dd-87b3-0d4208394b37"
+    ],
+    "created_at": "2026-05-09T07:06:56.184712",
+    "updated_at": "2026-05-09T07:10:00.976406"
+  },
+  "bcaca430-5900-484d-86b6-359092fef120": {
+    "id": "bcaca430-5900-484d-86b6-359092fef120",
+    "messages": [
+      {
+        "id": "ba7b4c80-65c4-4c7a-b33c-47356759c695",
+        "role": "user",
+        "content": "Create a component hierarchy for a button, input, form, and modal system",
+        "message_type": "input",
+        "timestamp": "2026-05-09T07:23:19.390110"
+      },
+      {
+        "id": "fbf77c89-041e-4eb4-aa18-5a965444bfe1",
+        "role": "assistant",
+        "content": "This diagram illustrates the relationships and structure of a button, input, form, and modal system, highlighting shared design tokens and interactions.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T07:23:19.391350"
+      }
+    ],
+    "current_diagram_id": "db9f088d-04db-4896-b634-fc89f4628037",
+    "diagram_version_ids": [
+      "db9f088d-04db-4896-b634-fc89f4628037"
+    ],
+    "created_at": "2026-05-09T07:23:19.386838",
+    "updated_at": "2026-05-09T07:23:19.391358"
+  },
+  "dee2319b-2fd6-4381-8361-e7dc63d7088d": {
+    "id": "dee2319b-2fd6-4381-8361-e7dc63d7088d",
+    "messages": [
+      {
+        "id": "44c51134-7237-4718-8f39-1fc7af14baef",
+        "role": "user",
+        "content": "Show me the architecture of a design system with tokens, components, and a React app",
+        "message_type": "input",
+        "timestamp": "2026-05-09T07:28:45.457012"
+      },
+      {
+        "id": "f7de7938-b551-47f1-bd49-ed6e7b596f8e",
+        "role": "assistant",
+        "content": "This diagram illustrates the relationship between design tokens, a component library, and a React application, highlighting the flow of design values into components and their integration into the application.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T07:28:45.458399"
+      }
+    ],
+    "current_diagram_id": "b25d6f41-5b3f-4583-b223-3a44faeeb1ba",
+    "diagram_version_ids": [
+      "b25d6f41-5b3f-4583-b223-3a44faeeb1ba"
+    ],
+    "created_at": "2026-05-09T07:28:45.454078",
+    "updated_at": "2026-05-09T07:28:45.458406"
+  },
+  "c415041a-61c5-40db-b8a4-74760d162aeb": {
+    "id": "c415041a-61c5-40db-b8a4-74760d162aeb",
+    "messages": [
+      {
+        "id": "373d6218-6e12-4426-93bc-81549fde6b70",
+        "role": "user",
+        "content": "Show me the architecture of a design system with tokens, components, and a React app",
+        "message_type": "input",
+        "timestamp": "2026-05-09T07:29:46.722615"
+      },
+      {
+        "id": "e5c60ba2-942e-475a-aa9e-55de002ee5ed",
+        "role": "assistant",
+        "content": "This diagram illustrates the flow of design tokens into a component library and how these components are utilized within a React application.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T07:29:46.723753"
+      }
+    ],
+    "current_diagram_id": "a091a560-6e24-434e-89d7-68fd75cc6af0",
+    "diagram_version_ids": [
+      "a091a560-6e24-434e-89d7-68fd75cc6af0"
+    ],
+    "created_at": "2026-05-09T07:29:46.720078",
+    "updated_at": "2026-05-09T07:29:46.723763"
+  },
+  "efb1044c-b79d-40c6-989f-d18490a81630": {
+    "id": "efb1044c-b79d-40c6-989f-d18490a81630",
+    "messages": [
+      {
+        "id": "d6541887-6135-4cac-a4e7-1044ad41d4e4",
+        "role": "user",
+        "content": "Create a component hierarchy for a button, input, form, and modal system",
+        "message_type": "input",
+        "timestamp": "2026-05-09T07:37:14.395943"
+      },
+      {
+        "id": "1f8e1fcf-41b3-4af6-91fd-3faf228551dc",
+        "role": "assistant",
+        "content": "This diagram illustrates the relationships and dependencies between the Button, Input, Form, and Modal components within a design system to create cohesive user interfaces.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T07:37:14.397836"
+      },
+      {
+        "id": "4b159b31-7a1f-4ee8-99b0-5c15e96465bd",
+        "role": "user",
+        "content": "make it a  complex form diagram",
+        "message_type": "refinement",
+        "timestamp": "2026-05-09T07:42:57.555917"
+      },
+      {
+        "id": "6b911082-34f6-4367-a85f-46e10eb68a53",
+        "role": "assistant",
+        "content": "Added Checkbox and Dropdown components to represent a more complex form structure, and included Validation to ensure form integrity.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T07:42:57.558560"
+      },
+      {
+        "id": "1c10d817-d260-4fd3-b1ce-b042edfdb4d2",
+        "role": "user",
+        "content": "make it a  complex form diagram",
+        "message_type": "refinement",
+        "timestamp": "2026-05-09T07:43:24.874949"
+      },
+      {
+        "id": "cc7920f1-e224-44fd-a59d-ffb40d19c2de",
+        "role": "assistant",
+        "content": "Added Checkbox and Dropdown components as part of the Form, enhancing its complexity and functionality.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T07:43:24.876761"
+      }
+    ],
+    "current_diagram_id": "3bc7fe4b-39dd-437d-8a10-a146b80f3d04",
+    "diagram_version_ids": [
+      "7ef79905-1011-42ae-873f-6fe1cc6291af",
+      "3ae5dd0f-3492-418e-a781-6aa27197b3ae",
+      "3bc7fe4b-39dd-437d-8a10-a146b80f3d04"
+    ],
+    "created_at": "2026-05-09T07:37:14.393436",
+    "updated_at": "2026-05-09T07:43:24.876767"
+  },
+  "46910b79-a28d-4608-af9d-08b108899fd6": {
+    "id": "46910b79-a28d-4608-af9d-08b108899fd6",
+    "messages": [
+      {
+        "id": "f6b162a4-d140-4044-9682-8facf80c4367",
+        "role": "user",
+        "content": "Generate diagram from codebase: https://github.com/mohammedimtiyaz-1/ai-diagram",
+        "message_type": "input",
+        "timestamp": "2026-05-09T07:45:35.996744"
+      },
+      {
+        "id": "ed787986-411c-4aef-bae8-f124a26c17c6",
+        "role": "assistant",
+        "content": "Analyzed https://github.com/mohammedimtiyaz-1/ai-diagram. This diagram illustrates the architecture of the AI Design System Diagram Assistant. It shows the separation between the Next.js frontend and the FastAPI backend. The frontend is responsible for user interactions, with main pages like the Landing Page and Workspace Page, and uses Zustand for state management and TanStack Query for data fetching. The backend handles API requests with routes for health checks, prompts, diagrams, and conversations. It interacts with OpenAI for AI enhancements and integrates with Mermaid.js for diagram generation.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T07:45:36.017346"
+      }
+    ],
+    "current_diagram_id": "e498135e-e16c-46e3-9cfa-ccdb1ade5cce",
+    "diagram_version_ids": [
+      "e498135e-e16c-46e3-9cfa-ccdb1ade5cce"
+    ],
+    "created_at": "2026-05-09T07:45:35.994433",
+    "updated_at": "2026-05-09T07:45:36.017362"
+  },
+  "b991632d-7b59-4d38-b383-f9f452b18635": {
+    "id": "b991632d-7b59-4d38-b383-f9f452b18635",
+    "messages": [
+      {
+        "id": "3e2ed72f-1dce-4b3f-8f08-c7e1b78b1896",
+        "role": "user",
+        "content": "Create a component hierarchy for a button, input, form, and modal system",
+        "message_type": "input",
+        "timestamp": "2026-05-09T08:33:45.472741"
+      },
+      {
+        "id": "649e9874-1980-44f2-b6ff-c048315efbda",
+        "role": "assistant",
+        "content": "This diagram illustrates the hierarchy and interaction between key components in a design system, showcasing how buttons, inputs, forms, and modals relate to one another.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T08:33:45.473673"
+      }
+    ],
+    "current_diagram_id": "6b37d716-e745-47e3-9c36-afe298433001",
+    "diagram_version_ids": [
+      "6b37d716-e745-47e3-9c36-afe298433001"
+    ],
+    "created_at": "2026-05-09T08:33:45.464960",
+    "updated_at": "2026-05-09T08:33:45.473677"
+  },
+  "927203ad-4dd6-4c72-ab51-3a05fa5d699a": {
+    "id": "927203ad-4dd6-4c72-ab51-3a05fa5d699a",
+    "messages": [
+      {
+        "id": "b5b7cb9c-535c-4563-8808-dc555efe14dc",
+        "role": "user",
+        "content": "Show me the architecture of a design system with tokens, components, and a React app",
+        "message_type": "input",
+        "timestamp": "2026-05-09T08:59:36.339875"
+      },
+      {
+        "id": "ce04e12f-3f6f-407a-ac7a-07ce66c9a0a8",
+        "role": "assistant",
+        "content": "This diagram illustrates the relationship between design tokens, the component library, and a React application, highlighting the flow of style values and component usage.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T08:59:36.340863"
+      }
+    ],
+    "current_diagram_id": "fdb238bf-b150-4eb7-95e2-5a99e0880e38",
+    "diagram_version_ids": [
+      "fdb238bf-b150-4eb7-95e2-5a99e0880e38"
+    ],
+    "created_at": "2026-05-09T08:59:36.336612",
+    "updated_at": "2026-05-09T08:59:36.340867"
+  },
+  "4cb490c2-48e6-416c-b2ff-379bae40a9ba": {
+    "id": "4cb490c2-48e6-416c-b2ff-379bae40a9ba",
+    "messages": [
+      {
+        "id": "fed28fa0-0087-4592-b9b9-4bafd487e37b",
+        "role": "user",
+        "content": "Diagram the flow from Figma design tokens to Tailwind config to React components",
+        "message_type": "input",
+        "timestamp": "2026-05-09T09:06:09.302350"
+      },
+      {
+        "id": "7586cf5d-13fb-4883-bfbe-0c0d5cce15d1",
+        "role": "assistant",
+        "content": "This diagram illustrates the flow from Figma design tokens to Tailwind CSS configuration and then to React components, highlighting the dependencies and interactions in the design-to-development process.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T09:06:09.303397"
+      }
+    ],
+    "current_diagram_id": "f2b25292-e4ac-45be-9da0-e1e05474a16a",
+    "diagram_version_ids": [
+      "f2b25292-e4ac-45be-9da0-e1e05474a16a"
+    ],
+    "created_at": "2026-05-09T09:06:09.299786",
+    "updated_at": "2026-05-09T09:06:09.303401"
+  },
+  "bfe86258-01e4-40d1-835c-126e9aac40a2": {
+    "id": "bfe86258-01e4-40d1-835c-126e9aac40a2",
+    "messages": [
+      {
+        "id": "56bdf716-0a84-4093-a44a-af5fc4198529",
+        "role": "user",
+        "content": "Create a component hierarchy for a button, input, form, and modal system",
+        "message_type": "input",
+        "timestamp": "2026-05-09T09:40:22.772302"
+      },
+      {
+        "id": "3cff4e19-e4e7-4e02-9ef0-ad7d1fe570e9",
+        "role": "assistant",
+        "content": "This diagram illustrates the relationships and dependencies between various UI components in the design system, highlighting how buttons, inputs, forms, and modals interact with one another.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T09:40:22.773361"
+      }
+    ],
+    "current_diagram_id": "0348ed78-a6aa-40a5-bee4-7000b945dbd6",
+    "diagram_version_ids": [
+      "0348ed78-a6aa-40a5-bee4-7000b945dbd6"
+    ],
+    "created_at": "2026-05-09T09:40:22.765980",
+    "updated_at": "2026-05-09T09:40:22.773364"
+  },
+  "07f35d60-e090-40c8-98c4-5dc9a1eff0eb": {
+    "id": "07f35d60-e090-40c8-98c4-5dc9a1eff0eb",
+    "messages": [
+      {
+        "id": "ff079db3-421b-4f25-a7ea-da86e1c51318",
+        "role": "user",
+        "content": "Generate diagram from codebase: https://github.com/mohammedimtiyaz-1/ai-diagram",
+        "message_type": "input",
+        "timestamp": "2026-05-09T09:43:39.521390"
+      },
+      {
+        "id": "95bb28d0-8c2c-44b3-b319-11f71cfe3053",
+        "role": "assistant",
+        "content": "Analyzed https://github.com/mohammedimtiyaz-1/ai-diagram. This diagram illustrates the architecture of the AI Design System Diagram Assistant. It shows the interaction between the Next.js frontend and the FastAPI backend. User inputs from the UI are sent as API calls to the backend, where they are processed by the AI service. The generated diagrams are then sent back to the frontend for display.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T09:43:39.522489"
+      }
+    ],
+    "current_diagram_id": "0525706a-cf9f-4bfc-8d74-a65173fba0f5",
+    "diagram_version_ids": [
+      "0525706a-cf9f-4bfc-8d74-a65173fba0f5"
+    ],
+    "created_at": "2026-05-09T09:43:39.504526",
+    "updated_at": "2026-05-09T09:43:39.522492"
+  },
+  "0695c919-49eb-4240-b88b-f0f00df47aa1": {
+    "id": "0695c919-49eb-4240-b88b-f0f00df47aa1",
+    "messages": [
+      {
+        "id": "e3e82d65-6fef-4cf0-b2a1-24fbc2d014d3",
+        "role": "user",
+        "content": "Generate diagram from codebase: https://github.com/mohammedimtiyaz-1/ai-diagram",
+        "message_type": "input",
+        "timestamp": "2026-05-09T09:43:43.622536"
+      },
+      {
+        "id": "2605059d-c9e6-4628-bf7f-bd417232d55d",
+        "role": "assistant",
+        "content": "Analyzed https://github.com/mohammedimtiyaz-1/ai-diagram. This diagram represents the architecture of the AI Design System Diagram Assistant. The frontend is built with Next.js and includes components for the Landing Page and Workspace Page. It communicates with the backend developed using FastAPI, which provides API routes for health checks, prompts, diagrams, and conversations. The system uses OpenAI for AI enhancements and Mermaid.js for diagram generation. State management is handled by Zustand, and server communication is facilitated by TanStack Query.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T09:43:43.624246"
+      }
+    ],
+    "current_diagram_id": "8fef6087-9e97-4339-b09b-1026adde7d52",
+    "diagram_version_ids": [
+      "8fef6087-9e97-4339-b09b-1026adde7d52"
+    ],
+    "created_at": "2026-05-09T09:43:43.620808",
+    "updated_at": "2026-05-09T09:43:43.624251"
+  },
+  "bfeb4a1c-877b-4811-9a15-0e029de51be1": {
+    "id": "bfeb4a1c-877b-4811-9a15-0e029de51be1",
+    "messages": [
+      {
+        "id": "6feb9b66-f788-4dc7-9487-deda26d00470",
+        "role": "user",
+        "content": "Create a component hierarchy for a button, input, form, and modal system",
+        "message_type": "input",
+        "timestamp": "2026-05-09T09:50:57.087966"
+      },
+      {
+        "id": "5171efd0-0cf6-4dc3-8cba-495c01039f70",
+        "role": "assistant",
+        "content": "This diagram illustrates the relationships and dependencies between various components in a design system, including buttons, inputs, forms, and modals.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T09:50:57.088612"
+      }
+    ],
+    "current_diagram_id": "e1a8b376-49a6-45d3-b1f9-fd534867b03d",
+    "diagram_version_ids": [
+      "e1a8b376-49a6-45d3-b1f9-fd534867b03d"
+    ],
+    "created_at": "2026-05-09T09:50:57.086269",
+    "updated_at": "2026-05-09T09:50:57.088614"
+  },
+  "c5fcaad7-9b62-4c60-81d8-85d2f9f2af19": {
+    "id": "c5fcaad7-9b62-4c60-81d8-85d2f9f2af19",
+    "messages": [
+      {
+        "id": "074b8882-aa3a-4cf7-b6a3-cd498494273e",
+        "role": "user",
+        "content": "Generate diagram from codebase: https://github.com/mohammedimtiyaz-1/ai-diagram",
+        "message_type": "input",
+        "timestamp": "2026-05-09T09:54:35.202471"
+      },
+      {
+        "id": "721c6521-8a9b-4ade-8ce5-a881bdad8b56",
+        "role": "assistant",
+        "content": "Analyzed https://github.com/mohammedimtiyaz-1/ai-diagram. This diagram illustrates the architecture of the AI Design System Diagram Assistant, showcasing the interaction between the frontend, backend, and AI components. The frontend, built with Next.js, contains pages and components that interact with the backend, developed using FastAPI. API routes handle requests for diagram generation and prompt enhancement, which are processed by AI services using OpenAI's GPT-4o. The flow of data is depicted from user input in the frontend to AI processing in the backend and back to the frontend for rendering diagrams.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-09T09:54:35.204393"
+      }
+    ],
+    "current_diagram_id": "46453c1a-be67-4bd2-81e6-f47c37d074ba",
+    "diagram_version_ids": [
+      "46453c1a-be67-4bd2-81e6-f47c37d074ba"
+    ],
+    "created_at": "2026-05-09T09:54:35.199668",
+    "updated_at": "2026-05-09T09:54:35.204401"
+  },
+  "ce73e42a-910d-4a32-a097-8e0a1c6d4b97": {
+    "id": "ce73e42a-910d-4a32-a097-8e0a1c6d4b97",
+    "messages": [
+      {
+        "id": "9a97231d-4629-4bfa-8771-51ed546aba73",
+        "role": "user",
+        "content": "Generate diagram from codebase: https://github.com/mohammedimtiyaz-1/ai-diagram/",
+        "message_type": "input",
+        "timestamp": "2026-05-10T09:56:12.168215"
+      },
+      {
+        "id": "4f8d4ae2-f4b1-408d-8964-915a8cd2aa56",
+        "role": "assistant",
+        "content": "Analyzed https://github.com/mohammedimtiyaz-1/ai-diagram/. This diagram illustrates the interaction between the FastAPI backend and the Next.js frontend. The 'main.py' file in the backend handles API requests, while 'layout.tsx' in the frontend manages the user interface layout. The backend and frontend communicate to provide a seamless user experience.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-10T09:56:12.168714"
+      },
+      {
+        "id": "789588e2-af8d-43ed-8e8b-67b4b0bf88c2",
+        "role": "user",
+        "content": "redo",
+        "message_type": "refinement",
+        "timestamp": "2026-05-10T09:57:46.583273"
+      },
+      {
+        "id": "0a5e0a7f-54b3-43dc-a189-919a141a4dff",
+        "role": "assistant",
+        "content": "Fallback \u2014 refinement failed. The original diagram is preserved.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-10T09:57:46.584091"
+      }
+    ],
+    "current_diagram_id": "4db70bb4-f141-48fd-a7b1-014796bc1d69",
+    "diagram_version_ids": [
+      "b4612e79-f3cc-4bc0-b5f4-4236ef2159c3",
+      "4db70bb4-f141-48fd-a7b1-014796bc1d69"
+    ],
+    "created_at": "2026-05-10T09:56:12.166409",
+    "updated_at": "2026-05-10T09:57:46.584093"
+  },
+  "0249464a-d01f-4e3b-9a14-3cbe42291864": {
+    "id": "0249464a-d01f-4e3b-9a14-3cbe42291864",
+    "messages": [
+      {
+        "id": "74629238-b06b-4ef7-b229-529c8bd08494",
+        "role": "user",
+        "content": "Show me the architecture of a design system with tokens, components, and a React app",
+        "message_type": "input",
+        "timestamp": "2026-05-10T09:58:33.481686"
+      },
+      {
+        "id": "11387636-2421-458d-aa42-de43bbd3d56f",
+        "role": "assistant",
+        "content": "This diagram illustrates the architecture of a design system, showcasing the relationship between design tokens, component library, and a React application.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-10T09:58:33.482142"
+      }
+    ],
+    "current_diagram_id": "6239bf6a-8947-4b4f-a0a0-592521400cd9",
+    "diagram_version_ids": [
+      "6239bf6a-8947-4b4f-a0a0-592521400cd9"
+    ],
+    "created_at": "2026-05-10T09:58:33.480011",
+    "updated_at": "2026-05-10T09:58:33.482144"
+  },
+  "2342a667-20d0-4f21-8dbc-87a97cb7ab7f": {
+    "id": "2342a667-20d0-4f21-8dbc-87a97cb7ab7f",
+    "messages": [
+      {
+        "id": "4f8ead09-4239-4534-9d7a-1b0cdc757abb",
+        "role": "user",
+        "content": "Show me the architecture of a design system with tokens, components, and a React app",
+        "message_type": "input",
+        "timestamp": "2026-05-10T10:51:34.224725"
+      },
+      {
+        "id": "3939e2d6-aa83-49e0-85c8-28b19086d309",
+        "role": "assistant",
+        "content": "This diagram illustrates the architecture of a design system, showcasing the relationship between design tokens, component library, and a React application.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-10T10:51:34.225507"
+      },
+      {
+        "id": "0d0beef7-1d1f-4be2-841f-3fc51b96d212",
+        "role": "user",
+        "content": "add 4 more stpe to refine input and outpur",
+        "message_type": "refinement",
+        "timestamp": "2026-05-10T10:52:27.370072"
+      },
+      {
+        "id": "65e884a9-9cee-4862-b025-43c3ca9a0a03",
+        "role": "assistant",
+        "content": "Fallback \u2014 refinement failed. The original diagram is preserved.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-10T10:52:27.372978"
+      },
+      {
+        "id": "6a3ff882-36dc-4b54-8ec6-507c59463e6d",
+        "role": "user",
+        "content": "what is the reason ?",
+        "message_type": "refinement",
+        "timestamp": "2026-05-10T10:55:27.236744"
+      },
+      {
+        "id": "7b470506-e147-4454-aa10-e8a89b060acd",
+        "role": "assistant",
+        "content": "Fallback \u2014 refinement failed. The original diagram is preserved.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-10T10:55:27.239494"
+      },
+      {
+        "id": "956b0677-d7d5-4a0b-b791-52644e77d63e",
+        "role": "user",
+        "content": "add a new node, processing in between",
+        "message_type": "refinement",
+        "timestamp": "2026-05-10T11:02:26.951859"
+      },
+      {
+        "id": "4c27adc6-3263-4663-be85-aa09488adefa",
+        "role": "assistant",
+        "content": "Fallback \u2014 refinement failed. The original diagram is preserved.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-10T11:02:26.954098"
+      },
+      {
+        "id": "e7a507b6-49c7-484a-ada1-9f88a9d20a9f",
+        "role": "user",
+        "content": "add a new node, processing in between",
+        "message_type": "refinement",
+        "timestamp": "2026-05-10T11:04:52.496162"
+      },
+      {
+        "id": "c892823a-ce67-4511-82f4-6031e77d4140",
+        "role": "assistant",
+        "content": "Fallback \u2014 refinement failed. The original diagram is preserved.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-10T11:04:52.498794"
+      },
+      {
+        "id": "3f508bee-7497-4ddd-95b0-4d59dfaaf44a",
+        "role": "user",
+        "content": "add a new node, processing in between",
+        "message_type": "refinement",
+        "timestamp": "2026-05-10T11:14:13.703753"
+      },
+      {
+        "id": "d5397a1d-4dd2-4b53-862e-f013822e39d9",
+        "role": "assistant",
+        "content": "Fallback \u2014 refinement failed. The original diagram is preserved.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-10T11:14:13.709844"
+      }
+    ],
+    "current_diagram_id": "065d62f4-7781-4cd3-a4e7-e8f687cdea51",
+    "diagram_version_ids": [
+      "f250a9f0-7d90-4f27-8c9f-b70ee12cd5b7",
+      "e6c467cf-7551-4796-ab20-561eb8731b5e",
+      "11271ff7-4fbb-4c0a-bfa8-c5256f86ffae",
+      "1f3db98c-a1f7-4002-82fc-010b7f986ece",
+      "886fd419-cbbb-4684-8f5e-c83981c75edc",
+      "065d62f4-7781-4cd3-a4e7-e8f687cdea51"
+    ],
+    "created_at": "2026-05-10T10:51:34.221847",
+    "updated_at": "2026-05-10T11:14:13.709856"
+  },
+  "57cdb0b4-8896-4684-8be9-08d5b1c21cff": {
+    "id": "57cdb0b4-8896-4684-8be9-08d5b1c21cff",
+    "messages": [
+      {
+        "id": "0cd779bd-422b-4785-a3a4-291ae3d24e9c",
+        "role": "user",
+        "content": "Show how primitive tokens feed into semantic tokens and then component styles",
+        "message_type": "input",
+        "timestamp": "2026-05-10T11:14:55.490626"
+      },
+      {
+        "id": "e07574ff-9057-4fa5-85e3-3d8a62193b67",
+        "role": "assistant",
+        "content": "This diagram illustrates the flow of design tokens from primitive tokens to semantic tokens and finally to component styles.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-10T11:14:55.493203"
+      },
+      {
+        "id": "cc215fa0-b9b3-44a2-8280-eebbabcc6f13",
+        "role": "user",
+        "content": "add a node before last node",
+        "message_type": "refinement",
+        "timestamp": "2026-05-10T11:15:24.266358"
+      },
+      {
+        "id": "41b287d9-2045-44b8-8237-ac5732a3b7e2",
+        "role": "assistant",
+        "content": "Fallback \u2014 refinement failed. The original diagram is preserved.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-10T11:15:24.270484"
+      },
+      {
+        "id": "38a2bbac-b9c5-4164-a78c-23468f0956a6",
+        "role": "user",
+        "content": "add node",
+        "message_type": "refinement",
+        "timestamp": "2026-05-10T11:20:00.441276"
+      },
+      {
+        "id": "6d9893a0-8b8e-4aa5-890e-b03d6b81b83a",
+        "role": "assistant",
+        "content": "Added a new node for UI Components to illustrate the relationship with Component Styles. This enhances the diagram by showing the final application of styles.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-10T11:20:00.446552"
+      },
+      {
+        "id": "8ce2d9e7-5637-47a9-8f42-357709add9c3",
+        "role": "user",
+        "content": "add two node for UI",
+        "message_type": "refinement",
+        "timestamp": "2026-05-10T12:42:01.702700"
+      },
+      {
+        "id": "2def00f7-1983-42b3-aa79-3642ffea77e6",
+        "role": "assistant",
+        "content": "Added two new nodes for specific UI components: Button Component and Card Component.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-10T12:42:01.707920"
+      },
+      {
+        "id": "bfdeedcb-6553-4f25-bbec-099e202c0750",
+        "role": "user",
+        "content": "role add",
+        "message_type": "refinement",
+        "timestamp": "2026-05-10T13:00:57.603655"
+      },
+      {
+        "id": "a21e02db-3cb0-46ee-a78b-06f359374ccd",
+        "role": "assistant",
+        "content": "Added role metadata to existing nodes for clarity.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-10T13:00:57.606194"
+      },
+      {
+        "id": "2d1ed65a-6ae1-45b3-9011-f939c18c7210",
+        "role": "user",
+        "content": "remove extra node",
+        "message_type": "refinement",
+        "timestamp": "2026-05-10T13:08:29.118334"
+      },
+      {
+        "id": "d2ab3a37-59cf-4680-a934-61aa7a386adf",
+        "role": "assistant",
+        "content": "Removed the Card Component node to simplify the diagram.",
+        "message_type": "diagram",
+        "timestamp": "2026-05-10T13:08:29.119871"
+      }
+    ],
+    "current_diagram_id": "0d862a04-ca55-4e18-93d3-e622374610f9",
+    "diagram_version_ids": [
+      "0fe2d6eb-2172-4599-830a-1abd210292b7",
+      "715c0192-0f64-4f33-bd6c-d6894a8aa71a",
+      "1a3f49d7-29f8-426f-95c3-8b25216c9eb9",
+      "0db7a426-d567-4a07-b954-f715824c829d",
+      "1eede3d9-ad5f-40b3-8ba1-e881eb5900f1",
+      "0d862a04-ca55-4e18-93d3-e622374610f9"
+    ],
+    "created_at": "2026-05-10T11:14:55.487667",
+    "updated_at": "2026-05-10T13:08:29.119873"
+  }
+}
