@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from app.core.config import settings
 from app.core.rate_limit import rate_limit
 from app.core.timeouts import with_timeout
-from app.core.errors import TimeoutError as AppTimeoutError
+from app.core.errors import TimeoutError as AppTimeoutError, AiTimeoutError
 from app.schemas.common import ErrorResponse
 from app.schemas.prompt import EnhanceRequest, EnhancementResult
 from app.services.prompt_enhancer import PromptEnhancerService
@@ -28,7 +28,7 @@ async def enhance_prompt(request: EnhanceRequest):
             operation_name="Prompt enhancement",
         )
         return result
-    except AppTimeoutError as e:
+    except (AppTimeoutError, AiTimeoutError) as e:
         raise HTTPException(
             status_code=504,
             detail=ErrorResponse(
