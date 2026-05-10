@@ -4,8 +4,22 @@ import { useWorkspaceStore } from "@/stores/workspace";
 
 export default function ConversationHistory() {
   const messages = useWorkspaceStore((s) => s.messages);
+  const loading = useWorkspaceStore((s) => s.loading);
 
-  if (messages.length === 0) {
+  const isBusy = loading !== "idle";
+
+  const loaderText =
+    loading === "enhancing"
+      ? "Enhancing prompt..."
+      : loading === "refining"
+        ? "Refining diagram..."
+        : loading === "analyzing"
+          ? "Analyzing codebase..."
+          : loading === "generating"
+            ? "Generating diagram..."
+            : "";
+
+  if (messages.length === 0 && !isBusy) {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center text-sm text-gray-400">
         <p>No messages yet.</p>
@@ -40,6 +54,18 @@ export default function ConversationHistory() {
           </div>
         </div>
       ))}
+
+      {/* Loading indicator in chat */}
+      {isBusy && (
+        <div className="flex justify-start">
+          <div className="max-w-[90%] sm:max-w-[85%] rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 sm:px-4 sm:py-2.5 text-sm text-gray-800">
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-black" />
+              <span>{loaderText}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
