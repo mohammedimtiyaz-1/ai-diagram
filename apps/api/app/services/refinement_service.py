@@ -59,6 +59,19 @@ class RefinementService:
                     existing_style=existing_style or DiagramStyle(),
                 )
 
+            # ── Step 2.5: Handle EXPLAIN_ONLY without AI topology mutation ────────
+            if intent == "EXPLAIN_ONLY":
+                return self._explain_only_response(
+                    conversation_id=conversation_id,
+                    diagram_id=diagram_id,
+                    followup_prompt=followup_prompt,
+                    current_diagram_source=current_diagram_source,
+                    existing_nodes=existing_nodes or [],
+                    existing_edges=existing_edges or [],
+                    existing_style=existing_style or DiagramStyle(),
+                    current_version=current_version,
+                )
+
             # ── Step 3: Determine versioning chain ──────────────────────────────
             previous_version = self.version_service.get_latest_version(conversation_id)
             new_version_number = (previous_version.version + 1) if previous_version else 2
@@ -194,4 +207,56 @@ class RefinementService:
             is_full_regeneration=False,
             changes_summary=["Style change requested — use the toolbar for instant visual updates"],
             metadata=DiagramMetadata(node_count=len(existing_nodes)),
+        )
+
+    def _explain_only_response(
+        self,
+        conversation_id: str,
+        diagram_id: str,
+        followup_prompt: str,
+        current_diagram_source: str,
+        existing_nodes: list[DiagramNode],
+        existing_edges: list[any],
+        existing_style: DiagramStyle,
+        current_version: any,
+    ) -> DiagramResult:
+        """Return the existing diagram with an explanation (no structural changes)."""
+        # Generate a simple explanation based on the diagram
+        node_count = len(existing_nodes)
+        edge_count = len(existing_edges)
+        explanation = f"This diagram shows {node_count} node(s) and {edge_count} connection(s). "
+
+        if current_version and current_version.explanation:
+            explanation += current_version.explanation
+
+        self.conversation_service.add_message(
+            conversation_id,
+            role="user",
+            content=followup_prompt,
+            message_type="refinement",
+        )
+        self.conversation_service.add_message(
+            conversation_id,
+            role="assistant",
+            content=explanation,
+            message_type="diagram",
+        )
+
+        return DiagramResult(
+            diagram_id=diagram_id,
+            conversation_id=conversation_id,
+            version=current_version.version if current_version else 1,
+            title=current_version.title if current_version else "Design System Architecture",
+            diagram_type=current_version.diagram_type if current_version else "design-system-architecture",
+            provider="mermaid",
+            diagram_source=current_diagram_source,
+            diagram_format="mermaid",
+            explanation=explanation,
+            nodes=existing_nodes,
+            edges=existing_edges,
+            style=existing_style,
+            change_intent="EXPLAIN_ONLY",
+            is_full_regeneration=False,
+            changes_summary=["Explanation provided — no structural changes made"],
+            metadata=DiagramMetadata(node_count=node_count, edge_count=edge_count),
         )
