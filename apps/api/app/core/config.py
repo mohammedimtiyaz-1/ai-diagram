@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     )
 
     app_env: str = "development"
-    cors_origins: str = "http://localhost:3000"
+    cors_origins: str = "http://localhost:3000,https://ai-design-system-diagram.vercel.app"
     openai_api_key: str = ""
     ai_timeout_seconds: int = 30
 
