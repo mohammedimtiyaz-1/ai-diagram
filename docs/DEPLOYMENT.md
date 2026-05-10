@@ -8,8 +8,8 @@ This document covers how to build, test, and deploy the AI Design System Diagram
 
 | Component | Platform | URL Pattern |
 |-----------|----------|-------------|
-| Frontend | Vercel | `https://<project>.vercel.app` |
-| Backend | Render | `https://<service>.onrender.com` |
+| Frontend | Vercel | `https://ai-design-system-diagram.vercel.app` |
+| Backend | Render | `https://ai-diagram-fds0.onrender.com` |
 
 ---
 
@@ -65,11 +65,11 @@ Configure in **Render Dashboard → Service → Environment**:
    - Copy the deploy hook URL into GitHub secrets
 
 2. **Copy backend production URL**
-   - After first deploy, Render gives you a URL like `https://ai-diagram-api.onrender.com`
+   - After first deploy, Render gives you a URL like `https://ai-diagram-fds0.onrender.com`
    - Save this for the frontend env var
 
 3. **Set frontend env var in Vercel**
-   - `NEXT_PUBLIC_API_BASE_URL=https://your-backend.onrender.com`
+   - `NEXT_PUBLIC_API_BASE_URL=https://ai-diagram-fds0.onrender.com`
 
 4. **Deploy frontend**
    - Push to `main` or trigger the `deploy-frontend.yml` workflow manually
@@ -130,7 +130,7 @@ curl -X POST "$RENDER_DEPLOY_HOOK_URL"
 Test the backend health endpoint after deployment:
 
 ```bash
-curl https://<your-backend>.onrender.com/health
+curl https://ai-diagram-fds0.onrender.com/health
 ```
 
 Expected response:

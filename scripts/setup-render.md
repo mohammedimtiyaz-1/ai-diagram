@@ -46,5 +46,5 @@ In the service dashboard → **Environment** tab, add:
 Click **Manual Deploy** → **Deploy latest commit** to verify it builds.
 
 After successful deploy:
-- Copy the service URL (e.g., `https://ai-diagram-api.onrender.com`)
+- Copy the service URL (e.g., `https://ai-diagram-fds0.onrender.com`)
 - Use this as `NEXT_PUBLIC_API_BASE_URL` in Vercel dashboard
