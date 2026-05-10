@@ -1864,5 +1864,26 @@
       "base_diagram_id": null,
       "created_at": "2026-05-10T13:23:31.716873"
     }
+  ],
+  "e95979c1-93ec-471c-90be-999b4ef5e1e5": [
+    {
+      "diagram_id": "9621026c-0d8c-49ec-a579-cee22e5bbb63",
+      "conversation_id": "e95979c1-93ec-471c-90be-999b4ef5e1e5",
+      "version": 1,
+      "title": "API and Web Module Interaction",
+      "diagram_type": "architecture",
+      "provider": "mermaid",
+      "diagram_source": "flowchart TD\n  subgraph apps_api\n    api[API] -->|HTTP| endpoints[Endpoints]\n  end\n  subgraph apps_web\n    ui[UI] -->|HTTP| api\n  end\n  endpoints -->|Data| db[(Database)]",
+      "diagram_format": "mermaid",
+      "explanation": "This diagram illustrates the interaction between the API module in apps/api and the Web module in apps/web. The API module, implemented with FastAPI, exposes endpoints that are consumed by the UI built with Next.js. The database stores data processed by the API.",
+      "changes_summary": [],
+      "metadata": {
+        "node_count": 4,
+        "edge_count": 3,
+        "repo_url": "https://github.com/mohammedimtiyaz-1/ai-diagram"
+      },
+      "base_diagram_id": null,
+      "created_at": "2026-05-10T14:48:09.478783"
+    }
   ]
 }

@@ -46,12 +46,20 @@ async def analyze_codebase(request: CodebaseAnalysisRequest):
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error(f"Analysis failed: {str(e)}")
+        
+        # Extract more specific error message if possible
+        err_msg = str(e)
+        if "GitHub API returned 403" in err_msg:
+            err_msg = "GitHub API rate limit exceeded. Please try again later or add a GITHUB_TOKEN."
+        elif "GitHub API returned 404" in err_msg:
+            err_msg = "Repository not found. Please check the URL and ensure it is a public repository."
+        
         raise HTTPException(
             status_code=500,
             detail=ErrorResponse(
                 code="ANALYSIS_FAILED",
-                message="Failed to analyze repository",
-                suggestion="Please check the repository URL and try again.",
+                message=err_msg,
+                suggestion="Please check the repository URL and ensure it's public.",
                 retry_allowed=True,
             ).model_dump(),
         )

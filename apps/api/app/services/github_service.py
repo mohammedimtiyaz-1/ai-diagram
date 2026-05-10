@@ -8,11 +8,12 @@ logger = logging.getLogger(__name__)
 class GitHubService:
     def __init__(self):
         self.base_url = "https://api.github.com"
-        # We use a public API client. For better rate limits, one would add a GITHUB_TOKEN.
         self.headers = {
             "Accept": "application/vnd.github.v3+json",
             "User-Agent": "AI-Design-System-Diagram-Assistant"
         }
+        if settings.github_token:
+            self.headers["Authorization"] = f"token {settings.github_token}"
 
     def parse_url(self, url: str) -> Optional[Dict[str, str]]:
         """Extract owner and repo from a GitHub URL."""
@@ -48,7 +49,7 @@ class GitHubService:
                 return response.json()
             except httpx.HTTPStatusError as e:
                 logger.error(f"GitHub API error: {e.response.status_code} - {e.response.text}")
-                raise Exception(f"GitHub API returned {e.response.status_code}")
+                raise Exception(f"GitHub API returned {e.response.status_code}: {e.response.text}")
             except Exception as e:
                 logger.error(f"Error fetching tree: {str(e)}")
                 raise
