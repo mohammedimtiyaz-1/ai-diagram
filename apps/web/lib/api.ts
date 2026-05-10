@@ -1,4 +1,6 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  (process.env.NODE_ENV === "development" ? "http://localhost:8000" : "");
 
 // ── Timeouts per API (seconds) ──
 export const TIMEOUTS = {
@@ -67,6 +69,15 @@ interface FetchOptions {
 
 async function fetchWithTimeout<T>(path: string, opts: FetchOptions = {}): Promise<T> {
   const { method = "GET", body, timeoutMs = 10_000, signal } = opts;
+
+  if (!API_BASE) {
+    throw new ApiError(
+      0,
+      "Production API URL is not configured. Set NEXT_PUBLIC_API_BASE_URL to your Render backend URL and redeploy.",
+      "MISSING_API_BASE_URL",
+      false,
+    );
+  }
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
