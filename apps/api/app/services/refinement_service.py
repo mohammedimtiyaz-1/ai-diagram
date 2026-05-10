@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import re
 from app.core.config import settings
 from app.core.errors import AiTimeoutError
 from app.providers.base import DiagramContext
@@ -9,6 +10,51 @@ from app.services.conversation_service import ConversationService
 from app.services.version_service import VersionService
 
 logger = logging.getLogger(__name__)
+
+
+def _parse_mermaid_nodes_edges(diagram_source: str) -> tuple[list[DiagramNode], list]:
+    """Simple parser to extract nodes and edges from Mermaid diagram source."""
+    nodes: list[DiagramNode] = []
+    edges: list = []
+
+    try:
+        lines = diagram_source.strip().split('\n')
+        node_pattern = re.compile(r'(\w+)\[?"?([^"\]]+)"?\]?')
+        edge_pattern = re.compile(r'(\w+)\s*-->\s*(\w+)')
+
+        for line in lines:
+            # Skip graph declaration and comments
+            if line.strip().startswith('graph') or line.strip().startswith('%%'):
+                continue
+
+            # Parse nodes (e.g., designTokens["Design Tokens"])
+            node_match = node_pattern.search(line)
+            if node_match:
+                node_id = node_match.group(1)
+                node_label = node_match.group(2) or node_id
+                nodes.append(DiagramNode(
+                    id=node_id,
+                    label=node_label,
+                    type="generic"
+                ))
+
+            # Parse edges (e.g., designTokens --> componentLib)
+            edge_match = edge_pattern.search(line)
+            if edge_match:
+                source = edge_match.group(1)
+                target = edge_match.group(2)
+                edges.append({
+                    "id": f"{source}_{target}",
+                    "source": source,
+                    "target": target,
+                    "label": None
+                })
+
+        logger.info(f"Parsed {len(nodes)} nodes and {len(edges)} edges from diagram source")
+    except Exception as e:
+        logger.error(f"Failed to parse Mermaid diagram: {e}")
+
+    return nodes, edges
 
 
 class RefinementService:
@@ -32,6 +78,20 @@ class RefinementService:
         existing_style: DiagramStyle | None = None,
     ) -> DiagramResult:
         provider_instance = ProviderRegistry.get(provider)
+
+        # If nodes/edges are not provided, try to extract them from the diagram source
+        if not existing_nodes or not existing_edges:
+            logger.warning(f"Missing nodes/edges in refine request, attempting to parse from diagram source")
+            try:
+                parsed_nodes, parsed_edges = _parse_mermaid_nodes_edges(current_diagram_source)
+                if not existing_nodes and parsed_nodes:
+                    existing_nodes = parsed_nodes
+                if not existing_edges and parsed_edges:
+                    existing_edges = parsed_edges
+            except Exception as e:
+                logger.error(f"Failed to parse diagram source: {e}")
+                existing_nodes = existing_nodes or []
+                existing_edges = existing_edges or []
 
         # ── Step 1: Classify intent ─────────────────────────────────────────
         # Retrieve the current diagram title from version history for cleaner classification
