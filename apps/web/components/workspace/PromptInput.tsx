@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useWorkspaceStore } from "@/stores/workspace";
 import VoiceInput from "./VoiceInput";
 
@@ -18,6 +19,8 @@ const EXAMPLE_PROMPTS = [
   "Show how primitive tokens feed into semantic tokens and then component styles",
 ];
 
+const MIN_PROMPT_LENGTH = 10;
+
 interface PromptInputProps {
   onSubmit: (prompt: string, diagramType: string) => void;
   disabled: boolean;
@@ -28,21 +31,38 @@ export default function PromptInput({ onSubmit, disabled }: PromptInputProps) {
   const diagramType = useWorkspaceStore((s) => s.selectedDiagramType);
   const setPrompt = useWorkspaceStore((s) => s.setRawPrompt);
   const setDiagramType = useWorkspaceStore((s) => s.setSelectedDiagramType);
+  const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!prompt.trim() || disabled) return;
-    onSubmit(prompt.trim(), diagramType);
+    const trimmed = prompt.trim();
+    
+    if (!trimmed) return;
+    if (disabled) return;
+    if (trimmed.length < MIN_PROMPT_LENGTH) {
+      setError(`Please enter at least ${MIN_PROMPT_LENGTH} characters.`);
+      return;
+    }
+    
+    setError("");
+    onSubmit(trimmed, diagramType);
     setPrompt("");
   };
 
   const useExample = (example: string) => {
     setPrompt(example);
+    setError("");
   };
 
   const handleTranscript = (transcript: string) => {
     const newText = prompt ? `${prompt} ${transcript}` : transcript;
     setPrompt(newText);
+    setError("");
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setPrompt(e.target.value);
+    setError("");
   };
 
   return (
@@ -69,7 +89,7 @@ export default function PromptInput({ onSubmit, disabled }: PromptInputProps) {
       <div className="relative">
         <textarea
           value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
+          onChange={handleChange}
           placeholder="Describe your design system idea..."
           rows={3}
           disabled={disabled}
@@ -102,6 +122,10 @@ export default function PromptInput({ onSubmit, disabled }: PromptInputProps) {
           {disabled ? "..." : "Generate"}
         </button>
       </div>
+
+      {error && (
+        <div className="text-xs text-red-600">{error}</div>
+      )}
     </form>
   );
 }
