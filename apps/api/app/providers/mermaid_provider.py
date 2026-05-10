@@ -319,7 +319,14 @@ Return valid JSON as specified in the system prompt.
                 logger.warning(f"Refinement attempt {attempt + 1} failed: {e}")
 
         logger.error(f"Refinement failed after {self.max_retries + 1} attempts: {last_error}")
-        return self._fallback_refinement(existing_diagram, diagram_type, parent_diagram_id, base_diagram_id)
+        return self._fallback_refinement(
+            existing_diagram, 
+            diagram_type, 
+            parent_diagram_id, 
+            base_diagram_id,
+            existing_nodes=existing_nodes,
+            existing_edges=existing_edges
+        )
 
     # ──────────────────────────────────────────────────────────────────────────
     # Public: export_diagram
@@ -411,7 +418,7 @@ Return valid JSON as specified in the system prompt.
                 result_map[pair] = edge
             else:
                 result_map[pair] = edge
-                
+        return list(result_map.values())
 
     def _sanitize_mermaid(self, mermaid_code: str) -> str:
         """Fix common Mermaid syntax issues produced by the AI.
@@ -528,7 +535,13 @@ Return valid JSON as specified in the system prompt.
         )
 
     def _fallback_refinement(
-        self, existing_diagram: str, diagram_type: str, parent_id: str | None, base_id: str | None
+        self, 
+        existing_diagram: str, 
+        diagram_type: str, 
+        parent_id: str | None, 
+        base_id: str | None,
+        existing_nodes: list[DiagramNode] | None = None,
+        existing_edges: list[DiagramEdge] | None = None,
     ) -> DiagramResult:
         return DiagramResult(
             diagram_id=str(uuid.uuid4()),
@@ -540,14 +553,14 @@ Return valid JSON as specified in the system prompt.
             diagram_format="mermaid",
             explanation="Fallback — refinement failed. The original diagram is preserved.",
             changes_summary=["Refinement failed — original diagram preserved"],
-            nodes=[],
-            edges=[],
+            nodes=existing_nodes or [],
+            edges=existing_edges or [],
             style=DiagramStyle(),
             change_intent="PATCH_CHANGE",
             is_full_regeneration=False,
             base_diagram_id=base_id,
             parent_diagram_id=parent_id,
-            metadata={"node_count": 0, "edge_count": 0},
+            metadata={"node_count": len(existing_nodes or []), "edge_count": len(existing_edges or [])},
         )
 
 

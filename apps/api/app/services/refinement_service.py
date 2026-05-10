@@ -5,50 +5,83 @@ from app.core.config import settings
 from app.core.errors import AiTimeoutError
 from app.providers.base import DiagramContext
 from app.providers.registry import ProviderRegistry
-from app.schemas.diagram import DiagramMetadata, DiagramNode, DiagramResult, DiagramStyle
+from app.schemas.diagram import DiagramMetadata, DiagramNode, DiagramEdge, DiagramResult, DiagramStyle
 from app.services.conversation_service import ConversationService
 from app.services.version_service import VersionService
 
 logger = logging.getLogger(__name__)
 
 
-def _parse_mermaid_nodes_edges(diagram_source: str) -> tuple[list[DiagramNode], list]:
+def _parse_mermaid_nodes_edges(diagram_source: str) -> tuple[list[DiagramNode], list[DiagramEdge]]:
     """Simple parser to extract nodes and edges from Mermaid diagram source."""
     nodes: list[DiagramNode] = []
-    edges: list = []
+    edges: list[DiagramEdge] = []
+    node_ids: set[str] = set()
 
     try:
         lines = diagram_source.strip().split('\n')
-        node_pattern = re.compile(r'(\w+)\[?"?([^"\]]+)"?\]?')
-        edge_pattern = re.compile(r'(\w+)\s*-->\s*(\w+)')
+        # Node with label: ID[Label], ID(Label), ID((Label)), ID{Label}, ID{{Label}}, ID[[Label]], ID[(Label)]
+        node_with_label_pattern = re.compile(r'(\b[\w\-]+)\s*([\[\(\{\d]+)\s*["\']?([^"\'\]\)\}]*)["\']?\s*([\]\)\}\d]+)')
+        # Simple node: ID (only if on its own line)
+        simple_node_pattern = re.compile(r'^(\s*)(\b[\w\-]+)(\s*)$')
+        # Edge pattern that accounts for optional labels on source
+        edge_pattern = re.compile(r'(\b[\w\-]+)(?:\s*[\[\(\{\d].*?[\]\)\}\d])?\s*(?:--\>|-\>|-\.\-\>|==\>)\s*(\b[\w\-]+)')
 
         for line in lines:
+            line = line.strip()
             # Skip graph declaration and comments
-            if line.strip().startswith('graph') or line.strip().startswith('%%'):
+            if line.startswith(('graph', 'flowchart', '%%', 'sequenceDiagram', 'classDiagram', 'subgraph')):
+                continue
+            if not line or line == 'end':
                 continue
 
-            # Parse nodes (e.g., designTokens["Design Tokens"])
-            node_match = node_pattern.search(line)
-            if node_match:
-                node_id = node_match.group(1)
-                node_label = node_match.group(2) or node_id
-                nodes.append(DiagramNode(
-                    id=node_id,
-                    label=node_label,
-                    type="generic"
-                ))
-
-            # Parse edges (e.g., designTokens --> componentLib)
+            # Parse edges
             edge_match = edge_pattern.search(line)
             if edge_match:
                 source = edge_match.group(1)
                 target = edge_match.group(2)
-                edges.append({
-                    "id": f"{source}_{target}",
-                    "source": source,
-                    "target": target,
-                    "label": None
-                })
+                edges.append(DiagramEdge(
+                    id=f"{source}_{target}",
+                    source=source,
+                    target=target,
+                    label=None
+                ))
+                node_ids.add(source)
+                node_ids.add(target)
+
+            # Parse nodes with labels (find all since a line can have multiple nodes like in an edge)
+            for node_label_match in node_with_label_pattern.finditer(line):
+                node_id = node_label_match.group(1)
+                node_label = node_label_match.group(3) or node_id
+                if node_id not in [n.id for n in nodes]:
+                    nodes.append(DiagramNode(
+                        id=node_id,
+                        label=node_label,
+                        type="generic"
+                    ))
+                    node_ids.discard(node_id)
+            
+            # If no edge and no labeled node, try simple node
+            if not edge_match and not any(node_with_label_pattern.search(line) for _ in [1]):
+                simple_match = simple_node_pattern.search(line)
+                if simple_match:
+                    node_id = simple_match.group(2)
+                    if node_id not in [n.id for n in nodes]:
+                        nodes.append(DiagramNode(
+                            id=node_id,
+                            label=node_id,
+                            type="generic"
+                        ))
+                        node_ids.discard(node_id)
+
+        # Add nodes that were only mentioned in edges
+        for node_id in node_ids:
+            if node_id not in [n.id for n in nodes]:
+                nodes.append(DiagramNode(
+                    id=node_id,
+                    label=node_id,
+                    type="generic"
+                ))
 
         logger.info(f"Parsed {len(nodes)} nodes and {len(edges)} edges from diagram source")
     except Exception as e:
@@ -74,24 +107,32 @@ class RefinementService:
         current_diagram_source: str,
         provider: str,
         existing_nodes: list[DiagramNode] | None = None,
-        existing_edges: list[any] | None = None,
+        existing_edges: list[DiagramEdge] | None = None,
         existing_style: DiagramStyle | None = None,
     ) -> DiagramResult:
         provider_instance = ProviderRegistry.get(provider)
 
-        # If nodes/edges are not provided, try to extract them from the diagram source
+        # If nodes/edges are not provided, try version history then diagram source
         if not existing_nodes or not existing_edges:
-            logger.warning(f"Missing nodes/edges in refine request, attempting to parse from diagram source")
-            try:
-                parsed_nodes, parsed_edges = _parse_mermaid_nodes_edges(current_diagram_source)
-                if not existing_nodes and parsed_nodes:
-                    existing_nodes = parsed_nodes
-                if not existing_edges and parsed_edges:
-                    existing_edges = parsed_edges
-            except Exception as e:
-                logger.error(f"Failed to parse diagram source: {e}")
-                existing_nodes = existing_nodes or []
-                existing_edges = existing_edges or []
+            if current_version := self.version_service.get_version_by_id(conversation_id, diagram_id):
+                meta = current_version.metadata
+                if not existing_nodes and "nodes" in meta:
+                    existing_nodes = [DiagramNode(**n) for n in meta["nodes"]]
+                if not existing_edges and "edges" in meta:
+                    existing_edges = [DiagramEdge(**e) for e in meta["edges"]]
+
+            if not existing_nodes or not existing_edges:
+                logger.warning(f"Missing nodes/edges in refine request, attempting to parse from diagram source")
+                try:
+                    parsed_nodes, parsed_edges = _parse_mermaid_nodes_edges(current_diagram_source)
+                    if not existing_nodes and parsed_nodes:
+                        existing_nodes = parsed_nodes
+                    if not existing_edges and parsed_edges:
+                        existing_edges = parsed_edges
+                except Exception as e:
+                    logger.error(f"Failed to parse diagram source: {e}")
+                    existing_nodes = existing_nodes or []
+                    existing_edges = existing_edges or []
 
         # ── Step 1: Classify intent ─────────────────────────────────────────
         # Retrieve the current diagram title from version history for cleaner classification
@@ -150,7 +191,7 @@ class RefinementService:
                     diagram_type=current_version.diagram_type if current_version else "design-system-architecture",
                     context=context,
                     existing_nodes=existing_nodes or [],
-                    # existing_edges is passed via context if needed, but provider.refine_diagram signature may need update
+                    existing_edges=existing_edges or [],
                     intent=intent,
                     parent_diagram_id=diagram_id,
                     base_diagram_id=base_diagram_id,
@@ -195,6 +236,8 @@ class RefinementService:
             metadata={
                 "node_count": len(diagram_result.nodes),
                 "edge_count": len(diagram_result.edges),
+                "nodes": [n.model_dump() for n in diagram_result.nodes],
+                "edges": [e.model_dump() for e in diagram_result.edges],
             },
         )
 
@@ -231,11 +274,17 @@ class RefinementService:
         followup_prompt: str,
         current_diagram_source: str,
         existing_nodes: list[DiagramNode],
-        existing_edges: list[any],
+        existing_edges: list[DiagramEdge],
         existing_style: DiagramStyle,
     ) -> DiagramResult:
         """Return the exact same diagram topology with a note that only style changed."""
         current_version = self.version_service.get_latest_version(conversation_id)
+
+        # Final safety check
+        if not existing_nodes or not existing_edges:
+            parsed_nodes, parsed_edges = _parse_mermaid_nodes_edges(current_diagram_source)
+            existing_nodes = existing_nodes or parsed_nodes
+            existing_edges = existing_edges or parsed_edges
 
         self.conversation_service.add_message(
             conversation_id,
@@ -276,11 +325,16 @@ class RefinementService:
         followup_prompt: str,
         current_diagram_source: str,
         existing_nodes: list[DiagramNode],
-        existing_edges: list[any],
+        existing_edges: list[DiagramEdge],
         existing_style: DiagramStyle,
         current_version: any,
     ) -> DiagramResult:
         """Return the existing diagram with an explanation (no structural changes)."""
+        # Final safety check
+        if not existing_nodes or not existing_edges:
+            parsed_nodes, parsed_edges = _parse_mermaid_nodes_edges(current_diagram_source)
+            existing_nodes = existing_nodes or parsed_nodes
+            existing_edges = existing_edges or parsed_edges
         # Generate a simple explanation based on the diagram
         node_count = len(existing_nodes)
         edge_count = len(existing_edges)
